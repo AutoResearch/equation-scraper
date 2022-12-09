@@ -16,10 +16,14 @@ pip install requests
 ###############################################################################
 #0. User Inputs - Determine Which Category Pages to Scrape
 ###############################################################################
-searchKeywords = ['Psychophysics'] #User defined category pages to scrape
+searchKeywords = ['Materials_science'] #User defined category pages to scrape
+
+#Create file name to save to
+saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
+saveName = 'operationsNamed_' + saveKeywords + '.txt' #Create file name
 
 #Save search parameters to file
-with open('operationsNamed_PP.txt', 'a') as f: #Open file to be saved to
+with open(saveName, 'a') as f: #Open file to be saved to
     _ = f.write('#CATEGORIES: ' + str(searchKeywords) + '\n') #Save title to file
     _ = f.write('#--------------------#\n\n') #Add separator to file
 
@@ -49,7 +53,8 @@ def removeLinks(listOfInterest):
     seen = set() #Create set
     seen_add = seen.add #For optimization
     uniqueLinks = [x for x in listOfInterest if not (x in seen or seen_add(x))] #Remove duplicates
-    keptLinks = [x for x in uniqueLinks if '#cite' not in x] #Remove unwanted #cite links
+    pageLinks = [x for x in uniqueLinks if 'Category:' not in x] #Remove unwanted #cite links
+    keptLinks = [x for x in pageLinks if '#cite' not in x] #Remove unwanted #cite links
     return keptLinks
 
 ###############################################################################
@@ -94,18 +99,17 @@ for linkIndex, link in enumerate(links):
         
         #Scan all equations on this page
         equations = []
-        if '=' not in linkText: #This condition skips non-direct URLs
-            equationSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('img',{'class':'mwe-math-fallback-image-inline'}))
-            equations = equationSoup.find_all('img',{'class':'mwe-math-fallback-image-inline'})
+        equationSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('img',{'class':'mwe-math-fallback-image-inline'}))
+        equations = equationSoup.find_all('img',{'class':'mwe-math-fallback-image-inline'})
             
         #Save equations to a file
         if equations: #If equations exist on this page
-            with open('operationsNamed.txt', 'a') as f: #Open file to be saved to
+            with open(saveName, 'a') as f: #Open file to be saved to
                 titleSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('h1')) #Extract title of page
                 root = titleSoup.find('h1').text #Convert title to be saved
                 _ = f.write('#ROOT: ' + root + '\n') #Save title to file
                 _ = f.write('#LINK: '+ link + '\n') #Save link to file
-                _ = [f.write(currentEquation['alt'].text + '\n') for currentEquation in equations] #Save all equations to file
+                _ = [f.write(currentEquation['alt'] + '\n') for currentEquation in equations] #Save all equations to file
                 _ = f.write('#--------------------#\n\n') #Add separator to file
             numberEquations += len(equations) #Increase equation count for metric report
                 
