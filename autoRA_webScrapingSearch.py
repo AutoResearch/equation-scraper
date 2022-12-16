@@ -99,8 +99,17 @@ for linkIndex, link in enumerate(links):
         
         #Scan all equations on this page
         equations = []
-        equationSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('img',{'class':'mwe-math-fallback-image-inline'}))
-        equations = equationSoup.find_all('img',{'class':'mwe-math-fallback-image-inline'})
+        
+        #Begin by searching for math tags
+        mathTag = 1
+        equationSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('math',{'xmlns':'http://www.w3.org/1998/Math/MathML'}))
+        equations = equationSoup.find_all('math',{'xmlns':'http://www.w3.org/1998/Math/MathML'})
+        
+        #If no math tags, search for img tags
+        #if not equations:
+        #    equationSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('img',{'class':'mwe-math-fallback-image-inline'}))
+        #    equations = equationSoup.find_all('img',{'class':'mwe-math-fallback-image-inline'})
+        #    mathtag = 0
             
         #Save equations to a file
         if equations: #If equations exist on this page
@@ -109,7 +118,10 @@ for linkIndex, link in enumerate(links):
                 root = titleSoup.find('h1').text #Convert title to be saved
                 _ = f.write('#ROOT: ' + root + '\n') #Save title to file
                 _ = f.write('#LINK: '+ link + '\n') #Save link to file
-                _ = [f.write(currentEquation['alt'] + '\n') for currentEquation in equations] #Save all equations to file
+                if mathTag:
+                    _ = [f.write(currentEquation['alttext'] + '\n') for currentEquation in equations] #Save all equations to file
+                else:
+                    _ = [f.write(currentEquation['alt'] + '\n') for currentEquation in equations] #Save all equations to file
                 _ = f.write('#--------------------#\n\n') #Add separator to file
             numberEquations += len(equations) #Increase equation count for metric report
                 
