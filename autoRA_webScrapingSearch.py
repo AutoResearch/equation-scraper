@@ -3,7 +3,8 @@
 ## www.chadcwilliams.com                                                     ##
 ###############################################################################
 
-'''Environment Info
+'''
+Environment Info
 
 py -m venv webScrapingEnv
 .\webScrapingEnv\Scripts\activate
@@ -11,14 +12,17 @@ py -m venv webScrapingEnv
 pip install beautifulsoup4
 pip install lxml
 pip install requests
+
+Note:There exists a requirements.txt file
 '''
 
 ###############################################################################
 #0. User Inputs - Determine Which Category Pages to Scrape
 ###############################################################################
+
 searchKeywords = ['Psychophysics'] #User defined category pages to scrape
 
-#Create file name to save to
+#Create filename to save to
 saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
 saveName = 'operationsNamed_' + saveKeywords + '.txt' #Create file name
 
@@ -104,13 +108,7 @@ for linkIndex, link in enumerate(links):
         mathTag = 1
         equationSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('math',{'xmlns':'http://www.w3.org/1998/Math/MathML'}))
         equations = equationSoup.find_all('math',{'xmlns':'http://www.w3.org/1998/Math/MathML'})
-        
-        #If no math tags, search for img tags
-        #if not equations:
-        #    equationSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('img',{'class':'mwe-math-fallback-image-inline'}))
-        #    equations = equationSoup.find_all('img',{'class':'mwe-math-fallback-image-inline'})
-        #    mathtag = 0
-            
+
         #Save equations to a file
         if equations: #If equations exist on this page
             with open(saveName, 'a') as f: #Open file to be saved to

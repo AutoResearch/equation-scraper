@@ -1,26 +1,56 @@
+###############################################################################
+## Written by Chad C. Williams, 2022                                         ##
+## www.chadcwilliams.com                                                     ##
+###############################################################################
+
 '''
 Environment info
 
 pip install numpy
 pip install sympy
 pip install antlr4-python3-runtime==4.10
+
+Note:There exists a requirements.txt file
 '''
-#from latex2sympy2 import latex2sympy
+
+###############################################################################
+#0. User Inputs - Determine Which Category Pages to Scrape
+###############################################################################
+
+searchedKeywords = ['Psychophysics'] #User defined category pages to scrape
+
+#Determine filename to load
+saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
+loadName = 'operationsNamed_' + saveKeywords + '.txt' #Create file name
+
+###############################################################################
+#1. Import Modules
+###############################################################################
+
 from sympy.parsing.latex import parse_latex
 import numpy as np
 import os
 import sympy as sp
 import re
 
-#Read scraped operations file
-#eq = r"\sqrt{\frac{K+(4/3)\mu}{\rho}}"
-operationsFilename = 'operationsNamed_Psychophysics.txt'
-with open(operationsFilename,'r') as f:
-    scrapedWiki = f.readlines()
+###############################################################################
+#2. Determine Functions
+###############################################################################
+
+def processEquation(wikiLine,currentLink,currentLine):
+    if '\\\\' in currentLine:
+        currentLine = currentLine.split('\\\\') 
+        for subEquation in currentLine:
+            if subEquation:
+                currentEquation = checkExceptions(subEquation)
+                scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,subEquation)
+    else:
+        currentEquation = checkExceptions(currentLine)
+        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine)
+
+    return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
 
 def checkExceptions(currentLine):
-    #TODO: the (currentLine.count('=') > 0) may be too limiting (check equations skipped - code at bottom)
-    #if (currentLine[0] != '#') & (currentLine != '\n') & (currentLine.count('=') > 0) & (currentLine.count('=') < 2) & ('bmatrix' not in currentLine):
     if (currentLine[0] != '#') & (currentLine != '\n') & (currentLine.count('=') < 2) & ('bmatrix' not in currentLine):
             searchExceptions = 1
             while searchExceptions:
@@ -60,10 +90,7 @@ def checkExceptions(currentLine):
                     currentLine = currentLine.split('<')[-1] 
                 elif ('\in' in currentLine):
                     currentLine = currentLine.split('\in')[0]   
-                #elif ('\in' in currentLine) & ('\infty' not in currentLine):
-                #    currentLine = currentLine.split('\in')[0]
                 elif ('\\equiv' in currentLine) | ('\\approx' in currentLine): #TODO: Removes equivalencies and approximations but should it?
-                    skipEquation = 1
                     searchExceptions = 0
                 elif '\\' == currentLine[-1:]:
                     currentLine = currentLine[:-1]
@@ -74,7 +101,6 @@ def checkExceptions(currentLine):
                     currentEquation = currentLine
                     searchExceptions = 0
             if 'currentEquation' in locals():
-                #currentEquation = currentEquation.replace('\,','\times') #TODO: This might be a problem and only solve one equation while messing others
                 excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','\\boldsymbol','\\cdot','\\cdots','aligned','\\ddot','\\dot','\Rightarrow'] #TODO: Are removing the cdots/ddots a problem mathematically?
                 
                 currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
@@ -100,15 +126,27 @@ def appendVariables(wikiLine,currentLink,currentEquation, currentLine):
         skippedEquations.append(currentLine)
     
     return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
-        
-#Create list of all equations from file 
-mathFormats = ['\mathnormal {', '\mathrm {', '\mathbf {', '\mathsf {', '\mathtt {','\mathfrak {','\mathcal {','\mathbb {','\mathscr {']
+    
+###############################################################################
+#3. Load Data and Setup Variables
+###############################################################################
 
+#Read scraped operations file
+with open(loadName,'r') as f:
+    scrapedWiki = f.readlines()
+
+#Setup Variables
 scrapedEquations = []
 skippedEquations = []
 scrapedLinks = []
 scrapedWikiEquations = []
 currentLink = []
+
+###############################################################################
+#4. Re-Format Latex Equations to Comply with Sympy Translation
+###############################################################################
+
+#Create list of all equations from file 
 for currentLine in scrapedWiki:
     wikiLine = currentLine
     if '#LINK:' in currentLine:
@@ -118,15 +156,7 @@ for currentLine in scrapedWiki:
     if '{\displaystyle' in currentLine:
         currentLine = currentLine.replace('{\displaystyle','')[:-2]
     
-    #TODO: Is this wrong? Removing derivative superscript notation...
-    #Ah this is too general and removes things it shouldn't (so added the if statement to make sure it does this locally)
-    #superBrackets = re.findall(r'\{\(.*?\)\}', currentLine)
-    #if superBrackets:
-    #    for superBracket in superBrackets:
-    #        if (superBracket.count('(')==1) | (superBracket.count(')')==1) | (superBracket.count('{')==1) | (superBracket.count('}')==1):
-    #            currentLine = currentLine.replace(superBracket,'{'+superBracket[2:-2]+'}')
-    
-    #ALTERNATIVE TO ABOVE: HERE, THESE ARE REMOVED BECAUSE THE ABOVE METHOD TURNS THEM TO POWER FUNCTIONS
+    #Removes superscript notations because they are part of a symbol but treated as a power operator
     superBrackets = re.findall(r'\{\(.*?\)\}', currentLine)
     if superBrackets:
         for superBracket in superBrackets:
@@ -146,51 +176,35 @@ for currentLine in scrapedWiki:
             currentLine = currentLine.replace(sub,'_{x}')
         
     #Removing math formatting
+    mathFormats = ['\mathnormal {', '\mathrm {', '\mathbf {', '\mathsf {', '\mathtt {','\mathfrak {','\mathcal {','\mathbb {','\mathscr {']
     for mathFormat in mathFormats:
         if mathFormat in currentLine:
             tempLine = currentLine.split(mathFormat)
             formattedLine = tempLine[0]
             for i in range(1,len(tempLine)):
                 formattedLine = formattedLine + tempLine[i][:tempLine[i].find('}')]+ tempLine[i][(tempLine[i].find('}')+1):]
-            #currentLine = tempLine[0] + tempLine[1][:tempLine[1].find('}')] + tempLine[1][(tempLine[1].find('}')+1):] 
             currentLine = formattedLine
     
+###############################################################################
+#5. Split and Store all Data, Including Assigning Equations to a Variable
+###############################################################################
+
     #Begin loop to adapt equations to be proper latex    
     if  ('{\\begin{array}{c}' in currentLine):
         currentLine = currentLine.split('{\\begin{array}{c}')
-        for arrayEquation in currentLine:
-            if '\\\\' in arrayEquation:
-                arrayEquation = arrayEquation.split('\\\\')
-                for subEquation in arrayEquation:
-                    if subEquation:
-                        currentEquation = checkExceptions(subEquation)
-                        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine)
-            else:
-                currentEquation = checkExceptions(arrayEquation)
-                scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation.strip(),currentLine)
-                
+        for arrayLine in currentLine:
+            scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,arrayLine)
+            
     elif ('\\begin{aligned}' in currentLine):
         currentLine = currentLine.split('\end{aligned}}')[0]
-        if '\\\\' in currentLine:
-            currentLine = currentLine.split('\\\\')
-            for subEquation in currentLine:
-                if subEquation:
-                    currentEquation = checkExceptions(subEquation)
-                    scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine)
-        else:
-            currentEquation = checkExceptions(arrayEquation)
-            scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation.strip(),currentLine)
-    
-    elif '\\\\' in currentLine:
-        currentLine = currentLine.split('\\\\')
-        for subEquation in currentLine:
-            if subEquation:
-                currentEquation = checkExceptions(subEquation)
-                scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine)
-                
+        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,currentLine)
+
     else:
-        currentEquation = checkExceptions(currentLine)
-        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine)
+        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,currentLine)
+
+###############################################################################
+#6. Parse Equations
+###############################################################################
 
 skip = 0
 parsedEquations = []
@@ -230,13 +244,18 @@ for x, eq in enumerate(scrapedEquations):
             skip += 1
             pass
         
-parsedFilename = 'parsed_'+operationsFilename
+###############################################################################
+#6. Save Files
+###############################################################################
+
+#Save file of scraped equations
+parsedFilename = 'parsed_'+loadName
 with open(parsedFilename, 'w') as f:
     for parsedItem in parsedEquations:
         f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
-        #f.write('\n')
         
-skippedFilename = 'skipped_'+operationsFilename
+#Save file of skipped equations, if any
+skippedFilename = 'skipped_'+loadName
 with open(skippedFilename, 'w') as f:
     for skippedItem in skippedEquations:
         if '#' not in skippedItem:
