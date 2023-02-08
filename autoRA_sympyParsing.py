@@ -12,7 +12,6 @@ import sympy as sp
 import re
 
 #Read scraped operations file
-os.chdir('C:/Users/cwill/Experiments/2022_WebScrapingPriors')
 #eq = r"\sqrt{\frac{K+(4/3)\mu}{\rho}}"
 operationsFilename = 'operationsNamed_Psychophysics.txt'
 with open(operationsFilename,'r') as f:
@@ -108,6 +107,16 @@ def checkExceptions(currentLine):
         return currentEquation
     else:
         return []
+    
+def appendVariables(wikiLine,currentLink,currentEquation, currentLine):
+    if currentEquation:
+        scrapedWikiEquations.append(wikiLine)
+        scrapedLinks.append(currentLink)
+        scrapedEquations.append(currentEquation)
+    else:
+        skippedEquations.append(currentLine)
+    
+    return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
         
 #Create list of all equations from file 
 mathFormats = ['\mathnormal {', '\mathrm {', '\mathbf {', '\mathsf {', '\mathtt {','\mathfrak {','\mathcal {','\mathbb {','\mathscr {']
@@ -116,6 +125,7 @@ scrapedEquations = []
 skippedEquations = []
 scrapedLinks = []
 scrapedWikiEquations = []
+currentLink = []
 for currentLine in scrapedWiki:
     wikiLine = currentLine
     if '#LINK:' in currentLine:
@@ -171,20 +181,11 @@ for currentLine in scrapedWiki:
                 for subEquation in arrayEquation:
                     if subEquation:
                         currentEquation = checkExceptions(subEquation)
-                        if currentEquation:
-                            scrapedWikiEquations.append(wikiLine)
-                            scrapedLinks.append(currentLink)
-                            scrapedEquations.append(currentEquation)
-                        else:
-                            skippedEquations.append(currentLine)
+                        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine)
             else:
                 currentEquation = checkExceptions(arrayEquation)
-                if currentEquation:
-                    scrapedWikiEquations.append(wikiLine)
-                    scrapedLinks.append(currentLink)
-                    scrapedEquations.append(currentEquation.strip())
-                else:
-                    skippedEquations.append(currentLine)
+                scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation.strip(),currentLine)
+                
     elif ('\\begin{aligned}' in currentLine):
         currentLine = currentLine.split('\end{aligned}}')[0]
         if '\\\\' in currentLine:
@@ -192,40 +193,21 @@ for currentLine in scrapedWiki:
             for subEquation in currentLine:
                 if subEquation:
                     currentEquation = checkExceptions(subEquation)
-                    if currentEquation:
-                        scrapedWikiEquations.append(wikiLine)
-                        scrapedLinks.append(currentLink)
-                        scrapedEquations.append(currentEquation)
-                    else:
-                        skippedEquations.append(currentLine)
+                    scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine)
         else:
             currentEquation = checkExceptions(arrayEquation)
-            if currentEquation:
-                scrapedWikiEquations.append(wikiLine)
-                scrapedLinks.append(currentLink)
-                scrapedEquations.append(currentEquation.strip())
-            else:
-                skippedEquations.append(currentLine)
+            scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation.strip(),currentLine)
     
     elif '\\\\' in currentLine:
         currentLine = currentLine.split('\\\\')
         for subEquation in currentLine:
             if subEquation:
                 currentEquation = checkExceptions(subEquation)
-                if currentEquation:
-                    scrapedWikiEquations.append(wikiLine)
-                    scrapedLinks.append(currentLink)
-                    scrapedEquations.append(currentEquation)
-                else:
-                    skippedEquations.append(currentLine)
+                scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine)
+                
     else:
         currentEquation = checkExceptions(currentLine)
-        if currentEquation:
-            scrapedWikiEquations.append(wikiLine)
-            scrapedLinks.append(currentLink)
-            scrapedEquations.append(currentEquation.strip())
-        else:
-            skippedEquations.append(currentLine)
+        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine)
 
 skip = 0
 parsedEquations = []
