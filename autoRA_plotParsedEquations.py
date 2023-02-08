@@ -1,9 +1,13 @@
+'''
+Environment info
+
+pip install matplotlib
+'''
+
 import os
 import matplotlib.pyplot as plt
 import numpy as np 
 
-os.chdir('C:/Users/cwill/Experiments/2022_WebScrapingPriors')
-#eq = r"\sqrt{\frac{K+(4/3)\mu}{\rho}}"
 operationsFilename = 'parsed_operationsNamed_Psychophysics.txt'
 with open(operationsFilename,'r') as f:
     parsedEqs = f.readlines()
@@ -11,26 +15,25 @@ with open(operationsFilename,'r') as f:
 allOps = {}
 mx = []
 for parsedEq in parsedEqs:
-    if 'WIKIEQUATION' not in parsedEq:
-        parsedOps = parsedEq.split('~')[1][1:-1].replace('\'','').split(',')
-        if ('partial' in parsedEq.split('~')[3]) & ('DIV' in str(parsedOps)):
-            for i, pO in enumerate(parsedOps):
-                if 'DIV' in pO:
-                    parsedOps[i] = 'DIV: '+str(int(pO.split(':')[1])-int(parsedEq.split('~')[3].count('partial')/2))
-                    parsedOps.append('DERIVATIVE: ' + str(int(parsedEq.split('~')[3].count('partial')/2)))
-                    break
-        
-        for parsedOp in parsedOps:
-            if 'MUL' in parsedOp.split(':')[0]:
-                mx.append(int((parsedOp.split(':')[1]).replace(' ','')))
-            if ('FUNC' not in parsedOp.split(':')[0]) & ('NEG' not in parsedOp.split(':')[0]): #Skip functions
-                try:
-                    if parsedOp.split(':')[0].replace(' ','') in allOps.keys():
-                        allOps[parsedOp.split(':')[0].replace(' ','')] += int((parsedOp.split(':')[1]).replace(' ',''))
-                    else:
-                        allOps[parsedOp.split(':')[0].replace(' ','')] = int((parsedOp.split(':')[1]).replace(' ',''))
-                except:
-                    pass
+    parsedOps = parsedEq.split('~')[1][1:-1].replace('\'','').split(',')
+    if ('partial' in parsedEq.split('~')[3]) & ('DIV' in str(parsedOps)):
+        for i, pO in enumerate(parsedOps):
+            if 'DIV' in pO:
+                parsedOps[i] = 'DIV: '+str(int(pO.split(':')[1])-int(parsedEq.split('~')[3].count('partial')/2))
+                parsedOps.append('DERIVATIVE: ' + str(int(parsedEq.split('~')[3].count('partial')/2)))
+                break
+    
+    for parsedOp in parsedOps:
+        if 'MUL' in parsedOp.split(':')[0]:
+            mx.append(int((parsedOp.split(':')[1]).replace(' ','')))
+        if ('FUNC' not in parsedOp.split(':')[0]) & ('NEG' not in parsedOp.split(':')[0]): #Skip functions
+            try:
+                if parsedOp.split(':')[0].replace(' ','') in allOps.keys():
+                    allOps[parsedOp.split(':')[0].replace(' ','')] += int((parsedOp.split(':')[1]).replace(' ',''))
+                else:
+                    allOps[parsedOp.split(':')[0].replace(' ','')] = int((parsedOp.split(':')[1]).replace(' ',''))
+            except:
+                pass
 
 plotOps = {}
 plotOps['Other'] = 0

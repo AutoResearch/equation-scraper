@@ -1,6 +1,7 @@
 '''
 Environment info
 
+pip install numpy
 pip install sympy
 pip install antlr4-python3-runtime==4.10
 '''
@@ -74,28 +75,10 @@ def checkExceptions(currentLine):
                     searchExceptions = 0
             if 'currentEquation' in locals():
                 #currentEquation = currentEquation.replace('\,','\times') #TODO: This might be a problem and only solve one equation while messing others
-                currentEquation = currentEquation.replace('\|','') #TODO: This might be a problem as it's removing norm operator
-                currentEquation = currentEquation.replace(';','') 
-                currentEquation = currentEquation.replace('\\,','')
-                currentEquation = currentEquation.replace(',','')
-                currentEquation = currentEquation.replace('.','')
-                currentEquation = currentEquation.replace('\'','')
-                currentEquation = currentEquation.replace('%','')
-                currentEquation = currentEquation.replace('~','')
-                currentEquation = currentEquation.replace(' ','')
-                currentEquation = currentEquation.replace('\\,','')
-                currentEquation = currentEquation.replace('\\bigl(}','')
-                currentEquation = currentEquation.replace('{\\bigr)','')
-                currentEquation = currentEquation.replace('\\!','')
+                excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','\\boldsymbol','\\cdot','\\cdots','aligned','\\ddot','\\dot','\Rightarrow'] #TODO: Are removing the cdots/ddots a problem mathematically?
+                
+                currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
                 currentEquation = currentEquation.replace('\\\\','\\')
-                currentEquation = currentEquation.replace('\\boldsymbol','')
-                #currentEquation = currentEquation.replace('\\operatorname','')
-                currentEquation = currentEquation.replace('\\cdot','')
-                currentEquation = currentEquation.replace('\\cdots','')
-                currentEquation = currentEquation.replace('aligned','')
-                currentEquation = currentEquation.replace('\\ddot','') #TODO: This might be a problem as it's changing the symbol
-                currentEquation = currentEquation.replace('\\dot','') #TODO: This might be a problem as it's changing the symbol
-                currentEquation = currentEquation.replace('\Rightarrow','')
                 if '**{' in currentEquation:
                     powerVar = currentEquation.split('**{')[1].split('}')[0]
                     try:
