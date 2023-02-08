@@ -16,7 +16,7 @@ pip install requests
 ###############################################################################
 #0. User Inputs - Determine Which Category Pages to Scrape
 ###############################################################################
-searchKeywords = ['Materials_science'] #User defined category pages to scrape
+searchKeywords = ['Psychophysics'] #User defined category pages to scrape
 
 #Create file name to save to
 saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
