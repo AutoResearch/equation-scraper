@@ -6,7 +6,6 @@
 '''
 Environment info
 
-pip install numpy
 pip install sympy
 pip install antlr4-python3-runtime==4.10
 
@@ -28,8 +27,6 @@ loadName = 'operationsNamed_' + saveKeywords + '.txt' #Create file name
 ###############################################################################
 
 from sympy.parsing.latex import parse_latex
-import numpy as np
-import os
 import sympy as sp
 import re
 
@@ -73,27 +70,35 @@ def formatEquation(currentLine):
                 currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
                 
                 #Additional Special Exclusions
-                currentEquation = currentEquation.replace('\\\\','\\')
-                if '**{' in currentEquation:
-                    powerVar = currentEquation.split('**{')[1].split('}')[0]
-                    try:
-                        int(powerVar)
-                    except:
-                        currentEquation = currentEquation.replace('**{'+powerVar+'}','')
                 
+                currentEquation = currentEquation.replace('\\\\','\\') #In some cases, these do not indicate multiple equations (as above)
+                
+                #If these are superscripts, and not exponents, it will be interpreted as a power operation. So, remove it if it is a superscript
+                if '**{' in currentEquation: #Check if the power function exists
+                    powerVar = currentEquation.split('**{')[1].split('}')[0] #Determine what is contained within the power function
+                    try:
+                        int(powerVar) #Determine whether it is a number, and if not it is a superscript
+                    except:
+                        currentEquation = currentEquation.replace('**{'+powerVar+'}','') #Remove it if it is a superscript
+                
+                #Here, \le refers to <= and so we must split the equation. However, if conflicts with \left notation and so we only remove it if it is not this
                 if ('\le' in currentEquation) & ('\left' not in currentEquation):
                     currentEquation = currentEquation.split('\le')[0]
                             
+                #The descriptive sum conflicts, and so we convert it to a simple sum
                 if '\sum _{i=1}^{n}' in currentEquation:
                     currentEquation = currentEquation.replace('\sum _{i=1}^{n}','\sum')
                     
+                #Remove backslashes at the end of the equations
                 if '\\' == currentEquation[-1:]:
                     currentEquation = currentEquation[:-1]
                     
+                #Remove the operatorname tag
                 if 'operatorname' in currentEquation:
                     operatorVar = currentEquation.split('\operatorname {')[1].split('}')[0]
                     currentEquation = currentEquation.replace('\operatorname {'+operatorVar+'}',operatorVar[0])
-            
+    
+    #If an equation was found and reformatted, return it
     if ('currentEquation' in locals()):
         return currentEquation
     else:
@@ -105,11 +110,11 @@ def appendVariables(wikiLine,currentLink,currentEquation, currentLine):
     
     '''
     if currentEquation:
-        scrapedWikiEquations.append(wikiLine)
-        scrapedLinks.append(currentLink)
-        scrapedEquations.append(currentEquation)
+        scrapedWikiEquations.append(wikiLine) #Track raw equations as scraped from wikipedia
+        scrapedLinks.append(currentLink) #Track the URL of the equation
+        scrapedEquations.append(currentEquation) #Track reformatted equations used in parsing
     else:
-        skippedEquations.append(currentLine)
+        skippedEquations.append(currentLine) #Track if an equation did not make it through reformatting
     
     return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
     
@@ -176,60 +181,65 @@ for currentLine in scrapedWiki:
 ###############################################################################
 
     #Begin loop to adapt equations to be proper latex    
-    if  ('{\\begin{array}{c}' in currentLine):
+    if  ('{\\begin{array}{c}' in currentLine): #Sometimes multiple equations are placed within an array and this must be split
         currentLine = currentLine.split('{\\begin{array}{c}')
         for arrayLine in currentLine:
             scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,arrayLine)
             
-    elif ('\\begin{aligned}' in currentLine):
+    elif ('\\begin{aligned}' in currentLine): #Remove website formatting tags
         currentLine = currentLine.split('\end{aligned}}')[0]
         scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,currentLine)
 
-    else:
+    else: #Normal cases
         scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,currentLine)
 
 ###############################################################################
 #6. Parse Equations
 ###############################################################################
 
+#Setup variables
 skip = 0
 parsedEquations = []
 rejectedEquations = []
 parsedEq = 0
 unparsedEq = 0
+
+#Cycle through each formatted equation
 for x, eq in enumerate(scrapedEquations):
-    #Display metrics for every 10 links scraped 
+    #Display metrics for every 10 equations scraped 
     if x % 10 == 0:
         print('\nCurrent Equation:')
         print(eq)
         print('Completed: ' + str(round((x/len(scrapedEquations))*100,2))+ '% ... Parsed: ' + str(parsedEq) + ' ... Unparsed: '+ str(unparsedEq))
     #Create tree of computation graph
     try:
-        if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations
-            tempEq = parse_latex(eq)
-            eqSymbols = list(tempEq.free_symbols)
-            eqOperations = str(sp.count_ops(tempEq,visual=True)).split('+')
+        if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case
+            tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
+            eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
+            eqOperations = str(sp.count_ops(tempEq,visual=True)).split('+') #Extract all nodes of the Sympy tree from the equation
 
+            #Cycle through each node
             operations = []
             for eqOp in eqOperations:
-                if '*' in eqOp:
+                if '*' in eqOp: #Determines if an operation occurs more than one time
                     operations.append([eqOp.split('*')[1].strip(),eqOp.split('*')[0].strip()])
-                else:
+                else: #When an operation only occurs once
                     operations.append([eqOp.strip(), 1])
             
+            #Record operations into variable to be saved
             if eqOperations != ['0']:
                 parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', dict(operations), 'LINK:', scrapedLinks[x],'WIKIEQUATION:',scrapedWikiEquations[x]])
-            parsedEq += 1
-    except:
-        
-        unparsedEq += 1
-        if skip > -1:
-            print('FAILURE - Likely not convertible from latex to sympy')
-            print(eq)
+            
+            #Increase counter
+            parsedEq += 1 
+    except: #If the translation from latex to Sympy of the parsing fails
+        unparsedEq += 1 #Increase counter 
+        print('FAILURE - Likely not convertible from latex to sympy') #Error warning
+        if skip > -1: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
+            print(eq) #Print the equation that failed
             break
         else:
-            skip += 1
-            pass
+            skip += 1 #Increase skip count
         
 ###############################################################################
 #6. Save Files
