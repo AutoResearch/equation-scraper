@@ -45,6 +45,10 @@ import time
 
 #Searches for all links on given URL
 def searchLinks(URL):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
     webText = requests.get(URL).text #Download URL content
     soup = BeautifulSoup(webText, 'lxml') #Create soup object
     bodyText = soup.find("div",{"id":"mw-content-text"}) #Isolate the body content
@@ -54,6 +58,10 @@ def searchLinks(URL):
 
 #Removes any duplicate or unwanted links
 def removeLinks(listOfInterest):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
     seen = set() #Create set
     seen_add = seen.add #For optimization
     uniqueLinks = [x for x in listOfInterest if not (x in seen or seen_add(x))] #Remove duplicates

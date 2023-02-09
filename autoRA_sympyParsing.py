@@ -20,7 +20,7 @@ Note:There exists a requirements.txt file
 searchedKeywords = ['Psychophysics'] #User defined category pages to scrape
 
 #Determine filename to load
-saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
+saveKeywords = '_'.join(searchedKeywords) #Create string of keywords for file name
 loadName = 'operationsNamed_' + saveKeywords + '.txt' #Create file name
 
 ###############################################################################
@@ -37,73 +37,42 @@ import re
 #2. Determine Functions
 ###############################################################################
 
+#The main function that organizes the current equation and it's metadata then feeds these to the processing functions
 def processEquation(wikiLine,currentLink,currentLine):
-    if '\\\\' in currentLine:
-        currentLine = currentLine.split('\\\\') 
-        for subEquation in currentLine:
-            if subEquation:
-                currentEquation = checkExceptions(subEquation)
-                scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,subEquation)
-    else:
-        currentEquation = checkExceptions(currentLine)
-        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine)
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
+    if '\\\\' in currentLine: #\\\\ is used to split multiple equations that are stored in one string
+        currentLine = currentLine.split('\\\\') #The equations are split if multiple exist
+        for subEquation in currentLine: #Cycle through each equation
+            if subEquation: #Ensure the sub-equation exists 
+                currentEquation = formatEquation(subEquation) #Calls the format equation function 
+                scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,subEquation) #Calls the append variables function
+    else: #There only exists one equation
+        currentEquation = formatEquation(currentLine) #Calls the format equation function 
+        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine) #Calls the append variables function
 
     return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
 
-def checkExceptions(currentLine):
+def formatEquation(currentLine):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
     if (currentLine[0] != '#') & (currentLine != '\n') & (currentLine.count('=') < 2) & ('bmatrix' not in currentLine):
-            searchExceptions = 1
-            while searchExceptions:
-                if '&=&' in currentLine:
-                    currentLine = currentLine.split('&=&')[-1]
-                elif '&=' in currentLine:
-                    currentLine = currentLine.split('&=')[-1]
-                elif ',&' in currentLine:
-                    currentLine = currentLine.split(',&')[0]
-                elif ':=' in currentLine:
-                    currentLine = currentLine.split(':=')[-1]
-                elif '=:' in currentLine:
-                    currentLine = currentLine.split('=:')[-1]
-                elif '\sum _{i=1}^{n}' in currentLine:
-                    currentLine = currentLine.replace('\sum _{i=1}^{n}','\sum')
-                elif '=' in currentLine:
-                    currentLine = currentLine.split('=')[-1]
-                elif '\leq' in currentLine:
-                    currentLine = currentLine.split('\leq')[0]
-                elif ('\le' in currentLine) & ('\left' not in currentLine):
-                    currentLine = currentLine.split('\le')[0]
-                elif '\heq' in currentLine:
-                    currentLine = currentLine.split('\heq')[0]
-                elif '\he' in currentLine:
-                    currentLine = currentLine.split('\he')[0]
-                elif '>' in currentLine:
-                    currentLine = currentLine.split('>')[-1]
-                elif '>=' in currentLine:
-                    currentLine = currentLine.split('>=')[-1]
-                elif '\geq' in currentLine:
-                    currentLine = currentLine.split('\geq')[-1]
-                elif '\seq' in currentLine:
-                    currentLine = currentLine.split('\seq')[-1]
-                elif '<=' in currentLine:
-                    currentLine = currentLine.split('<=')[-1]
-                elif '<' in currentLine:
-                    currentLine = currentLine.split('<')[-1] 
-                elif ('\in' in currentLine):
-                    currentLine = currentLine.split('\in')[0]   
-                elif ('\\equiv' in currentLine) | ('\\approx' in currentLine): #TODO: Removes equivalencies and approximations but should it?
-                    searchExceptions = 0
-                elif '\\' == currentLine[-1:]:
-                    currentLine = currentLine[:-1]
-                elif 'operatorname' in currentLine:
-                    operatorVar = currentLine.split('\operatorname {')[1].split('}')[0]
-                    currentLine = currentLine.replace('\operatorname {'+operatorVar+'}',operatorVar[0])
-                else:
-                    currentEquation = currentLine
-                    searchExceptions = 0
-            if 'currentEquation' in locals():
-                excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','\\boldsymbol','\\cdot','\\cdots','aligned','\\ddot','\\dot','\Rightarrow'] #TODO: Are removing the cdots/ddots a problem mathematically?
-                
+            
+            #Split equations to remove the left hand side
+            separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1,'=': -1, '\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0}
+            if ('\\equiv' not in currentLine) | ('\\approx' not in currentLine): #TODO: Removes equivalencies and approximations but should it?
+                currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1] #TODO: I think this new method removed two equations, figure out if so and why
+              
+            #Removes specific notations that Sympy cannot comprehend 
+            excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','\\boldsymbol','\\cdot','\\cdots','aligned','\\ddot','\\dot','\Rightarrow'] #TODO: Are removing the cdots/ddots a problem mathematically?
+            if 'currentEquation' in locals():             
                 currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
+                
+                #Additional Special Exclusions
                 currentEquation = currentEquation.replace('\\\\','\\')
                 if '**{' in currentEquation:
                     powerVar = currentEquation.split('**{')[1].split('}')[0]
@@ -111,13 +80,30 @@ def checkExceptions(currentLine):
                         int(powerVar)
                     except:
                         currentEquation = currentEquation.replace('**{'+powerVar+'}','')
+                
+                if ('\le' in currentEquation) & ('\left' not in currentEquation):
+                    currentEquation = currentEquation.split('\le')[0]
+                            
+                if '\sum _{i=1}^{n}' in currentEquation:
+                    currentEquation = currentEquation.replace('\sum _{i=1}^{n}','\sum')
+                    
+                if '\\' == currentEquation[-1:]:
+                    currentEquation = currentEquation[:-1]
+                    
+                if 'operatorname' in currentEquation:
+                    operatorVar = currentEquation.split('\operatorname {')[1].split('}')[0]
+                    currentEquation = currentEquation.replace('\operatorname {'+operatorVar+'}',operatorVar[0])
             
-    if ('currentEquation' in locals()) & ('skipEquation' not in locals()):
+    if ('currentEquation' in locals()):
         return currentEquation
     else:
         return []
     
 def appendVariables(wikiLine,currentLink,currentEquation, currentLine):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
     if currentEquation:
         scrapedWikiEquations.append(wikiLine)
         scrapedLinks.append(currentLink)
@@ -212,7 +198,8 @@ rejectedEquations = []
 parsedEq = 0
 unparsedEq = 0
 for x, eq in enumerate(scrapedEquations):
-    if x % 1 == 0:
+    #Display metrics for every 10 links scraped 
+    if x % 10 == 0:
         print('\nCurrent Equation:')
         print(eq)
         print('Completed: ' + str(round((x/len(scrapedEquations))*100,2))+ '% ... Parsed: ' + str(parsedEq) + ' ... Unparsed: '+ str(unparsedEq))
