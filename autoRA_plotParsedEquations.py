@@ -1,21 +1,51 @@
+###############################################################################
+## Written by Chad C. Williams, 2022                                         ##
+## www.chadcwilliams.com                                                     ##
+###############################################################################
+
 '''
 Environment info
 
 pip install matplotlib
-'''
 
-import os
+Note: There exists a requirements.txt file
+'''
+###############################################################################
+#0. User Inputs - Determine Which Category Pages to Scrape
+###############################################################################
+
+searchedKeywords = ['Psychophysics'] #User defined category pages to scrape
+
+#Determine filename to load
+saveKeywords = '_'.join(searchedKeywords) #Create string of keywords for file name
+loadName = 'parsed_operationsNamed_' + saveKeywords + '.txt' #Create file name
+    
+###############################################################################
+#1. Import Modules
+###############################################################################
+ 
 import matplotlib.pyplot as plt
 import numpy as np 
 
-operationsFilename = 'parsed_operationsNamed_Psychophysics.txt'
-with open(operationsFilename,'r') as f:
+###############################################################################
+#2. Load File
+###############################################################################
+ 
+with open('Data/'+loadName,'r') as f:
     parsedEqs = f.readlines()
     
+###############################################################################
+#3. Extract Operation Information 
+###############################################################################
+    
+#Setup Variables
 allOps = {}
 mx = []
+#Cycle through each line to extract operation information
 for parsedEq in parsedEqs:
-    parsedOps = parsedEq.split('~')[1][1:-1].replace('\'','').split(',')
+    parsedOps = parsedEq.split('~')[1][1:-1].replace('\'','').split(',') #Deliminate the file using a tilda deliminator
+    
+    #Derivatives are 
     if ('partial' in parsedEq.split('~')[3]) & ('DIV' in str(parsedOps)):
         for i, pO in enumerate(parsedOps):
             if 'DIV' in pO:
@@ -94,7 +124,7 @@ wedges, texts = ax.pie(plotOps.values(), startangle=-40, colors = plt.get_cmap("
 bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
 kw = dict(arrowprops=dict(arrowstyle="-"),
           bbox=bbox_props, zorder=0, va="center")
-plt.title('Category:\n' + operationsFilename.split('_')[-1].split('.')[0], loc='left', fontsize = 20)
+plt.title('Category:\n' + loadName.split('_')[-1].split('.')[0], loc='left', fontsize = 20)
 
 for i, p in enumerate(wedges):
     ang = (p.theta2 - p.theta1)/2. + p.theta1
@@ -110,5 +140,5 @@ for i, p in enumerate(wedges):
         ax.annotate(list(plotOps.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=18,
             horizontalalignment=horizontalalignment, **kw)
 
-plt.savefig('Prior Parsing Pie Chart.png')
+plt.savefig('Figures/'+'_'.join(searchedKeywords)+'_PriorPieChart.png')
 plt.show()

@@ -9,14 +9,15 @@ Environment info
 pip install sympy
 pip install antlr4-python3-runtime==4.10
 
-Note:There exists a requirements.txt file
+Note: There exists a requirements.txt file
 '''
 
 ###############################################################################
 #0. User Inputs - Determine Which Category Pages to Scrape
 ###############################################################################
 
-searchedKeywords = ['Psychophysics'] #User defined category pages to scrape
+#User defined category pages to scrape
+searchedKeywords = ['Materials_science'] 
 
 #Determine filename to load
 saveKeywords = '_'.join(searchedKeywords) #Create string of keywords for file name
@@ -95,8 +96,11 @@ def formatEquation(currentLine):
                     
                 #Remove the operatorname tag
                 if 'operatorname' in currentEquation:
-                    operatorVar = currentEquation.split('\operatorname {')[1].split('}')[0]
-                    currentEquation = currentEquation.replace('\operatorname {'+operatorVar+'}',operatorVar[0])
+                    try:
+                        operatorVar = currentEquation.split('\operatorname {')[1].split('}')[0]
+                        currentEquation = currentEquation.replace('\operatorname {'+operatorVar+'}',operatorVar[0])
+                    except:
+                        currentEquation = currentEquation.replace('\operatorname {','')[:-1]
     
     #If an equation was found and reformatted, return it
     if ('currentEquation' in locals()):
@@ -123,7 +127,7 @@ def appendVariables(wikiLine,currentLink,currentEquation, currentLine):
 ###############################################################################
 
 #Read scraped operations file
-with open(loadName,'r') as f:
+with open('Data/'+loadName,'r') as f:
     scrapedWiki = f.readlines()
 
 #Setup Variables
@@ -246,15 +250,15 @@ for x, eq in enumerate(scrapedEquations):
 ###############################################################################
 
 #Save file of scraped equations
-parsedFilename = 'parsed_'+loadName
+parsedFilename = 'Data/parsed_'+loadName
 with open(parsedFilename, 'w') as f:
     for parsedItem in parsedEquations:
         f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
         
 #Save file of skipped equations, if any
-skippedFilename = 'skipped_'+loadName
+skippedFilename = 'Data/skipped_'+loadName
 with open(skippedFilename, 'w') as f:
     for skippedItem in skippedEquations:
         if '#' not in skippedItem:
             f.write(skippedItem[0])
-            f.write('\n')
+            f.write('\n') 

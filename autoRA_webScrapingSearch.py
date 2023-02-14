@@ -13,7 +13,7 @@ pip install beautifulsoup4
 pip install lxml
 pip install requests
 
-Note:There exists a requirements.txt file
+Note: There exists a requirements.txt file
 '''
 
 ###############################################################################
@@ -27,7 +27,7 @@ saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
 saveName = 'operationsNamed_' + saveKeywords + '.txt' #Create file name
 
 #Save search parameters to file
-with open(saveName, 'a') as f: #Open file to be saved to
+with open('Data/'+saveName, 'a') as f: #Open file to be saved to
     _ = f.write('#CATEGORIES: ' + str(searchKeywords) + '\n') #Save title to file
     _ = f.write('#--------------------#\n\n') #Add separator to file
 
@@ -119,7 +119,7 @@ for linkIndex, link in enumerate(links):
 
         #Save equations to a file
         if equations: #If equations exist on this page
-            with open(saveName, 'a') as f: #Open file to be saved to
+            with open('Data/'+saveName, 'a') as f: #Open file to be saved to
                 titleSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('h1')) #Extract title of page
                 root = titleSoup.find('h1').text #Convert title to be saved
                 _ = f.write('#ROOT: ' + root + '\n') #Save title to file
