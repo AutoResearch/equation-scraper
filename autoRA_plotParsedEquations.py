@@ -18,7 +18,7 @@ searchedKeywords = ['Psychophysics'] #User defined category pages to scrape
 
 #Determine filename to load
 saveKeywords = '_'.join(searchedKeywords) #Create string of keywords for file name
-loadName = 'parsed_operationsNamed_' + saveKeywords + '.txt' #Create file name
+loadName = 'parsed_operations_' + saveKeywords + '.txt' #Create file name
     
 ###############################################################################
 #1. Import Modules

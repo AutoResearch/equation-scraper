@@ -17,11 +17,11 @@ Note: There exists a requirements.txt file
 ###############################################################################
 
 #User defined category pages to scrape
-searchedKeywords = ['Materials_science'] 
+searchedKeywords = ['Psychophysics'] 
 
 #Determine filename to load
 saveKeywords = '_'.join(searchedKeywords) #Create string of keywords for file name
-loadName = 'operationsNamed_' + saveKeywords + '.txt' #Create file name
+loadName = 'operations_' + saveKeywords + '.txt' #Create file name
 
 ###############################################################################
 #1. Import Modules

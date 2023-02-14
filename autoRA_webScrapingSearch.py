@@ -24,7 +24,7 @@ searchKeywords = ['Psychophysics'] #User defined category pages to scrape
 
 #Create filename to save to
 saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
-saveName = 'operationsNamed_' + saveKeywords + '.txt' #Create file name
+saveName = 'operations_' + saveKeywords + '.txt' #Create file name
 
 #Save search parameters to file
 with open('Data/'+saveName, 'a') as f: #Open file to be saved to
