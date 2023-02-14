@@ -40,43 +40,50 @@ with open('Data/'+loadName,'r') as f:
     
 #Setup Variables
 allOps = {}
-mx = []
 #Cycle through each line to extract operation information
 for parsedEq in parsedEqs:
     parsedOps = parsedEq.split('~')[1][1:-1].replace('\'','').split(',') #Deliminate the file using a tilda deliminator
     
-    #Derivatives are 
-    if ('partial' in parsedEq.split('~')[3]) & ('DIV' in str(parsedOps)):
-        for i, pO in enumerate(parsedOps):
-            if 'DIV' in pO:
-                parsedOps[i] = 'DIV: '+str(int(pO.split(':')[1])-int(parsedEq.split('~')[3].count('partial')/2))
-                parsedOps.append('DERIVATIVE: ' + str(int(parsedEq.split('~')[3].count('partial')/2)))
+    #Partial derivatives are represented as division, so adjust this accordingly 
+    if ('partial' in parsedEq.split('~')[3]) & ('DIV' in str(parsedOps)): #Determines whether a partial derivative exists
+        for i, pO in enumerate(parsedOps): #Cycles the parsed operator
+            if 'DIV' in pO: #Determine if a division exists
+                parsedOps[i] = 'DIV: '+str(int(pO.split(':')[1])-int(parsedEq.split('~')[3].count('partial')/2)) #Subtract the derivative from the division operator
+                parsedOps.append('DERIVATIVE: ' + str(int(parsedEq.split('~')[3].count('partial')/2))) #Add derivative as a derivative operator
                 break
     
+    #Cycle through operators 
     for parsedOp in parsedOps:
-        if 'MUL' in parsedOp.split(':')[0]:
-            mx.append(int((parsedOp.split(':')[1]).replace(' ','')))
-        if ('FUNC' not in parsedOp.split(':')[0]) & ('NEG' not in parsedOp.split(':')[0]): #Skip functions
+        if ('FUNC' not in parsedOp.split(':')[0]) & ('NEG' not in parsedOp.split(':')[0]): #Skip function operators #TODO: SHOULD WE KEEP THESE?
             try:
-                if parsedOp.split(':')[0].replace(' ','') in allOps.keys():
-                    allOps[parsedOp.split(':')[0].replace(' ','')] += int((parsedOp.split(':')[1]).replace(' ',''))
-                else:
-                    allOps[parsedOp.split(':')[0].replace(' ','')] = int((parsedOp.split(':')[1]).replace(' ',''))
+                if parsedOp.split(':')[0].replace(' ','') in allOps.keys(): #If the operator already exists in the tracking variable, increment accordingly
+                    allOps[parsedOp.split(':')[0].replace(' ','')] += int((parsedOp.split(':')[1]).replace(' ','')) #Increment by corresponding frequency
+                else: #If operator does not exist in tracking variable, add it
+                    allOps[parsedOp.split(':')[0].replace(' ','')] = int((parsedOp.split(':')[1]).replace(' ','')) #Add operator with corresponding frequency
             except:
-                pass
+                pass #TODO: ADD DEBUG IN CASE CODE REACHES HERE
 
-plotOps = {}
-plotOps['Other'] = 0
-otherKeys = []
+
+###############################################################################
+#4. Reformat operator titles
+###############################################################################
+    
+plotOps = {} #Create operator variable
+plotOps['Other'] = 0 #Begin other category as absent
+otherKeys = [] #Tracks other category keys
+#First, force any operators that are too infrequent into the 'other category'
 for key in allOps.keys():
-    if allOps[key] < round(np.sum(list(allOps.values()))*.03):
-        plotOps['Other'] += allOps[key]
-        otherKeys.append(key)
+    if allOps[key] < round(np.sum(list(allOps.values()))*.03): #Here, determine if the frequency is too low (current = 3% or lower frequencies are forced to other category)
+        plotOps['Other'] += allOps[key] #Increment other category if exists with corresponding frequency
+        otherKeys.append(key) #Tracks other keys for debugging purposes
     else:
-        plotOps[key] = allOps[key]
+        plotOps[key] = allOps[key] #Add other category with corresponding frequency
+        
+#Remove other category if none were determined
 if plotOps['Other'] == 0:
     del plotOps['Other']
 
+#Rename corresponding operators from Sympy terminology to English
 if 'MUL' in plotOps:
     plotOps['Multiplication'] = plotOps['MUL']
     del plotOps['MUL']
@@ -116,29 +123,38 @@ if 'DERIVATIVE' in plotOps:
 if 'LOG' in plotOps:
     plotOps['Logarithm'] = plotOps['LOG']
     del plotOps['LOG']  
-    del plotOps['EXP'] #We also remove EXP because a natural logarithm in sympy is represented as both LOG and EXP
+    del plotOps['EXP'] #We also remove EXP because a natural logarithm in sympy is represented as both LOG and EXP (at once)
     
-####PLOTTING    
-fig, ax = plt.subplots(figsize=(14, 8), subplot_kw=dict(aspect="equal"))
-wedges, texts = ax.pie(plotOps.values(), startangle=-40, colors = plt.get_cmap("Pastel1")(np.linspace(0.0, 1, len(plotOps.keys()))))
-bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
-kw = dict(arrowprops=dict(arrowstyle="-"),
-          bbox=bbox_props, zorder=0, va="center")
-plt.title('Category:\n' + loadName.split('_')[-1].split('.')[0], loc='left', fontsize = 20)
+###############################################################################
+#5. Plot as pie chart
+###############################################################################
 
-for i, p in enumerate(wedges):
-    ang = (p.theta2 - p.theta1)/2. + p.theta1
-    y = np.sin(np.deg2rad(ang))
-    x = np.cos(np.deg2rad(ang))
-    horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
-    connectionstyle = "angle,angleA=0,angleB={}".format(ang)
-    kw["arrowprops"].update({"connectionstyle": connectionstyle})
+#Create plot
+fig, ax = plt.subplots(figsize=(14, 8), subplot_kw=dict(aspect="equal")) #Plot formatting
+wedges, texts = ax.pie(plotOps.values(), startangle=-40, colors = plt.get_cmap("Pastel1")(np.linspace(0.0, 1, len(plotOps.keys())))) #Add pie chart
+plt.title('Category:\n' + loadName.split('_')[-1].split('.')[0], loc='left', fontsize = 20) #Add title
+
+#Move labels outside of the pie chart
+bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72) #Format label locations
+kw = dict(arrowprops=dict(arrowstyle="-"), bbox=bbox_props, zorder=0, va="center") #Determine label formats
+
+#Adjust labels in a cycle
+for i, p in enumerate(wedges): #Cycle through operators
+    ang = (p.theta2 - p.theta1)/2. + p.theta1 #Determine current label location angle
+    y = np.sin(np.deg2rad(ang)) #Determine current label location y
+    x = np.cos(np.deg2rad(ang)) #Determine current label location x
+    horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))] #Push label horizontally
+    connectionstyle = "angle,angleA=0,angleB={}".format(ang) #Add line linking label to plot
+    kw["arrowprops"].update({"connectionstyle": connectionstyle}) #Add line linking label to plot
+    #TODO ADJUST THE FOLLOWING - THIS WAS FOR A SPECIFIC PLOT WHERE LABELS OVERLAPPED, BUT INSTEAD THE SCRIPT SHOULD DETECT OVERLAP AND MOVE THESE AUTOMATICALLY
     if (list(plotOps.keys())[i] == 'Derivative') | (list(plotOps.keys())[i] == 'Cosine'):
-        ax.annotate(list(plotOps.keys())[i], xy=(x, y), xytext=(1.8*np.sign(x), 1.4*y), fontsize=18,
-            horizontalalignment=horizontalalignment, **kw) 
-    else:
-        ax.annotate(list(plotOps.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=18,
-            horizontalalignment=horizontalalignment, **kw)
+        ax.annotate(list(plotOps.keys())[i], xy=(x, y), xytext=(1.8*np.sign(x), 1.4*y), fontsize=18, horizontalalignment=horizontalalignment, **kw) #Add adjusted label to pie chart
+    else: 
+        ax.annotate(list(plotOps.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=18, horizontalalignment=horizontalalignment, **kw) #Add label to pie chart
 
-plt.savefig('Figures/'+'_'.join(searchedKeywords)+'_PriorPieChart.png')
-plt.show()
+###############################################################################
+#5. Save and plot figure
+###############################################################################
+
+plt.savefig('Figures/'+'_'.join(searchedKeywords)+'_PriorPieChart.png') #Save figure
+plt.show() #Show figure
