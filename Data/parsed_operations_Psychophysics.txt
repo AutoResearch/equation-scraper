@@ -9,6 +9,15 @@ WIKIEQUATION:~{\displaystyle N/2+{\sqrt {N}}}
 ************
 
 ************
+OPERATIONS:~{'MUL': 2}
+SYMBOLS:~[g, o, l]
+EQUATION:~l*(g*o)
+LINK:~/wiki/Adaptive_comparative_judgement
+WIKIEQUATION:~{\displaystyle \mathrm {log\;odds} (A\ {\text{beats}}\ B\mid v_{a},v_{b})=v_{a}-v_{b}}
+
+************
+
+************
 OPERATIONS:~{'SUB': 1}
 SYMBOLS:~[v_{x}]
 EQUATION:~-v_{x} + v_{x}
@@ -19,7 +28,7 @@ WIKIEQUATION:~{\displaystyle \mathrm {log\;odds} (A\ {\text{beats}}\ B\mid v_{a}
 
 ************
 OPERATIONS:~{'DIV': 1, 'MUL': 1}
-SYMBOLS:~[x, pi_{x}]
+SYMBOLS:~[pi_{x}, x]
 EQUATION:~(pi_{x}*p(x))/p(x)
 LINK:~/wiki/Detection_theory
 WIKIEQUATION:~{\displaystyle p(H1|y)={\frac {p(y|H1)\cdot \pi _{1}}{p(y)}}}
@@ -28,7 +37,7 @@ WIKIEQUATION:~{\displaystyle p(H1|y)={\frac {p(y|H1)\cdot \pi _{1}}{p(y)}}}
 
 ************
 OPERATIONS:~{'DIV': 1, 'MUL': 1}
-SYMBOLS:~[x, pi_{x}]
+SYMBOLS:~[pi_{x}, x]
 EQUATION:~(pi_{x}*p(x))/p(x)
 LINK:~/wiki/Detection_theory
 WIKIEQUATION:~{\displaystyle p(H2|y)={\frac {p(y|H2)\cdot \pi _{2}}{p(y)}}}
@@ -37,7 +46,7 @@ WIKIEQUATION:~{\displaystyle p(H2|y)={\frac {p(y|H2)\cdot \pi _{2}}{p(y)}}}
 
 ************
 OPERATIONS:~{'ADD': 1, 'MUL': 2}
-SYMBOLS:~[x, pi_{x}]
+SYMBOLS:~[pi_{x}, x]
 EQUATION:~pi_{x}*p(x) + pi_{x}*p(x)
 LINK:~/wiki/Detection_theory
 WIKIEQUATION:~{\displaystyle p(y|H1)\cdot \pi _{1}+p(y|H2)\cdot \pi _{2}}
@@ -46,7 +55,7 @@ WIKIEQUATION:~{\displaystyle p(y|H1)\cdot \pi _{1}+p(y|H2)\cdot \pi _{2}}
 
 ************
 OPERATIONS:~{'ADD': 1, 'DIV': 1, 'MUL': 3}
-SYMBOLS:~[x, pi_{x}]
+SYMBOLS:~[pi_{x}, x]
 EQUATION:~(pi_{x}*p(x))/(pi_{x}*p(x) + pi_{x}*p(x))
 LINK:~/wiki/Detection_theory
 WIKIEQUATION:~{\displaystyle {\frac {p(y|H2)\cdot \pi _{2}}{p(y|H1)\cdot \pi _{1}+p(y|H2)\cdot \pi _{2}}}\geq {\frac {p(y|H1)\cdot \pi _{1}}{p(y|H1)\cdot \pi _{1}+p(y|H2)\cdot \pi _{2}}}}
@@ -136,7 +145,7 @@ WIKIEQUATION:~{\displaystyle U'=P_{11}\cdot (U_{11}-U_{21})-P_{12}\cdot (U_{22}-
 
 ************
 OPERATIONS:~{'MUL': 2, 'SUB': 1}
-SYMBOLS:~[x, pi_{x}, U_{x}]
+SYMBOLS:~[U_{x}, x, pi_{x}]
 EQUATION:~(pi_{x}*(-U_{x} + U_{x}))*p(x)
 LINK:~/wiki/Detection_theory
 WIKIEQUATION:~{\displaystyle \pi _{2}\cdot (U_{22}-U_{12})\cdot p(y|H2)\geq \pi _{1}\cdot (U_{11}-U_{21})\cdot p(y|H1)}
@@ -145,7 +154,7 @@ WIKIEQUATION:~{\displaystyle \pi _{2}\cdot (U_{22}-U_{12})\cdot p(y|H2)\geq \pi 
 
 ************
 OPERATIONS:~{'DIV': 1, 'MUL': 4, 'SUB': 2}
-SYMBOLS:~[pi_{x}, tau_{x}, U_{x}, equiv]
+SYMBOLS:~[U_{x}, equiv, tau_{x}, pi_{x}]
 EQUATION:~(equiv*tau_{x})*((pi_{x}*(-U_{x} + U_{x}))/((pi_{x}*(-U_{x} + U_{x}))))
 LINK:~/wiki/Detection_theory
 WIKIEQUATION:~{\displaystyle \Rightarrow L(y)\equiv {\frac {p(y|H2)}{p(y|H1)}}\geq {\frac {\pi _{1}\cdot (U_{11}-U_{21})}{\pi _{2}\cdot (U_{22}-U_{12})}}\equiv \tau _{B}}
@@ -154,7 +163,7 @@ WIKIEQUATION:~{\displaystyle \Rightarrow L(y)\equiv {\frac {p(y|H2)}{p(y|H1)}}\g
 
 ************
 OPERATIONS:~{'ADD': 1, 'MUL': 4, 'POW': 3, 'SUB': 1}
-SYMBOLS:~[sigma_{x}, x_{x}, r_{x}]
+SYMBOLS:~[sigma_{x}, r_{x}, x_{x}]
 EQUATION:~x_{x}*sqrt(-2*r_{x}*(sigma_{x}*sigma_{x}) + (sigma_{x}**2 + sigma_{x}**2))
 LINK:~/wiki/Law_of_comparative_judgment
 WIKIEQUATION:~{\displaystyle S_{i}-S_{j}=x_{ij}{\sqrt {\sigma _{i}^{2}+\sigma _{j}^{2}-2r_{ij}\sigma _{i}\sigma _{j}}},}
@@ -199,7 +208,7 @@ WIKIEQUATION:~{\displaystyle S_{i}-S_{j}\cong 1}
 
 ************
 OPERATIONS:~{'MUL': 1, 'POW': 1}
-SYMBOLS:~[I, k, a]
+SYMBOLS:~[k, I, a]
 EQUATION:~I**a*k
 LINK:~/wiki/Stevens%27s_power_law
 WIKIEQUATION:~{\displaystyle \psi (I)=kI^{a},}
@@ -208,7 +217,7 @@ WIKIEQUATION:~{\displaystyle \psi (I)=kI^{a},}
 
 ************
 OPERATIONS:~{'MUL': 1}
-SYMBOLS:~[b, a]
+SYMBOLS:~[a, b]
 EQUATION:~a*b
 LINK:~/wiki/Two-alternative_forced_choice
 WIKIEQUATION:~{\displaystyle ab}
@@ -217,7 +226,7 @@ WIKIEQUATION:~{\displaystyle ab}
 
 ************
 OPERATIONS:~{'MUL': 1}
-SYMBOLS:~[b, a]
+SYMBOLS:~[a, b]
 EQUATION:~a*b
 LINK:~/wiki/Two-alternative_forced_choice
 WIKIEQUATION:~{\displaystyle ba}
@@ -234,8 +243,17 @@ WIKIEQUATION:~{\displaystyle x_{1},x_{2}}
 ************
 
 ************
+OPERATIONS:~{'DIV': 1, 'POW': 2, 'SUB': 2}
+SYMBOLS:~[mu_{x}, sigma_{x}]
+EQUATION:~(-mu_{x} + mu_{x})/(-sigma_{x}**2 + sigma_{x}**2)
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\boldsymbol {w}}={\begin{bmatrix}\sigma _{a}^{2}&-\sigma _{b}^{2}\end{bmatrix}},\;{\boldsymbol {k}}={\begin{bmatrix}1&1\end{bmatrix}},\;{\boldsymbol {\lambda }}={\frac {\mu _{a}-\mu _{b}}{\sigma _{a}^{2}-\sigma _{b}^{2}}}{\begin{bmatrix}\sigma _{a}^{2}&\sigma _{b}^{2}\end{bmatrix}}.}
+
+************
+
+************
 OPERATIONS:~{'ADD': 1, 'MUL': 2}
-SYMBOLS:~[dt, dW, c, A]
+SYMBOLS:~[c, dt, A, dW]
 EQUATION:~A*dt + c*dW
 LINK:~/wiki/Two-alternative_forced_choice
 WIKIEQUATION:~{\displaystyle dx=Adt+cdW\ ,\ x(0)=0}
@@ -253,7 +271,7 @@ WIKIEQUATION:~{\displaystyle dx\ =\ (\lambda x+A)dt\ +\ cdW}
 
 ************
 OPERATIONS:~{'MUL': 1, 'NEG': 1}
-SYMBOLS:~[y_{x}, k]
+SYMBOLS:~[k, y_{x}]
 EQUATION:~-k*y_{x}
 LINK:~/wiki/Two-alternative_forced_choice
 WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{2}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{1}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
@@ -262,7 +280,7 @@ WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-w
 
 ************
 OPERATIONS:~{'MUL': 1, 'NEG': 1}
-SYMBOLS:~[y_{x}, k]
+SYMBOLS:~[k, y_{x}]
 EQUATION:~-k*y_{x}
 LINK:~/wiki/Two-alternative_forced_choice
 WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{2}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{1}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
@@ -271,7 +289,7 @@ WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-w
 
 ************
 OPERATIONS:~{'MUL': 1, 'NEG': 1}
-SYMBOLS:~[y_{x}, k]
+SYMBOLS:~[k, y_{x}]
 EQUATION:~-k*y_{x}
 LINK:~/wiki/Two-alternative_forced_choice
 WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{3}}+vy_{\text{1}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{3}}+vy_{\text{2}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\\dy_{\text{3}}\ =\ (-k_{\text{inh}}y_{\text{3}}+w'(y_{\text{1}}+y_{\text{2}}))dt\end{aligned}}}
@@ -280,7 +298,7 @@ WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-w
 
 ************
 OPERATIONS:~{'MUL': 1, 'NEG': 1}
-SYMBOLS:~[y_{x}, k]
+SYMBOLS:~[k, y_{x}]
 EQUATION:~-k*y_{x}
 LINK:~/wiki/Two-alternative_forced_choice
 WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{3}}+vy_{\text{1}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{3}}+vy_{\text{2}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\\dy_{\text{3}}\ =\ (-k_{\text{inh}}y_{\text{3}}+w'(y_{\text{1}}+y_{\text{2}}))dt\end{aligned}}}
@@ -298,7 +316,7 @@ WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-w
 
 ************
 OPERATIONS:~{'MUL': 1}
-SYMBOLS:~[S, K]
+SYMBOLS:~[K, S]
 EQUATION:~K*S
 LINK:~/wiki/Weber%E2%80%93Fechner_law
 WIKIEQUATION:~{\displaystyle dS=K\cdot S}
@@ -307,7 +325,7 @@ WIKIEQUATION:~{\displaystyle dS=K\cdot S}
 
 ************
 OPERATIONS:~{'DIV': 1}
-SYMBOLS:~[S, dS]
+SYMBOLS:~[dS, S]
 EQUATION:~dS/S
 LINK:~/wiki/Weber%E2%80%93Fechner_law
 WIKIEQUATION:~{\displaystyle dp={\frac {dS}{S}}\,\!}
@@ -316,7 +334,7 @@ WIKIEQUATION:~{\displaystyle dp={\frac {dS}{S}}\,\!}
 
 ************
 OPERATIONS:~{'DIV': 1, 'EXP': 1, 'LOG': 1, 'MUL': 1}
-SYMBOLS:~[S, k, S_{x}]
+SYMBOLS:~[k, S, S_{x}]
 EQUATION:~k*log(S/S_{x}, E)
 LINK:~/wiki/Weber%E2%80%93Fechner_law
 WIKIEQUATION:~{\displaystyle p=k\ln {\frac {S}{S_{0}}}\,\!}
@@ -325,7 +343,7 @@ WIKIEQUATION:~{\displaystyle p=k\ln {\frac {S}{S_{0}}}\,\!}
 
 ************
 OPERATIONS:~{'DIV': 1, 'MUL': 1}
-SYMBOLS:~[dS, S, k]
+SYMBOLS:~[k, dS, S]
 EQUATION:~k*(dS/S)
 LINK:~/wiki/Weber%E2%80%93Fechner_law
 WIKIEQUATION:~{\displaystyle dp=k{\frac {dS}{S}}}
@@ -334,7 +352,7 @@ WIKIEQUATION:~{\displaystyle dp=k{\frac {dS}{S}}}
 
 ************
 OPERATIONS:~{'ADD': 1, 'EXP': 1, 'LOG': 1, 'MUL': 1}
-SYMBOLS:~[C, S, k]
+SYMBOLS:~[C, k, S]
 EQUATION:~C + k*log(S, E)
 LINK:~/wiki/Weber%E2%80%93Fechner_law
 WIKIEQUATION:~{\displaystyle p=k\ln {S}+C}
@@ -352,7 +370,7 @@ WIKIEQUATION:~{\displaystyle C=-k\ln {S_{0}}}
 
 ************
 OPERATIONS:~{'DIV': 1, 'EXP': 1, 'LOG': 1, 'MUL': 1}
-SYMBOLS:~[S, k, S_{x}]
+SYMBOLS:~[k, S, S_{x}]
 EQUATION:~k*log(S/S_{x}, E)
 LINK:~/wiki/Weber%E2%80%93Fechner_law
 WIKIEQUATION:~{\displaystyle p=k\ln {\frac {S}{S_{0}}}}

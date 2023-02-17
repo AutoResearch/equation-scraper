@@ -57,6 +57,12 @@ def processEquation(wikiLine,currentLink,currentLine):
             if subEquation: #Ensure the sub-equation exists 
                 currentEquation = formatEquation(subEquation) #Calls the format equation function 
                 scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,subEquation) #Calls the append variables function        
+    elif '\\;' in currentLine:
+        currentLine = currentLine.split('\\;')
+        for subEquation in currentLine:
+            if subEquation:
+                currentEquation = formatEquation(subEquation) #Calls the format equation function 
+                scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,currentEquation)
     else: #There only exists one equation
         currentEquation = formatEquation(currentLine) #Calls the format equation function 
         scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine) #Calls the append variables function
@@ -68,7 +74,7 @@ def formatEquation(currentLine):
     [INSERT FUNCTION DESCRIPTION]
     
     '''
-    if (currentLine[0] != '#') & (currentLine != '\n') & (currentLine.count('=') < 2) & ('bmatrix' not in currentLine):
+    if (currentLine[0] != '#') & (currentLine != '\n') & (currentLine.count('=') < 2):
             
             #Split equations to remove the left hand side
             separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1,'=': -1, '\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0, '\cong': 0}
@@ -116,7 +122,10 @@ def formatEquation(currentLine):
     
     #If an equation was found and reformatted, return it
     if ('currentEquation' in locals()):
-        return currentEquation
+        if (currentEquation != ''):
+            return currentEquation
+        else:
+            return []
     else:
         return []
     
@@ -167,6 +176,7 @@ for currentLine in scrapedWiki:
     if (currentLine[-1] == '\n') & (len(currentLine) > 1):
         currentLine = currentLine[:-1]
     
+    ####TODO: Add these to the formatEquation function
     #Removing latex formatting
     if '{\\displaystyle' in currentLine:
         currentLine = currentLine.replace('{\\displaystyle','')[:-1]
@@ -177,6 +187,12 @@ for currentLine in scrapedWiki:
         for superBracket in superBrackets:
             if (superBracket.count('(')==1) | (superBracket.count(')')==1) | (superBracket.count('{')==1) | (superBracket.count('}')==1):
                 currentLine = currentLine.replace('^'+superBracket,'')
+    
+    #Remove bmatrices 
+    subText = re.findall(r'{\\begin{bmatrix}.*?\\end{bmatrix}}', currentLine)
+    if subText:
+        for sub in subText:
+            currentLine = currentLine.replace(sub,'')
     
     #Reformat conditional probability notations
     subText = re.findall(r'p\(.*?\|.*?\)', currentLine) 

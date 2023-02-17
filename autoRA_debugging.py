@@ -1,7 +1,7 @@
 ####
 ##User input
 ####
-equation = r"{\displaystyle dx=Adt+cdW\ ,\ x(0)=0}"
+equation = r"{\displaystyle {\boldsymbol {w}}={\begin{bmatrix}\sigma _{a}^{2}&-\sigma _{b}^{2}\end{bmatrix}},\;{\boldsymbol {k}}={\begin{bmatrix}1&1\end{bmatrix}},\;{\boldsymbol {\lambda }}={\frac {\mu _{a}-\mu _{b}}{\sigma _{a}^{2}-\sigma _{b}^{2}}}{\begin{bmatrix}\sigma _{a}^{2}&\sigma _{b}^{2}\end{bmatrix}}.}"
 
 ####
 #Load Modules
@@ -32,6 +32,12 @@ def processEquation(wikiLine,currentLink,currentLine):
             if subEquation: #Ensure the sub-equation exists 
                 currentEquation = formatEquation(subEquation) #Calls the format equation function 
                 scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,subEquation) #Calls the append variables function        
+    elif '\\;' in currentLine:
+        currentLine = currentLine.split('\\;')
+        for subEquation in currentLine:
+            if subEquation:
+                currentEquation = formatEquation(subEquation) #Calls the format equation function 
+                scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,currentEquation)
     else: #There only exists one equation
         currentEquation = formatEquation(currentLine) #Calls the format equation function 
         scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,currentLine) #Calls the append variables function
@@ -43,7 +49,7 @@ def formatEquation(currentLine):
     [INSERT FUNCTION DESCRIPTION]
     
     '''
-    if (currentLine[0] != '#') & (currentLine != '\n') & (currentLine.count('=') < 2) & ('bmatrix' not in currentLine):
+    if (currentLine[0] != '#') & (currentLine != '\n') & (currentLine.count('=') < 2):
             
             #Split equations to remove the left hand side
             separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1,'=': -1, '\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0}
@@ -51,7 +57,7 @@ def formatEquation(currentLine):
                 currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1] #TODO: I think this new method removed two equations, figure out if so and why
               
             #Removes specific notations that Sympy cannot comprehend 
-            excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','\\boldsymbol','\\cdot','\\cdots','aligned','\\ddot','\\dot','\Rightarrow'] #TODO: Are removing the cdots/ddots a problem mathematically?
+            excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?
             if 'currentEquation' in locals():             
                 currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
                 
@@ -89,7 +95,10 @@ def formatEquation(currentLine):
     
     #If an equation was found and reformatted, return it
     if ('currentEquation' in locals()):
-        return currentEquation
+        if (currentEquation != ''):
+            return currentEquation
+        else:
+            return []
     else:
         return []
     
@@ -112,6 +121,8 @@ def appendVariables(wikiLine,currentLink,currentEquation, currentLine):
 ## Reformat currentLine
 ####
 currentLine = equation
+wikiLine = 'Debugging'
+currentLink = 'Debugging'
 
 #Removing latex formatting
 if '{\\displaystyle' in currentLine:
@@ -124,6 +135,12 @@ if superBrackets:
         if (superBracket.count('(')==1) | (superBracket.count(')')==1) | (superBracket.count('{')==1) | (superBracket.count('}')==1):
             currentLine = currentLine.replace('^'+superBracket,'')
 
+#Remove bmatrices 
+subText = re.findall(r'{\\begin{bmatrix}.*?\\end{bmatrix}}', currentLine)
+if subText:
+    for sub in subText:
+        currentLine = currentLine.replace(sub,'')
+            
 #Reformat conditional probability notations
 subText = re.findall(r'p\(.*?\|.*?\)', currentLine) 
 if subText:
@@ -233,3 +250,8 @@ try:
             break
 except:
     pass
+
+
+for s in currentLine:
+    print(s)
+    print('$$$')
