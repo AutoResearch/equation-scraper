@@ -26,6 +26,9 @@ loadName = 'parsed_operations_' + saveKeywords + '.txt' #Create file name
  
 import matplotlib.pyplot as plt
 import numpy as np 
+import collections
+import inflect
+p = inflect.engine()
 
 ###############################################################################
 #2. Load File
@@ -40,6 +43,7 @@ with open('Data/'+loadName,'r') as f:
     
 #Setup Variables
 allOps = {}
+opCounts = []
 #Cycle through each line to extract operation information
 for parsedEq in parsedEqs:
     
@@ -66,6 +70,26 @@ for parsedEq in parsedEqs:
             except:
                 pass #TODO: ADD DEBUG IN CASE CODE REACHES HERE
 
+    #Determine number of operations per equation
+    opCount = 0
+    for ops in parsedOps:
+        opCount += int(ops.split(' ')[-1])
+    opCounts.append(opCount)
+
+#Determine frequency table of number of operators
+opCounter = collections.Counter(opCounts)
+
+#Sort the frequency table
+sortCounter = list(opCounter.keys())
+sortCounter.sort(reverse=True)
+sortedCounter = {i: opCounter[i] for i in sortCounter}
+
+#Change labels to words
+opCounterLabel = dict()
+for opCountKey in sortedCounter.keys():
+    opCounterLabel[p.number_to_words(opCountKey)] = sortedCounter[opCountKey]
+    
+opCounter = opCounterLabel
 
 ###############################################################################
 #4. Reformat operator titles
@@ -128,13 +152,17 @@ if 'LOG' in plotOps:
     del plotOps['LOG']  
     
 ###############################################################################
-#5. Plot as pie chart
+#5. Plot operators as pie chart
 ###############################################################################
+#TODO: Turn this into a function
 
 #Create plot
-fig, ax = plt.subplots(figsize=(14, 8), subplot_kw=dict(aspect="equal")) #Plot formatting
+fig, (ax,ax2) = plt.subplots(1,2,figsize=(14, 8), subplot_kw=dict(aspect="equal")) #Plot formatting
+fig.subplots_adjust(wspace=.75)
+fig.suptitle('Category:\n' + loadName.split('_')[-1].split('.')[0], fontsize = 20)
+
 wedges, texts = ax.pie(plotOps.values(), startangle=-40, colors = plt.get_cmap("Pastel1")(np.linspace(0.0, 1, len(plotOps.keys())))) #Add pie chart
-plt.title('Category:\n' + loadName.split('_')[-1].split('.')[0], loc='left', fontsize = 20) #Add title
+ax.set_title('Types of Operations\n\n', loc='left', fontsize = 15) #Add title
 
 #Move labels outside of the pie chart
 bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72) #Format label locations
@@ -150,12 +178,38 @@ for i, p in enumerate(wedges): #Cycle through operators
     kw["arrowprops"].update({"connectionstyle": connectionstyle}) #Add line linking label to plot
     #TODO ADJUST THE FOLLOWING - THIS WAS FOR A SPECIFIC PLOT WHERE LABELS OVERLAPPED, BUT INSTEAD THE SCRIPT SHOULD DETECT OVERLAP AND MOVE THESE AUTOMATICALLY
     if (list(plotOps.keys())[i] == 'Derivative') | (list(plotOps.keys())[i] == 'Cosine'):
-        ax.annotate(list(plotOps.keys())[i], xy=(x, y), xytext=(1.8*np.sign(x), 1.4*y), fontsize=18, horizontalalignment=horizontalalignment, **kw) #Add adjusted label to pie chart
+        ax.annotate(list(plotOps.keys())[i], xy=(x, y), xytext=(1.8*np.sign(x), 1.4*y), fontsize=14, horizontalalignment=horizontalalignment, **kw) #Add adjusted label to pie chart
     else: 
-        ax.annotate(list(plotOps.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=18, horizontalalignment=horizontalalignment, **kw) #Add label to pie chart
+        ax.annotate(list(plotOps.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=14, horizontalalignment=horizontalalignment, **kw) #Add label to pie chart
 
 ###############################################################################
-#5. Save and plot figure
+#6. Plot operator counts as pie chart
+###############################################################################
+
+#Create plot
+wedges, texts = ax2.pie(opCounter.values(), startangle=-40, colors = plt.get_cmap("Pastel1")(np.linspace(0.0, 1, len(opCounter.keys())))) #Add pie chart
+ax2.set_title('Number of Operations\n\n', loc='left', fontsize = 15) #Add title
+
+#Move labels outside of the pie chart
+bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72) #Format label locations
+kw = dict(arrowprops=dict(arrowstyle="-"), bbox=bbox_props, zorder=0, va="center") #Determine label formats
+
+#Adjust labels in a cycle
+for i, p in enumerate(wedges): #Cycle through operators
+    ang = (p.theta2 - p.theta1)/2. + p.theta1 #Determine current label location angle
+    y = np.sin(np.deg2rad(ang)) #Determine current label location y
+    x = np.cos(np.deg2rad(ang)) #Determine current label location x
+    horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))] #Push label horizontally
+    connectionstyle = "angle,angleA=0,angleB={}".format(ang) #Add line linking label to plot
+    kw["arrowprops"].update({"connectionstyle": connectionstyle}) #Add line linking label to plot
+    #TODO ADJUST THE FOLLOWING - THIS WAS FOR A SPECIFIC PLOT WHERE LABELS OVERLAPPED, BUT INSTEAD THE SCRIPT SHOULD DETECT OVERLAP AND MOVE THESE AUTOMATICALLY
+    if (list(opCounter.keys())[i] == 'Derivative') | (list(opCounter.keys())[i] == 'Cosine'):
+        ax2.annotate(list(opCounter.keys())[i], xy=(x, y), xytext=(1.8*np.sign(x), 1.4*y), fontsize=14, horizontalalignment=horizontalalignment, **kw) #Add adjusted label to pie chart
+    else: 
+        ax2.annotate(list(opCounter.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=14, horizontalalignment=horizontalalignment, **kw) #Add label to pie chart
+
+###############################################################################
+#7. Save and plot figure
 ###############################################################################
 
 plt.savefig('Figures/'+'_'.join(searchedKeywords)+'_PriorPieChart.png') #Save figure
