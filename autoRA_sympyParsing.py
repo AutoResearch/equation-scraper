@@ -77,7 +77,7 @@ def formatEquation(currentLine):
     if (currentLine[0] != '#') & (currentLine != '\n') & (currentLine.count('=') < 2):
             
             #Split equations to remove the left hand side
-            separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1,'=': -1, '\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0, '\cong': 0}
+            separators = {'&=&': -1,'&=': -1,'=\\':-1,',&': 0, ':=': -1, '=:': -1,'=': -1, '\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0, '\cong': 0}
             if ('\\equiv' not in currentLine) | ('\\approx' not in currentLine): #TODO: Removes equivalencies and approximations but should it?
                 currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1] #TODO: I think this new method removed two equations, figure out if so and why
               
@@ -107,7 +107,15 @@ def formatEquation(currentLine):
                 #The descriptive sum conflicts, and so we convert it to a simple sum
                 if '\sum _{i=1}^{n}' in currentEquation:
                     currentEquation = currentEquation.replace('\sum _{i=1}^{n}','\sum')
-                    
+                
+                #Remove odd notation (this is caused by the symbol before the addition and not the addition itself)
+                if '\+' in currentEquation:
+                    currentEquation = currentEquation.replace('\+','+')
+                
+                #Remove odd notation
+                if '\-' in currentEquation:
+                    currentEquation = currentEquation.replace('\-','-')
+    
                 #Remove backslashes at the end of the equations
                 if '\\' == currentEquation[-1:]:
                     currentEquation = currentEquation[:-1]
@@ -200,19 +208,27 @@ for currentLine in scrapedWiki:
         for sub in subText:
             currentLine = currentLine.replace(sub,'p(x)')
             
+    #Remove text formatting and replace with t
+    subText = re.findall('text\{.*?\}', currentLine)
+    if subText:
+        for sub in subText:
+            currentLine = currentLine.replace('\\'+sub,'t')
+            
     #Reformat subscript notations
     subText = re.findall(r'\_\{.*?\}', currentLine)
     if subText:
         for sub in subText:
             currentLine = currentLine.replace(sub,'_{x}')
-            
+     
+    ''' Sometimes brackets mean multiplication and not function, so it might be better to leave it     
     #Reformat function notations
     for letter in string.ascii_lowercase+string.ascii_uppercase:
         subText = re.findall(letter+r'\(.*?\)', currentLine)
         if subText:
             for sub in subText:
                 currentLine = currentLine.replace(sub,letter+'(x)')
-        
+    '''  
+                    
     #Removing math formatting
     mathFormats = ['\mathnormal {', '\mathrm {', '\mathbf {', '\mathsf {', '\mathtt {','\mathfrak {','\mathcal {','\mathbb {','\mathscr {']
     for mathFormat in mathFormats:
@@ -254,10 +270,10 @@ unparsedEq = 0
 #Cycle through each formatted equation
 for x, eq in enumerate(scrapedEquations):
     #Display metrics for every 10 equations scraped 
-    if x % 10 == 0:
+    if (x % 10 == 0) | (x == len(scrapedEquations)-1):
         print('\nCurrent Equation:')
         print(eq)
-        print('Completed: ' + str(round((x/len(scrapedEquations))*100,2))+ '% ... Parsed: ' + str(parsedEq) + ' ... Unparsed: '+ str(unparsedEq))
+        print('Completed: ' + str(round((x/(len(scrapedEquations)-1))*100,2))+ '% ... Parsed: ' + str(parsedEq) + ' ... Unparsed: '+ str(unparsedEq))
     #Create tree of computation graph
     try:
         if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case
@@ -285,12 +301,19 @@ for x, eq in enumerate(scrapedEquations):
                     del operations[opTypes.index('DIV')]
                     del opTypes[opTypes.index('DIV')]
                     
+            #Natural Logarithm
+            if ('LOG' in opTypes) & ('EXP' in opTypes): #Square root is represented as both power and division
+                operations[opTypes.index('EXP')][1] = operations[opTypes.index('EXP')][1] - operations[opTypes.index('LOG')][1] #Remove the EXP count by number of LOGs
+                if operations[opTypes.index('EXP')][1] == 0: #Remove division if it has decreased count to zero
+                    del operations[opTypes.index('EXP')]
+                    del opTypes[opTypes.index('EXP')]
+                    
             #Functions
             funcIndexes = [idx for idx, opType in enumerate(opTypes) if 'FUNC' in opType]
             for funcIdx in funcIndexes[::-1]:
                 del operations[funcIdx]
                 del opTypes[funcIdx]
-                                
+                
             #Record operations into variable to be saved
             if (eqOperations != ['0']):
                 if operations: #Some of the above deletes operations and sometimes it will delete all operations, so we check to make sure there are some left before printing
@@ -317,9 +340,13 @@ for x, eq in enumerate(scrapedEquations):
 parsedFilename = 'Data/parsed_'+loadName
 with open(parsedFilename, 'w') as f:
     for parsedItem in parsedEquations:
-        if printDebug==False:
-            f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
-        else:
+        f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
+    
+#Debug mode prints a new file with a different layout    
+if printDebug==True:        
+    parsedFilename = 'Data/debug_parsed_'+loadName
+    with open(parsedFilename, 'w') as f:       
+        for parsedItem in parsedEquations:
             f.write('\n')
             f.write('************\n')
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'\n')

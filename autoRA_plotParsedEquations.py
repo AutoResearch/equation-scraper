@@ -42,9 +42,11 @@ with open('Data/'+loadName,'r') as f:
 allOps = {}
 #Cycle through each line to extract operation information
 for parsedEq in parsedEqs:
+    
     parsedOps = parsedEq.split('~')[1][1:-1].replace('\'','').split(',') #Deliminate the file using a tilda deliminator
     
     #Partial derivatives are represented as division, so adjust this accordingly 
+    #TODO: Add this to the parsing script
     if ('partial' in parsedEq.split('~')[3]) & ('DIV' in str(parsedOps)): #Determines whether a partial derivative exists
         for i, pO in enumerate(parsedOps): #Cycles the parsed operator
             if 'DIV' in pO: #Determine if a division exists
@@ -54,7 +56,8 @@ for parsedEq in parsedEqs:
     
     #Cycle through operators 
     for parsedOp in parsedOps:
-        if ('FUNC' not in parsedOp.split(':')[0]) & ('NEG' not in parsedOp.split(':')[0]): #Skip function operators #TODO: SHOULD WE KEEP THESE?
+        #if ('FUNC' not in parsedOp.split(':')[0]) & ('NEG' not in parsedOp.split(':')[0]): #TODO: I think we keep NEG as it is a special case (could be transformed to MULT maybe?)
+        if ('FUNC' not in parsedOp.split(':')[0]): #Skip function operators #TODO: SHOULD WE KEEP THESE?
             try:
                 if parsedOp.split(':')[0].replace(' ','') in allOps.keys(): #If the operator already exists in the tracking variable, increment accordingly
                     allOps[parsedOp.split(':')[0].replace(' ','')] += int((parsedOp.split(':')[1]).replace(' ','')) #Increment by corresponding frequency
@@ -123,7 +126,6 @@ if 'DERIVATIVE' in plotOps:
 if 'LOG' in plotOps:
     plotOps['Logarithm'] = plotOps['LOG']
     del plotOps['LOG']  
-    del plotOps['EXP'] #We also remove EXP because a natural logarithm in sympy is represented as both LOG and EXP (at once)
     
 ###############################################################################
 #5. Plot as pie chart

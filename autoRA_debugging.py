@@ -1,7 +1,10 @@
 ####
 ##User input
 ####
-equation = r"{\displaystyle {\boldsymbol {w}}={\begin{bmatrix}\sigma _{a}^{2}&-\sigma _{b}^{2}\end{bmatrix}},\;{\boldsymbol {k}}={\begin{bmatrix}1&1\end{bmatrix}},\;{\boldsymbol {\lambda }}={\frac {\mu _{a}-\mu _{b}}{\sigma _{a}^{2}-\sigma _{b}^{2}}}{\begin{bmatrix}\sigma _{a}^{2}&\sigma _{b}^{2}\end{bmatrix}}.}"
+equation = r"(-ky_{x}}-wy_{x}}+I_{x}})dt+\cdW_{x}}"
+
+#TODO:
+#{\displaystyle dx=Adt+cdW\ ,\ x(0)=0} and the like represents adt (one symbol) as a*dt -> anything to do about this?
 
 ####
 #Load Modules
@@ -52,7 +55,7 @@ def formatEquation(currentLine):
     if (currentLine[0] != '#') & (currentLine != '\n') & (currentLine.count('=') < 2):
             
             #Split equations to remove the left hand side
-            separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1,'=': -1, '\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0}
+            separators = {'&=&': -1,'&=': -1,'=\\':-1,',&': 0, ':=': -1, '=:': -1,'=': -1, '\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0, '\cong': 0}
             if ('\\equiv' not in currentLine) | ('\\approx' not in currentLine): #TODO: Removes equivalencies and approximations but should it?
                 currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1] #TODO: I think this new method removed two equations, figure out if so and why
               
