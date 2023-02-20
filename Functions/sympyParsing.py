@@ -1,5 +1,5 @@
 ###############################################################################
-## Written by Chad C. Williams, 2022                                         ##
+## Written by Chad C. Williams, 2023                                         ##
 ## www.chadcwilliams.com                                                     ##
 ###############################################################################
 
@@ -13,26 +13,32 @@ Note: There exists a requirements.txt file
 '''
 
 ###############################################################################
-#0. User Inputs - Determine Which Category Pages to Scrape
-###############################################################################
-
-
-###############################################################################
-#1. Import Modules
+#0. Import Modules & Determine Keywords
 ###############################################################################
 
 from sympy.parsing.latex import parse_latex
 import sympy as sp
 import re
-import string
+import os
 
+#Determine categories to search
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1:
+        searchKeywords = sys.argv[1:]
+    else:
+        searchKeywords = ['Psychophysics']
+    
+    print('Web Scraping for Priors')
+    print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
+    
 ###############################################################################
-#2. Determine Functions
+#1. Determine Functions
 ###############################################################################
 #TODO: Make variables a structure
 
 #Searches for all links on given URL
-def loadData(searchKeywords = ['Psychophysics']):
+def loadData(searchKeywords):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -43,7 +49,7 @@ def loadData(searchKeywords = ['Psychophysics']):
     loadName = 'operations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
-    with open('Data/'+loadName,'r') as f:
+    with open(os.path.dirname(__file__) + '/../Data/'+loadName,'r') as f:
         scrapedWiki = f.readlines()
 
     return loadName, scrapedWiki
@@ -70,7 +76,8 @@ def cycleEquations(scrapedWiki):
         
         #Determine if current line represents link
         if '#LINK:' in currentLine:
-            print(currentLine)
+            if __name__ == '__main__':
+                print(currentLine)
             currentLink = currentLine
             
         #Process Equation
@@ -263,7 +270,7 @@ def parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skipped
     #Cycle through each formatted equation
     for x, eq in enumerate(scrapedEquations):
         #Display metrics for every 10 equations scraped 
-        if (x % 10 == 0) | (x == len(scrapedEquations)-1):
+        if ((x % 10 == 0) | (x == len(scrapedEquations)-1)) & (__name__ == '__main__'):
             print('\nCurrent Equation:')
             print(eq)
             print('Completed: ' + str(round((x/(len(scrapedEquations)-1))*100,2))+ '% ... Parsed: ' + str(parsedEq) + ' ... Unparsed: '+ str(unparsedEq))
@@ -327,15 +334,15 @@ def parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skipped
     
     return parsedEquations
 
-def saveFiles(loadName, parsedEquations, printDebug):
-    parsedFilename = 'Data/parsed_'+loadName
+def saveFiles(loadName, parsedEquations, skippedEquations, printDebug = False):
+    parsedFilename = os.path.dirname(__file__) + '/../Data/parsed_'+loadName
     with open(parsedFilename, 'w') as f:
         for parsedItem in parsedEquations:
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
         
     #Debug mode prints a new file with a different layout    
     if printDebug==True:        
-        parsedFilename = 'Data/debug_parsed_'+loadName
+        parsedFilename = os.path.dirname(__file__) + '/../Data/debug_parsed_'+loadName
         with open(parsedFilename, 'w') as f:       
             for parsedItem in parsedEquations:
                 f.write('\n')
@@ -348,32 +355,37 @@ def saveFiles(loadName, parsedEquations, printDebug):
                 f.write('************\n')            
 
     #Save file of skipped equations, if any
-    skippedFilename = 'Data/skipped_'+loadName
+    skippedFilename = os.path.dirname(__file__) + '/../Data/skipped_'+loadName
     with open(skippedFilename, 'w') as f:
         for skippedItem in skippedEquations:
             if '#' not in skippedItem:
                 f.write(skippedItem[0])
                 f.write('\n')
-                
+            
 ###############################################################################
-#3. Load Data and Setup Variables
-###############################################################################
-loadName, scrapedWiki = loadData(['Psychophysics'])
-
-###############################################################################
-#4. Re-Format Latex Equations to Comply with Sympy Translation
+## IF SCRIPT WAS EXECUTED DIRECTLY:                                          ##
 ###############################################################################
 
-scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = cycleEquations(scrapedWiki)
+if __name__ == '__main__':
+    ###############################################################################
+    #2. Load Data and Setup Variables
+    ###############################################################################
+    loadName, scrapedWiki = loadData(searchKeywords)
 
-###############################################################################
-#6. Parse Equations
-###############################################################################
+    ###############################################################################
+    #3. Re-Format Latex Equations to Comply with Sympy Translation
+    ###############################################################################
 
-parsedEquations = parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations)
+    scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = cycleEquations(scrapedWiki)
 
-###############################################################################
-#6. Save Files
-###############################################################################
+    ###############################################################################
+    #4. Parse Equations
+    ###############################################################################
 
-saveFiles(loadName, parsedEquations, True) 
+    parsedEquations = parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations)
+
+    ###############################################################################
+    #5. Save Files
+    ###############################################################################
+
+    saveFiles(loadName, parsedEquations, skippedEquations, True) 

@@ -1,5 +1,5 @@
 ###############################################################################
-## Written by Chad C. Williams, 2022                                         ##
+## Written by Chad C. Williams, 2023                                         ##
 ## www.chadcwilliams.com                                                     ##
 ###############################################################################
 
@@ -16,34 +16,48 @@ Note: There exists a requirements.txt file
 '''
 
 ###############################################################################
-#0. Import Modules
+#0. Import Modules & Determine Keywords
 ###############################################################################
 
 from bs4 import BeautifulSoup, SoupStrainer
 from pip._vendor import requests
 import time
+import os
+
+#Determine categories to search
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1:
+        searchKeywords = sys.argv[1:]
+    else:
+        searchKeywords = ['Psychophysics']
+        
+    print('Web Scraping for Priors')
+    print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
 
 ###############################################################################
 #1. Determine Functions
 ###############################################################################
 
+import os
+
 #Searches for all links on given URL
-def defineCategory(searchKeywords = ['Psychophysics']):
+def defineCategory(searchKeywords):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
-    
+
     #Create filename to save to
     saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
     saveName = 'operations_' + saveKeywords + '.txt' #Create file name
 
     #Save search parameters to file
-    with open('Data/'+saveName, 'a') as f: #Open file to be saved to
+    with open(os.path.dirname(__file__) + '/../Data/'+saveName, 'a') as f: #Open file to be saved to
         _ = f.write('#CATEGORIES: ' + str(searchKeywords) + '\n') #Save title to file
         _ = f.write('#--------------------#\n\n') #Add separator to file
 
-    return searchKeywords, saveName
+    return saveName
 
 def scrapeLinks(searchKeywords):
         
@@ -95,7 +109,7 @@ def extractLinks(links, saveName):
         if link: #Only run if link exists
             
             #Display metrics for every 10 links scraped
-            if linkIndex%10 == 0:
+            if ((linkIndex%10) == 0) & (__name__ == '__main__'):
                 print('Current Link: ' + 'https://en.wikipedia.org/' + link)
                 print('Current Link Index: ' + str(linkIndex))
                 print('Total Number of Links: ' + str(len(links)))
@@ -117,7 +131,7 @@ def extractLinks(links, saveName):
 
             #Save equations to a file
             if equations: #If equations exist on this page
-                with open('Data/'+saveName, 'a') as f: #Open file to be saved to
+                with open(os.path.dirname(__file__) + '/../Data/'+saveName, 'a') as f: #Open file to be saved to
                     titleSoup = BeautifulSoup(linkText, 'html.parser', parse_only = SoupStrainer('h1')) #Extract title of page
                     root = titleSoup.find('h1').text #Convert title to be saved
                     _ = f.write('#ROOT: ' + root + '\n') #Save title to file
@@ -130,28 +144,33 @@ def extractLinks(links, saveName):
                 numberEquations += len(equations) #Increase equation count for metric report
                     
             #Display metrics for every 10 links scraped 
-            if linkIndex%10 == 0: 
+            if ((linkIndex%10) == 0) & (__name__ == '__main__'):
                 print('Total Equations Added: ' + str(numberEquations))
                 print('Time Since Last Report: ' + str(round(time.time()-segmentInitial,2)) + ' seconds')
                 print('----------------------------------------')
                 segmentInitial = time.time() #Reset timer
             
     print('Web Scraping Complete in ' +str(round(time.time()-fullInitial,2)) + ' seconds!')
-    
-###############################################################################
-#0. User Inputs - Determine Which Category Pages to Scrape
-###############################################################################
-
-searchKeywords, saveName = defineCategory(['Psychophysics'])
 
 ###############################################################################
-#3. Determine all links to be scraped
+## IF SCRIPT WAS EXECUTED DIRECTLY:                                          ##
 ###############################################################################
 
-links = scrapeLinks(searchKeywords)
+if __name__ == '__main__':
+    ###############################################################################
+    #2. User Inputs - Determine Which Category Pages to Scrape
+    ###############################################################################
 
-###############################################################################
-#4. Extract and Save Equations from Each Link
-###############################################################################
+    saveName = defineCategory(searchKeywords)
 
-extractLinks(links, saveName)
+    ###############################################################################
+    #3. Determine all links to be scraped
+    ###############################################################################
+
+    links = scrapeLinks(searchKeywords)
+
+    ###############################################################################
+    #4. Extract and Save Equations from Each Link
+    ###############################################################################
+
+    extractLinks(links, saveName)

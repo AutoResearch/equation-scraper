@@ -1,5 +1,5 @@
 ###############################################################################
-## Written by Chad C. Williams, 2022                                         ##
+## Written by Chad C. Williams, 2023                                         ##
 ## www.chadcwilliams.com                                                     ##
 ###############################################################################
 
@@ -12,7 +12,7 @@ Note: There exists a requirements.txt file
 '''
 
 ###############################################################################
-#0. Import Modules
+#0. Import Modules & Determine Keywords
 ###############################################################################
  
 import matplotlib.pyplot as plt
@@ -20,12 +20,24 @@ import numpy as np
 import collections
 import inflect
 p = inflect.engine()
+import os
+
+#Determine categories to search
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1:
+        searchKeywords = sys.argv[1:]
+    else:
+        searchKeywords = ['Psychophysics']
+        
+    print('Web Scraping for Priors')
+    print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
 
 ###############################################################################
 #1. Define Functions
 ###############################################################################
 #Searches for all links on given URL
-def loadData(searchKeywords = ['Psychophysics']):
+def loadData(searchKeywords):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -36,10 +48,10 @@ def loadData(searchKeywords = ['Psychophysics']):
     loadName = 'parsed_operations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
-    with open('Data/'+loadName,'r') as f:
+    with open(os.path.dirname(__file__) + '/../Data/'+loadName,'r') as f:
         parsedEqs = f.readlines()
 
-    return searchKeywords, loadName, parsedEqs
+    return loadName, parsedEqs
 
 def extractOperations(parsedEqs):
     #Setup Variables
@@ -94,11 +106,9 @@ def reformatOperations(allOps, opCounts):
     sortedCounter = {i: opCounter[i] for i in sortCounter}
 
     #Change labels to words
-    opCounterLabel = dict()
+    plotCounts = dict()
     for opCountKey in sortedCounter.keys():
-        opCounterLabel[str(p.number_to_words(opCountKey)).capitalize()] = sortedCounter[opCountKey]
-        
-    plotCounts = opCounterLabel
+        plotCounts[str(p.number_to_words(opCountKey)).capitalize()] = sortedCounter[opCountKey]
     
     #########################################
     ## Format the types of operations data ##
@@ -162,15 +172,15 @@ def reformatOperations(allOps, opCounts):
         
     return plotOps, plotCounts
 
-def createFigure(allOps, opCounts):
+def createFigure(plotOps, plotCounts, searchKeywords):
 
     #Setup figure
     fig, (ax,ax2) = plt.subplots(1,2,figsize=(14, 8), subplot_kw=dict(aspect="equal")) #Plot formatting
     fig.subplots_adjust(wspace=.75)
-    fig.suptitle('Category:\n' + loadName.split('_')[-1].split('.')[0], fontsize = 20)
+    fig.suptitle('Category:\n' + '_'.join(searchKeywords), fontsize = 20)
 
     #Define function for plotting
-    def plotPieChart(plotData, ax):
+    def plotPieChart(plotData, ax):    
         wedges, texts = ax.pie(plotData.values(), startangle=-40, colors = plt.get_cmap("Pastel1")(np.linspace(0.0, 1, len(plotData.keys())))) #Add pie chart
         ax.set_title('Types of Operations\n\n', loc='left', fontsize = 15) #Add title
 
@@ -197,35 +207,40 @@ def createFigure(allOps, opCounts):
     plotPieChart(plotCounts, ax2)
     
 def saveFigure(searchedKeywords):
-    plt.savefig('Figures/'+'_'.join(searchedKeywords)+'_PriorPieChart.png') #Save figure
+    plt.savefig(os.path.dirname(__file__)+'/../Figures/'+'_'.join(searchedKeywords)+'_PriorPieChart.png') #Save figure
     plt.show() #Show figure
     
 ###############################################################################
-#2. Load File
-###############################################################################
- 
-searchKeywords, loadName, parsedEqs = loadData(searchKeywords = ['Psychophysics'])
-
-###############################################################################
-#3. Extract Operation Information 
+## IF SCRIPT WAS EXECUTED DIRECTLY:                                          ##
 ###############################################################################
 
-allOps, opCounts = extractOperations(parsedEqs)
-
-###############################################################################
-#4. Reformat operation titles
-###############################################################################
+if __name__ == '__main__':
+    ###############################################################################
+    #2. Load File
+    ###############################################################################
     
-plotOps, plotCounts = reformatOperations(allOps, opCounts)
+    loadName, parsedEqs = loadData(searchKeywords)
 
-###############################################################################
-#5. Plot operators as pie chart
-###############################################################################
+    ###############################################################################
+    #3. Extract Operation Information 
+    ###############################################################################
 
-createFigure(allOps, opCounts)
+    allOps, opCounts = extractOperations(parsedEqs)
 
-###############################################################################
-#6. Save and plot figure
-###############################################################################
+    ###############################################################################
+    #4. Reformat operation titles
+    ###############################################################################
+        
+    plotOps, plotCounts = reformatOperations(allOps, opCounts)
 
-saveFigure(searchKeywords)
+    ###############################################################################
+    #5. Plot operators as pie chart
+    ###############################################################################
+
+    createFigure(plotOps, plotCounts, searchKeywords)
+
+    ###############################################################################
+    #6. Save and plot figure
+    ###############################################################################
+
+    saveFigure(searchKeywords)
