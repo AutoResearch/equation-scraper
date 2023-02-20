@@ -150,3 +150,155 @@
 {\displaystyle p=k\ln {\frac {S}{S_{0}}}}
 #--------------------#
 
+#CATEGORIES: ['Psychophysics']
+#--------------------#
+
+#ROOT: ABX test
+#LINK: /wiki/ABX_test
+{\displaystyle N/2+{\sqrt {N}}}
+#--------------------#
+
+#ROOT: Adaptive comparative judgement
+#LINK: /wiki/Adaptive_comparative_judgement
+{\displaystyle \mathrm {log\;odds} (A\ {\text{beats}}\ B\mid v_{a},v_{b})=v_{a}-v_{b}}
+#--------------------#
+
+#ROOT: Detection theory
+#LINK: /wiki/Detection_theory
+{\displaystyle p(H1)=\pi _{1}}
+{\displaystyle p(H2)=\pi _{2}}
+{\displaystyle p(H1|y)={\frac {p(y|H1)\cdot \pi _{1}}{p(y)}}}
+{\displaystyle p(H2|y)={\frac {p(y|H2)\cdot \pi _{2}}{p(y)}}}
+{\displaystyle p(y|H1)\cdot \pi _{1}+p(y|H2)\cdot \pi _{2}}
+{\displaystyle {\frac {p(y|H2)\cdot \pi _{2}}{p(y|H1)\cdot \pi _{1}+p(y|H2)\cdot \pi _{2}}}\geq {\frac {p(y|H1)\cdot \pi _{1}}{p(y|H1)\cdot \pi _{1}+p(y|H2)\cdot \pi _{2}}}}
+{\displaystyle \Rightarrow {\frac {p(y|H2)}{p(y|H1)}}\geq {\frac {\pi _{1}}{\pi _{2}}}}
+{\displaystyle {\frac {\pi _{1}}{\pi _{2}}}}
+{\displaystyle \tau _{MAP}}
+{\displaystyle {\frac {p(y|H2)}{p(y|H1)}}}
+{\displaystyle L(y)}
+{\displaystyle L(y)\geq \tau _{MAP}}
+{\displaystyle U_{11}}
+{\displaystyle U_{12}}
+{\displaystyle U_{21}}
+{\displaystyle U_{22}}
+{\displaystyle U_{11}-U_{21}}
+{\displaystyle U_{22}-U_{12}}
+{\displaystyle P_{11}}
+{\displaystyle P_{12}}
+{\displaystyle E\{U\}=P_{11}\cdot U_{11}+P_{21}\cdot U_{21}+P_{12}\cdot U_{12}+P_{22}\cdot U_{22}}
+{\displaystyle E\{U\}=P_{11}\cdot U_{11}+(1-P_{11})\cdot U_{21}+P_{12}\cdot U_{12}+(1-P_{12})\cdot U_{22}}
+{\displaystyle E\{U\}=U_{21}+U_{22}+P_{11}\cdot (U_{11}-U_{21})-P_{12}\cdot (U_{22}-U_{12})}
+{\displaystyle U'=P_{11}\cdot (U_{11}-U_{21})-P_{12}\cdot (U_{22}-U_{12})}
+{\displaystyle P_{11}=\pi _{1}\cdot \int _{R_{1}}p(y|H1)\,dy}
+{\displaystyle P_{12}=\pi _{2}\cdot \int _{R_{1}}p(y|H2)\,dy}
+{\displaystyle \pi _{1}}
+{\displaystyle \pi _{2}}
+{\displaystyle P(H1)}
+{\displaystyle P(H2)}
+{\displaystyle R_{1}}
+{\displaystyle \Rightarrow U'=\int _{R_{1}}\left\{\pi _{1}\cdot (U_{11}-U_{21})\cdot p(y|H1)-\pi _{2}\cdot (U_{22}-U_{12})\cdot p(y|H2)\right\}\,dy}
+{\displaystyle U'}
+{\displaystyle U}
+{\displaystyle R_{1}}
+{\displaystyle \pi _{1}\cdot (U_{11}-U_{21})\cdot p(y|H1)-\pi _{2}\cdot (U_{22}-U_{12})\cdot p(y|H2)>0}
+{\displaystyle \pi _{2}\cdot (U_{22}-U_{12})\cdot p(y|H2)\geq \pi _{1}\cdot (U_{11}-U_{21})\cdot p(y|H1)}
+{\displaystyle \Rightarrow L(y)\equiv {\frac {p(y|H2)}{p(y|H1)}}\geq {\frac {\pi _{1}\cdot (U_{11}-U_{21})}{\pi _{2}\cdot (U_{22}-U_{12})}}\equiv \tau _{B}}
+#--------------------#
+
+#ROOT: Discrimination testing
+#LINK: /wiki/Discrimination_testing
+{\displaystyle p=0.5}
+{\displaystyle p=0.5}
+{\displaystyle p=1/3}
+#--------------------#
+
+#ROOT: Just-noticeable difference
+#LINK: /wiki/Just-noticeable_difference
+{\displaystyle {\frac {\Delta I}{I}}=k,}
+{\displaystyle I\!}
+{\displaystyle \Delta I\!}
+#--------------------#
+
+#ROOT: Law of comparative judgment
+#LINK: /wiki/Law_of_comparative_judgment
+{\displaystyle S_{i}-S_{j}=x_{ij}{\sqrt {\sigma _{i}^{2}+\sigma _{j}^{2}-2r_{ij}\sigma _{i}\sigma _{j}}},}
+{\displaystyle S_{i}}
+{\displaystyle x_{ij}}
+{\displaystyle \sigma _{i}}
+{\displaystyle R_{i}}
+{\displaystyle r_{ij}}
+{\displaystyle R_{i}}
+{\displaystyle S_{i}}
+{\displaystyle x_{ij}={\frac {S_{i}-S_{j}}{\sigma }}\,}
+{\displaystyle {\sigma }={\sqrt {\sigma _{i}^{2}+\sigma _{j}^{2}}}.\,}
+{\displaystyle {S_{i}-S_{j}}}
+{\displaystyle x_{ij}}
+{\displaystyle \sigma =1}
+{\displaystyle P_{ij}}
+{\displaystyle P_{ij}=0.84}
+{\displaystyle x_{ij}}
+{\displaystyle S_{i}-S_{j}\cong 1}
+#--------------------#
+
+#ROOT: Stevens's power law
+#LINK: /wiki/Stevens%27s_power_law
+{\displaystyle a}
+{\displaystyle \psi (I)=kI^{a},}
+#--------------------#
+
+#ROOT: Two-alternative forced choice
+#LINK: /wiki/Two-alternative_forced_choice
+{\displaystyle a}
+{\displaystyle b}
+{\displaystyle ab}
+{\displaystyle ba}
+{\displaystyle x_{1}}
+{\displaystyle x_{2}}
+{\displaystyle a}
+{\displaystyle b}
+{\displaystyle N(\mu _{a},\sigma _{a})}
+{\displaystyle N(\mu _{b},\sigma _{b})}
+{\displaystyle x_{1},x_{2}}
+{\displaystyle a}
+{\displaystyle b}
+{\displaystyle b}
+{\displaystyle a}
+{\displaystyle p(e)=p\left({\tilde {\chi }}_{{\boldsymbol {w}},{\boldsymbol {k}},{\boldsymbol {\lambda }},0,0}^{2}\right)<0}
+{\displaystyle {\boldsymbol {w}}={\begin{bmatrix}\sigma _{a}^{2}&-\sigma _{b}^{2}\end{bmatrix}},\;{\boldsymbol {k}}={\begin{bmatrix}1&1\end{bmatrix}},\;{\boldsymbol {\lambda }}={\frac {\mu _{a}-\mu _{b}}{\sigma _{a}^{2}-\sigma _{b}^{2}}}{\begin{bmatrix}\sigma _{a}^{2}&\sigma _{b}^{2}\end{bmatrix}}.}
+{\displaystyle dx=Adt+cdW\ ,\ x(0)=0}
+{\displaystyle A}
+{\displaystyle x(0)}
+{\displaystyle \lambda }
+{\displaystyle dx\ =\ (\lambda x+A)dt\ +\ cdW}
+{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ I_{\text{1}}dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ I_{\text{2}}dt\ +\ cdW_{\text{2}}\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
+{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{2}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{1}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
+{\displaystyle k}
+{\displaystyle w}
+{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ I_{\text{1}}dt\ +\ cdW_{\text{1}}\ -\ u(I_{\text{2}}dt\ +\ cdW_{\text{2}})\\dy_{\text{2}}\ =\ I_{\text{2}}dt\ +\ cdW_{\text{2}}\ -\ u(I_{\text{1}}dt\ +\ cdW_{\text{1}})\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
+{\displaystyle u}
+{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{3}}+vy_{\text{1}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{3}}+vy_{\text{2}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\\dy_{\text{3}}\ =\ (-k_{\text{inh}}y_{\text{3}}+w'(y_{\text{1}}+y_{\text{2}}))dt\end{aligned}}}
+{\displaystyle k_{\text{inh}}}
+{\displaystyle w'}
+#--------------------#
+
+#ROOT: Weber–Fechner law
+#LINK: /wiki/Weber%E2%80%93Fechner_law
+{\displaystyle dS=K\cdot S}
+{\displaystyle S}
+{\displaystyle K}
+{\displaystyle k}
+{\displaystyle S}
+{\displaystyle dp={\frac {dS}{S}}\,\!}
+{\displaystyle p=k\ln {\frac {S}{S_{0}}}\,\!}
+{\displaystyle dp=k{\frac {dS}{S}}}
+{\displaystyle p=k\ln {S}+C}
+{\displaystyle C}
+{\displaystyle C}
+{\displaystyle S_{0}}
+{\displaystyle p=0}
+{\displaystyle S=S_{0}}
+{\displaystyle C=-k\ln {S_{0}}}
+{\displaystyle C}
+{\displaystyle p=k\ln {\frac {S}{S_{0}}}}
+#--------------------#
+

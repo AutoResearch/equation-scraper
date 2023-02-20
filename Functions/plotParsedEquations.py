@@ -37,7 +37,7 @@ if __name__ == '__main__':
 #1. Define Functions
 ###############################################################################
 #Searches for all links on given URL
-def loadData(searchKeywords):
+def loadParsedData(searchKeywords):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -219,7 +219,7 @@ if __name__ == '__main__':
     #2. Load File
     ###############################################################################
     
-    loadName, parsedEqs = loadData(searchKeywords)
+    loadName, parsedEqs = loadParsedData(searchKeywords)
 
     ###############################################################################
     #3. Extract Operation Information 

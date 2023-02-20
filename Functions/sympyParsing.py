@@ -38,7 +38,7 @@ if __name__ == '__main__':
 #TODO: Make variables a structure
 
 #Searches for all links on given URL
-def loadData(searchKeywords):
+def loadScrapedData(searchKeywords):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -370,7 +370,7 @@ if __name__ == '__main__':
     ###############################################################################
     #2. Load Data and Setup Variables
     ###############################################################################
-    loadName, scrapedWiki = loadData(searchKeywords)
+    loadName, scrapedWiki = loadScrapedData(searchKeywords)
 
     ###############################################################################
     #3. Re-Format Latex Equations to Comply with Sympy Translation

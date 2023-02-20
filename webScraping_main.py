@@ -14,6 +14,7 @@ if len(sys.argv) > 1:
 else:
     searchKeywords = ['Psychophysics']
     
+print("\n|---------------------|")
 print('Web Scraping for Priors')
 print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
 
@@ -47,7 +48,7 @@ extractLinks(links, saveName)
 print("\n|---------------------|")
 print("Parsing Equations...")
 
-loadName, scrapedWiki = loadData(searchKeywords)
+loadName, scrapedWiki = loadScrapedData(searchKeywords)
 scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = cycleEquations(scrapedWiki)
 parsedEquations = parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations)
 saveFiles(loadName, parsedEquations, skippedEquations) 
@@ -61,7 +62,7 @@ print("Parsing Complete...")
 print("\n|---------------------|")
 print("Plotting Results...")
 
-loadName, parsedEqs = loadData(searchKeywords)
+loadName, parsedEqs = loadParsedData(searchKeywords)
 allOps, opCounts = extractOperations(parsedEqs)
 plotOps, plotCounts = reformatOperations(allOps, opCounts)
 createFigure(plotOps, plotCounts, searchKeywords)
