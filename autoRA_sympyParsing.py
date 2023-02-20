@@ -287,7 +287,7 @@ def parseEquations(scrapedEquations):
     
     return parsedEquations
 
-def saveFiles(loadName, parsedEquations):
+def saveFiles(loadName, parsedEquations, printDebug):
     parsedFilename = 'Data/parsed_'+loadName
     with open(parsedFilename, 'w') as f:
         for parsedItem in parsedEquations:
