@@ -16,15 +16,6 @@ Note: There exists a requirements.txt file
 #0. User Inputs - Determine Which Category Pages to Scrape
 ###############################################################################
 
-#User defined category pages to scrape
-searchedKeywords = ['Psychophysics'] 
-
-#Debug mode prints the information to be more easily readable 
-printDebug = True
-
-#Determine filename to load
-saveKeywords = '_'.join(searchedKeywords) #Create string of keywords for file name
-loadName = 'operations_' + saveKeywords + '.txt' #Create file name
 
 ###############################################################################
 #1. Import Modules
@@ -38,13 +29,62 @@ import string
 ###############################################################################
 #2. Determine Functions
 ###############################################################################
+#TODO: Make variables a structure
 
-#The main function that organizes the current equation and it's metadata then feeds these to the processing functions
-def processEquation(wikiLine,currentLink,currentLine):
+#Searches for all links on given URL
+def loadData(searchKeywords = ['Psychophysics']):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
+    
+    #Determine filename to load
+    saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
+    loadName = 'operations_' + saveKeywords + '.txt' #Create file name
+    
+    #Read scraped operations file
+    with open('Data/'+loadName,'r') as f:
+        scrapedWiki = f.readlines()
+
+    return loadName, scrapedWiki
+
+#Cycles through all lines of the data to deal with them accordingly
+def cycleEquations(scrapedWiki):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
+    
+    #Setup Variables
+    scrapedEquations = []
+    skippedEquations = []
+    scrapedLinks = []
+    scrapedWikiEquations = []
+    currentLink = []
+
+    #Create list of all equations from file 
+    for currentLine in scrapedWiki:
+        
+        #Hold scraped equation
+        wikiLine = currentLine
+        
+        #Determine if current line represents link
+        if '#LINK:' in currentLine:
+            print(currentLine)
+            currentLink = currentLine
+            
+        #Process Equation
+        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,currentLine, scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations)
+        
+    return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
+
+#The main function that organizes the current equation and it's metadata then feeds these to the processing functions
+def processEquation(wikiLine,currentLink,currentLine, scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
+
     ##################################
     ## Preliminary equation cleanup ##
     ##################################
@@ -124,7 +164,7 @@ def processEquation(wikiLine,currentLink,currentLine):
     for subEquation in currentLine: #Cycle through each equation
         if subEquation: #Ensure the sub-equation exists 
             currentEquation = formatEquation(subEquation) #Calls the format equation function 
-            scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,subEquation) #Calls the append variables function
+            scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,subEquation, scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations) #Calls the append variables function
     
     return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
 
@@ -200,7 +240,7 @@ def formatEquation(currentLine):
     else:
         return []
     
-def appendVariables(wikiLine,currentLink,currentEquation, currentLine):
+def appendVariables(wikiLine,currentLink,currentEquation, currentLine, scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -214,7 +254,7 @@ def appendVariables(wikiLine,currentLink,currentEquation, currentLine):
     
     return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
 
-def parseEquations(scrapedEquations):
+def parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations):
     parsedEquations = []
     parsedEq = 0
     unparsedEq = 0
@@ -318,44 +358,22 @@ def saveFiles(loadName, parsedEquations, printDebug):
 ###############################################################################
 #3. Load Data and Setup Variables
 ###############################################################################
-
-#Read scraped operations file
-with open('Data/'+loadName,'r') as f:
-    scrapedWiki = f.readlines()
-
-#Setup Variables
-scrapedEquations = []
-skippedEquations = []
-scrapedLinks = []
-scrapedWikiEquations = []
-currentLink = []
+loadName, scrapedWiki = loadData(['Psychophysics'])
 
 ###############################################################################
 #4. Re-Format Latex Equations to Comply with Sympy Translation
 ###############################################################################
 
-#Create list of all equations from file 
-for currentLine in scrapedWiki:
-    
-    #Hold scraped equation
-    wikiLine = currentLine
-    
-    #Determine if current line represents link
-    if '#LINK:' in currentLine:
-        print(currentLine)
-        currentLink = currentLine
-        
-    #Process Equation
-    scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,currentLine)
+scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = cycleEquations(scrapedWiki)
 
 ###############################################################################
 #6. Parse Equations
 ###############################################################################
 
-parsedEquations = parseEquations(scrapedEquations)
+parsedEquations = parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations)
 
 ###############################################################################
 #6. Save Files
 ###############################################################################
 
-saveFiles(loadName, parsedEquations, printDebug) 
+saveFiles(loadName, parsedEquations, True) 

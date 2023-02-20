@@ -10,18 +10,9 @@ pip install matplotlib
 
 Note: There exists a requirements.txt file
 '''
-###############################################################################
-#0. User Inputs - Determine Which Category Pages to Scrape
-###############################################################################
 
-searchedKeywords = ['Psychophysics'] #User defined category pages to scrape
-
-#Determine filename to load
-saveKeywords = '_'.join(searchedKeywords) #Create string of keywords for file name
-loadName = 'parsed_operations_' + saveKeywords + '.txt' #Create file name
-    
 ###############################################################################
-#1. Import Modules
+#0. Import Modules
 ###############################################################################
  
 import matplotlib.pyplot as plt
@@ -31,16 +22,25 @@ import inflect
 p = inflect.engine()
 
 ###############################################################################
-#2. Load File
+#1. Define Functions
 ###############################################################################
- 
-with open('Data/'+loadName,'r') as f:
-    parsedEqs = f.readlines()
-
-###############################################################################
-#3. Define Functions
-###############################################################################
+#Searches for all links on given URL
+def loadData(searchKeywords = ['Psychophysics']):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
     
+    '''
+    
+    #Determine filename to load
+    saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
+    loadName = 'parsed_operations_' + saveKeywords + '.txt' #Create file name
+    
+    #Read scraped operations file
+    with open('Data/'+loadName,'r') as f:
+        parsedEqs = f.readlines()
+
+    return searchKeywords, loadName, parsedEqs
+
 def extractOperations(parsedEqs):
     #Setup Variables
     allOps = {}
@@ -201,25 +201,31 @@ def saveFigure(searchedKeywords):
     plt.show() #Show figure
     
 ###############################################################################
-#4. Extract Operation Information 
+#2. Load File
+###############################################################################
+ 
+searchKeywords, loadName, parsedEqs = loadData(searchKeywords = ['Psychophysics'])
+
+###############################################################################
+#3. Extract Operation Information 
 ###############################################################################
 
 allOps, opCounts = extractOperations(parsedEqs)
 
 ###############################################################################
-#5. Reformat operation titles
+#4. Reformat operation titles
 ###############################################################################
     
 plotOps, plotCounts = reformatOperations(allOps, opCounts)
 
 ###############################################################################
-#6. Plot operators as pie chart
+#5. Plot operators as pie chart
 ###############################################################################
 
 createFigure(allOps, opCounts)
 
 ###############################################################################
-#7. Save and plot figure
+#6. Save and plot figure
 ###############################################################################
 
-saveFigure(searchedKeywords)
+saveFigure(searchKeywords)

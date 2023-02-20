@@ -6,8 +6,8 @@ Specifically, the project scrapes wikipedia pages of a certain category to extra
 
 This project contains three main files:
 
--autoRA_webScrapingSearch.py: Extracts equations from Wikipedia,
+-webScrapingSearch.py: Extracts equations from Wikipedia,
 
--autoRA_sympyParsing.py: Determines operation distributions from the extracted equations,
+-sympyParsing.py: Determines operation distributions from the extracted equations,
 
--autoRA_plotParsedEquations.py: Pots the distribution of operations as a pie chart.
+-plotParsedEquations.py: Pots the distribution of operations as a pie chart.
