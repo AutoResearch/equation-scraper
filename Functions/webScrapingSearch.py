@@ -74,7 +74,7 @@ def defineCategory(searchKeywords):
     saveName = 'operations_' + saveKeywords + '.txt' #Create file name
 
     #Save search parameters to file
-    with open(os.path.dirname(__file__) + '/../Data/'+saveName, 'a') as f: #Open file to be saved to
+    with open(os.path.dirname(__file__) + '/../Data/'+saveName, 'w') as f: #Open file to be saved to
         _ = f.write('#CATEGORIES: ' + str(searchKeywords) + '\n') #Save title to file
         _ = f.write('#--------------------#\n\n') #Add separator to file
 
