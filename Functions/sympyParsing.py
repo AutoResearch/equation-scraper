@@ -35,8 +35,27 @@ if __name__ == '__main__':
 ###############################################################################
 #1. Determine Functions
 ###############################################################################
-#TODO: Make variables a structure
-
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+    # Print New Line on Complete
+    if iteration == total: 
+        print()
+        
 #Searches for all links on given URL
 def loadScrapedData(searchKeywords):
     '''
@@ -269,6 +288,9 @@ def parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skipped
     
     #Cycle through each formatted equation
     for x, eq in enumerate(scrapedEquations):
+        #Progress bar
+        printProgressBar(x,len(scrapedEquations)-1)
+        
         #Display metrics for every 10 equations scraped 
         if ((x % 10 == 0) | (x == len(scrapedEquations)-1)) & (__name__ == '__main__'):
             print('\nCurrent Equation:')

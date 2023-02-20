@@ -3,6 +3,9 @@
 ## www.chadcwilliams.com                                                     ##
 ###############################################################################
 
+#TODO: Make variables a structure
+#TODO: Delete files before writing
+
 ###############################################################################
 #0. Import Modules & Determine Keywords
 ###############################################################################
@@ -14,7 +17,6 @@ if len(sys.argv) > 1:
 else:
     searchKeywords = ['Psychophysics']
     
-print("\n|---------------------|")
 print('Web Scraping for Priors')
 print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
 
@@ -34,7 +36,6 @@ from Functions.plotParsedEquations import *
 #2. webScrapingSearch.py
 ###############################################################################
 
-print("|---------------------|")
 print("Scraping Wikipedia...")
 
 saveName = defineCategory(searchKeywords)
@@ -45,8 +46,7 @@ extractLinks(links, saveName)
 #2. sympyParsing.py
 ###############################################################################
 
-print("\n|---------------------|")
-print("Parsing Equations...")
+print("\nParsing Equations...")
 
 loadName, scrapedWiki = loadScrapedData(searchKeywords)
 scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = cycleEquations(scrapedWiki)
@@ -59,8 +59,7 @@ print("Parsing Complete...")
 #2. plotParsedEquations.py
 ###############################################################################
 
-print("\n|---------------------|")
-print("Plotting Results...")
+print("\nPlotting Results...")
 
 loadName, parsedEqs = loadParsedData(searchKeywords)
 allOps, opCounts = extractOperations(parsedEqs)
