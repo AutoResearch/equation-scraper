@@ -10,7 +10,6 @@ py -m venv webScrapingEnv
 .\webScrapingEnv\Scripts\activate
 
 pip install beautifulsoup4
-pip install lxml
 pip install requests
 
 Note: There exists a requirements.txt file
@@ -50,7 +49,7 @@ def searchLinks(URL):
     
     '''
     webText = requests.get(URL).text #Download URL content
-    soup = BeautifulSoup(webText, 'lxml') #Create soup object
+    soup = BeautifulSoup(webText, 'html.parser') #Create soup object
     bodyText = soup.find("div",{"id":"mw-content-text"}) #Isolate the body content
     bodyLinks = bodyText.find_all('a', href=True, class_=False, dir=False) #Find all links in body
     currentLinks = [link.get('href') for link in bodyLinks] #Extract links from list
@@ -88,20 +87,20 @@ def extractLinks(links, saveName):
             linkText = requests.get('https://en.wikipedia.org/' + link).text
             
             #Create Soup Object
-            categorySoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer("div",{"id":"mw-normal-catlinks"}))
+            categorySoup = BeautifulSoup(linkText, 'html.parser', parse_only = SoupStrainer("div",{"id":"mw-normal-catlinks"}))
             
             #Scan all equations on this page
             equations = []
             
             #Begin by searching for math tags
             mathTag = 1
-            equationSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('math',{'xmlns':'http://www.w3.org/1998/Math/MathML'}))
+            equationSoup = BeautifulSoup(linkText, 'html.parser', parse_only = SoupStrainer('math',{'xmlns':'http://www.w3.org/1998/Math/MathML'}))
             equations = equationSoup.find_all('math',{'xmlns':'http://www.w3.org/1998/Math/MathML'})
 
             #Save equations to a file
             if equations: #If equations exist on this page
                 with open('Data/'+saveName, 'a') as f: #Open file to be saved to
-                    titleSoup = BeautifulSoup(linkText, 'lxml', parse_only = SoupStrainer('h1')) #Extract title of page
+                    titleSoup = BeautifulSoup(linkText, 'html.parser', parse_only = SoupStrainer('h1')) #Extract title of page
                     root = titleSoup.find('h1').text #Convert title to be saved
                     _ = f.write('#ROOT: ' + root + '\n') #Save title to file
                     _ = f.write('#LINK: '+ link + '\n') #Save link to file
