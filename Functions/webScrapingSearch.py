@@ -108,10 +108,7 @@ def scrapeLinks(databank):
         bodyLinks = bodyText.find_all('a', href=True, class_=False, dir=False) #Find all links in body
         currentLinks = [link.get('href') for link in bodyLinks] #Extract links from list
         
-        #Pack databank
-        databank['currentLinks'] = currentLinks
-        
-        return databank
+        return currentLinks
 
     #Removes any duplicate or unwanted links
     def removeLinks(databank):
@@ -138,7 +135,7 @@ def scrapeLinks(databank):
     links = []
 
     #Iterate through keywords, grabbing links from each page
-    links.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in searchKeywords]) 
+    links.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in databank['searchKeywords']]) 
 
     #Concatenate the lists from each keyword
     expandedLinks = [item for sublist in links for item in sublist] 
@@ -146,9 +143,6 @@ def scrapeLinks(databank):
 
     #Remove any duplicates and unwated lists
     databank = removeLinks(databank)
-    
-    #Pack database
-    databank['links'] = links
     
     return databank
 

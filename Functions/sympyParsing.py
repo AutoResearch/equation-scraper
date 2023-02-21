@@ -347,15 +347,14 @@ def parseEquations(databank):
         printProgressBar(x,len(scrapedEquations)-1)
         
         #Display metrics for every 10 equations scraped 
-        if ((x % 10 == 0) | (x == len(scrapedEquations)-1)) & (__name__ == '__main__'):
+        if ((x % 30 == 0) | (x == len(scrapedEquations)-1)) & (__name__ == '__main__'):
             print('\nCurrent Equation:')
             print(eq)
             print('Completed: ' + str(round((x/(len(scrapedEquations)-1))*100,2))+ '% ... Parsed: ' + str(parsedEq) + ' ... Unparsed: '+ str(unparsedEq))
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case
-                print('***')
-                print(eq)
+
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
                 eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
                 eqOperations = str(sp.count_ops(tempEq,visual=True)).split('+') #Extract all nodes of the Sympy tree from the equation

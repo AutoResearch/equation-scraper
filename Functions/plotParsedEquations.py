@@ -40,7 +40,7 @@ if __name__ == '__main__':
 #1. Define Functions
 ###############################################################################
 #Searches for all links on given URL
-def loadParsedData(searchKeywords):
+def loadParsedData(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -62,7 +62,7 @@ def loadParsedData(searchKeywords):
     
     return databank
 
-def extractOperations(parsedEqs):
+def extractOperations(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
