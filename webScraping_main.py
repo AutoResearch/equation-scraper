@@ -4,43 +4,38 @@
 ###############################################################################
 
 #TODO: Make variables a structure
-#TODO: Delete files before writing
 
 ###############################################################################
 #0. Import Modules & Determine Keywords
 ###############################################################################
 
-#Determine categories to search
+#Import modules
 import sys
+from Functions.webScrapingSearch import *
+from Functions.sympyParsing import *
+from Functions.plotParsedEquations import *
+
+#Determine categories to search
 if len(sys.argv) > 1:
     searchKeywords = sys.argv[1:]
 else:
     searchKeywords = ['Psychophysics']
     
+#Setup databank variable
+databank = {'searchKeywords': searchKeywords}
+    
 print('Web Scraping for Priors')
 print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
 
-###############################################################################
-#1. Scrape and Parse Categories
-###############################################################################
-
-#Complete the search
-from Functions.webScrapingSearch import *
-from Functions.sympyParsing import *
-from Functions.plotParsedEquations import *
-
-####
-
-####
 ###############################################################################
 #2. webScrapingSearch.py
 ###############################################################################
 
 print("Scraping Wikipedia...")
 
-saveName = defineCategory(searchKeywords)
-links = scrapeLinks(searchKeywords)
-extractLinks(links, saveName)
+databank = defineCategory(databank)
+databank = scrapeLinks(databank)
+extractLinks(databank)
 
 ###############################################################################
 #2. sympyParsing.py
@@ -48,10 +43,10 @@ extractLinks(links, saveName)
 
 print("\nParsing Equations...")
 
-loadName, scrapedWiki = loadScrapedData(searchKeywords)
-scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = cycleEquations(scrapedWiki)
-parsedEquations = parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations)
-saveFiles(loadName, parsedEquations, skippedEquations) 
+databank = loadScrapedData(databank)
+databank = cycleEquations(databank)
+databank = parseEquations(databank)
+saveFiles(databank) 
 
 print("Parsing Complete...")
 
@@ -61,10 +56,10 @@ print("Parsing Complete...")
 
 print("\nPlotting Results...")
 
-loadName, parsedEqs = loadParsedData(searchKeywords)
-allOps, opCounts = extractOperations(parsedEqs)
-plotOps, plotCounts = reformatOperations(allOps, opCounts)
-createFigure(plotOps, plotCounts, searchKeywords)
-saveFigure(searchKeywords)
+databank = loadParsedData(databank)
+databank = extractOperations(databank)
+databank = reformatOperations(databank)
+createFigure(databank)
+saveFigure(databank)
 
 print("Results Plotted and saved.")

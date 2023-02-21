@@ -29,6 +29,9 @@ if __name__ == '__main__':
         searchKeywords = sys.argv[1:]
     else:
         searchKeywords = ['Psychophysics']
+    
+    #Setup databank variable
+    databank = {'searchKeywords': searchKeywords}
         
     print('Web Scraping for Priors')
     print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
@@ -42,6 +45,8 @@ def loadParsedData(searchKeywords):
     [INSERT FUNCTION DESCRIPTION]
     
     '''
+    #Unpack databank
+    searchKeywords = databank['searchKeywords']
     
     #Determine filename to load
     saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
@@ -51,9 +56,20 @@ def loadParsedData(searchKeywords):
     with open(os.path.dirname(__file__) + '/../Data/'+loadName,'r') as f:
         parsedEqs = f.readlines()
 
-    return loadName, parsedEqs
+    #Pack databank
+    databank['loadName'] = loadName
+    databank['parsedEqs'] = parsedEqs
+    
+    return databank
 
 def extractOperations(parsedEqs):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
+    #Unpack databank
+    parsedEqs = databank['parsedEqs']
+    
     #Setup Variables
     allOps = {}
     opCounts = []
@@ -89,13 +105,24 @@ def extractOperations(parsedEqs):
             opCount += int(ops.split(' ')[-1])
         opCounts.append(opCount)
     
-    return allOps, opCounts
+    #Pack databank
+    databank['allOps'] = allOps
+    databank['opCounts'] = opCounts
+    
+    return databank
 
-
-def reformatOperations(allOps, opCounts):
+def reformatOperations(databank):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
     ##########################################
     ## Format the number of operations data ##
     ##########################################
+    
+    #Unpack databank
+    allOps = databank['allOps']
+    opCounts = databank['opCounts']
     
     #Determine frequency table of number of operators
     opCounter = collections.Counter(opCounts)
@@ -170,9 +197,21 @@ def reformatOperations(allOps, opCounts):
         plotOps['Logarithm'] = plotOps['LOG']
         del plotOps['LOG']  
         
-    return plotOps, plotCounts
+    #Pack databank
+    databank['plotOps'] = plotOps
+    databank['plotCounts'] = plotCounts
+    
+    return databank
 
-def createFigure(plotOps, plotCounts, searchKeywords):
+def createFigure(databank):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
+    #Unpack databank
+    plotOps = databank['plotOps']
+    plotCounts = databank['plotCounts']
+    searchKeywords = databank['searchKeywords']
 
     #Setup figure
     fig, (ax,ax2) = plt.subplots(1,2,figsize=(14, 8), subplot_kw=dict(aspect="equal")) #Plot formatting
@@ -206,8 +245,16 @@ def createFigure(plotOps, plotCounts, searchKeywords):
     plotPieChart(plotOps, ax)
     plotPieChart(plotCounts, ax2)
     
-def saveFigure(searchedKeywords):
-    plt.savefig(os.path.dirname(__file__)+'/../Figures/'+'_'.join(searchedKeywords)+'_PriorPieChart.png') #Save figure
+def saveFigure(databank):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
+    #Unpack databank
+    searchKeywords = databank['searchKeywords']
+
+    #Save and display figure
+    plt.savefig(os.path.dirname(__file__)+'/../Figures/'+'_'.join(searchKeywords)+'_PriorPieChart.png') #Save figure
     plt.show() #Show figure
     
 ###############################################################################
@@ -219,28 +266,28 @@ if __name__ == '__main__':
     #2. Load File
     ###############################################################################
     
-    loadName, parsedEqs = loadParsedData(searchKeywords)
+    databank = loadParsedData(databank)
 
     ###############################################################################
     #3. Extract Operation Information 
     ###############################################################################
 
-    allOps, opCounts = extractOperations(parsedEqs)
+    databank = extractOperations(databank)
 
     ###############################################################################
     #4. Reformat operation titles
     ###############################################################################
         
-    plotOps, plotCounts = reformatOperations(allOps, opCounts)
+    databank = reformatOperations(databank)
 
     ###############################################################################
     #5. Plot operators as pie chart
     ###############################################################################
 
-    createFigure(plotOps, plotCounts, searchKeywords)
+    createFigure(databank)
 
     ###############################################################################
     #6. Save and plot figure
     ###############################################################################
 
-    saveFigure(searchKeywords)
+    saveFigure(databank)

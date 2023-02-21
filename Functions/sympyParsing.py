@@ -29,6 +29,9 @@ if __name__ == '__main__':
     else:
         searchKeywords = ['Psychophysics']
     
+    #Setup databank variable
+    databank = {'searchKeywords': searchKeywords}
+    
     print('Web Scraping for Priors')
     print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
     
@@ -38,7 +41,7 @@ if __name__ == '__main__':
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
-    @params:
+    @parameters:
         iteration   - Required  : current iteration (Int)
         total       - Required  : total iterations (Int)
         prefix      - Optional  : prefix string (Str)
@@ -55,13 +58,15 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     # Print New Line on Complete
     if iteration == total: 
         print()
-        
+
 #Searches for all links on given URL
-def loadScrapedData(searchKeywords):
+def loadScrapedData(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
+    #Unpack databank
+    searchKeywords = databank['searchKeywords']
     
     #Determine filename to load
     saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
@@ -71,46 +76,57 @@ def loadScrapedData(searchKeywords):
     with open(os.path.dirname(__file__) + '/../Data/'+loadName,'r') as f:
         scrapedWiki = f.readlines()
 
-    return loadName, scrapedWiki
+    #Pack databank
+    databank['loadName'] = loadName
+    databank['scrapedWiki'] = scrapedWiki
+    
+    return databank
 
 #Cycles through all lines of the data to deal with them accordingly
-def cycleEquations(scrapedWiki):
+def cycleEquations(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
+    #Unpack parameter
+    scrapedWiki = databank['scrapedWiki']
     
     #Setup Variables
-    scrapedEquations = []
-    skippedEquations = []
-    scrapedLinks = []
-    scrapedWikiEquations = []
-    currentLink = []
+    databank['scrapedEquations'] = list()
+    databank['skippedEquations'] = list()
+    databank['scrapedLinks'] = list()
+    databank['scrapedWikiEquations'] = list()
+    databank['currentLink'] = []
 
     #Create list of all equations from file 
     for currentLine in scrapedWiki:
         
+        #Track current line
+        databank['currentLine'] = currentLine
+                
         #Hold scraped equation
-        wikiLine = currentLine
+        databank['wikiLine'] = currentLine
         
         #Determine if current line represents link
         if '#LINK:' in currentLine:
             if __name__ == '__main__':
                 print(currentLine)
-            currentLink = currentLine
+            databank['currentLink'] = currentLine
             
         #Process Equation
-        scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = processEquation(wikiLine,currentLink,currentLine, scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations)
-        
-    return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
+        databank = processEquation(databank)
+    
+    return databank
 
 #The main function that organizes the current equation and it's metadata then feeds these to the processing functions
-def processEquation(wikiLine,currentLink,currentLine, scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations):
+def processEquation(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
-
+    #Unpack databank
+    currentLine = databank['currentLine']
+    
     ##################################
     ## Preliminary equation cleanup ##
     ##################################
@@ -178,27 +194,40 @@ def processEquation(wikiLine,currentLink,currentLine, scrapedWikiEquations, scra
     elif ('{\\begin{array}{c}' in currentLine):
         currentLine = currentLine.split('{\\begin{array}{c}')
     elif ('\\begin{aligned}' in currentLine):
-        currentLine = [currentLine.split('\end{aligned}}')[0]]
+        currentLine = currentLine.split('\end{aligned}}')[0]
     else: #No splitting necessary
-        currentLine = [currentLine] #Turn into a list
+        currentLine = currentLine #Turn into a list
+    
+    #Pack parameter
+    databank['currentLine'] = currentLine
     
     ##################################
     ## Equation Processing          ##
     ##################################
     
     #Process each sub-equation
-    for subEquation in currentLine: #Cycle through each equation
-        if subEquation: #Ensure the sub-equation exists 
-            currentEquation = formatEquation(subEquation) #Calls the format equation function 
-            scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = appendVariables(wikiLine,currentLink,currentEquation,subEquation, scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations) #Calls the append variables function
-    
-    return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
+    if isinstance(currentLine, list):
+        for subEquation in currentLine: #Cycle through each equation
+            databank['subEquation'] = subEquation
+            if subEquation: #Ensure the sub-equation exists 
+                databank = formatEquation(databank) #Calls the format equation function 
+                databank = appendVariables(databank) #Calls the append variables function
+    else:
+        databank = formatEquation(databank) #Calls the format equation function 
+        databank = appendVariables(databank) #Calls the append variables function
+        
+    return databank
 
-def formatEquation(currentLine):
+def formatEquation(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
+    #Unpack databank
+    if isinstance(databank['currentLine'], list): #Check to see if the input is a list of equations
+        currentLine = databank['subEquation'] #If it's a list, use a different variable saying which equation from that list to process
+    else:
+        currentLine = databank['currentLine'] #If not a list, use the normal variable
     
     if (currentLine[0] != '#') & (currentLine != '\n'):
             
@@ -260,17 +289,32 @@ def formatEquation(currentLine):
     #If an equation was found and reformatted, return it
     if ('currentEquation' in locals()):
         if (currentEquation != ''):
-            return currentEquation
+            databank['currentEquation'] = currentEquation
         else:
-            return []
+            databank['currentEquation'] = []
     else:
-        return []
+        databank['currentEquation'] = []
     
-def appendVariables(wikiLine,currentLink,currentEquation, currentLine, scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations):
+    return databank
+    
+def appendVariables(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
+    #Unpack databank
+    wikiLine = databank['wikiLine']
+    currentLink = databank['currentLink']
+    currentEquation = databank['currentEquation']
+    scrapedWikiEquations = databank['scrapedWikiEquations']
+    scrapedLinks = databank['scrapedLinks']
+    scrapedEquations = databank['scrapedEquations']
+    skippedEquations = databank['skippedEquations']
+    if isinstance(databank['currentLine'], list): #Check to see if the input is a list of equations
+        currentLine = databank['subEquation'] #If it's a list, use a different variable saying which equation from that list to process
+    else:
+        currentLine = databank['currentLine'] #If not a list, use the normal variable
+    
     if currentEquation:
         scrapedWikiEquations.append(wikiLine) #Track raw equations as scraped from wikipedia
         scrapedLinks.append(currentLink) #Track the URL of the equation
@@ -278,13 +322,24 @@ def appendVariables(wikiLine,currentLink,currentEquation, currentLine, scrapedWi
     else:
         skippedEquations.append(currentLine) #Track if an equation did not make it through reformatting
     
-    return scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations
+    #Pack databank
+    databank['scrapedWikiEquations'] = scrapedWikiEquations
+    databank['scrapedLinks'] = scrapedLinks
+    databank['scrapedEquations'] = scrapedEquations
+    databank['skippedEquations'] = skippedEquations
+    
+    return databank
 
-def parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations):
+def parseEquations(databank):
     parsedEquations = []
     parsedEq = 0
     unparsedEq = 0
     skip = 0
+    
+    #Unpack databank
+    scrapedWikiEquations = databank['scrapedWikiEquations']
+    scrapedLinks = databank['scrapedLinks']
+    scrapedEquations = databank['scrapedEquations']
     
     #Cycle through each formatted equation
     for x, eq in enumerate(scrapedEquations):
@@ -299,6 +354,8 @@ def parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skipped
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case
+                print('***')
+                print(eq)
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
                 eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
                 eqOperations = str(sp.count_ops(tempEq,visual=True)).split('+') #Extract all nodes of the Sympy tree from the equation
@@ -354,9 +411,18 @@ def parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skipped
             else:
                 skip += 1 #Increase skip count
     
-    return parsedEquations
+    #Pack databank
+    databank['parsedEquations'] = parsedEquations
+    
+    return databank
 
-def saveFiles(loadName, parsedEquations, skippedEquations, printDebug = False):
+def saveFiles(databank, printDebug = False):
+    
+    #Unpack databank
+    loadName = databank['loadName']
+    parsedEquations = databank['parsedEquations']
+    skippedEquations = databank['skippedEquations']
+    
     parsedFilename = os.path.dirname(__file__) + '/../Data/parsed_'+loadName
     with open(parsedFilename, 'w') as f:
         for parsedItem in parsedEquations:
@@ -392,22 +458,22 @@ if __name__ == '__main__':
     ###############################################################################
     #2. Load Data and Setup Variables
     ###############################################################################
-    loadName, scrapedWiki = loadScrapedData(searchKeywords)
+    databank = loadScrapedData(databank)
 
     ###############################################################################
     #3. Re-Format Latex Equations to Comply with Sympy Translation
     ###############################################################################
 
-    scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations = cycleEquations(scrapedWiki)
+    databank = cycleEquations(databank)
 
     ###############################################################################
     #4. Parse Equations
     ###############################################################################
 
-    parsedEquations = parseEquations(scrapedWikiEquations, scrapedLinks, scrapedEquations, skippedEquations)
+    databank = parseEquations(databank)
 
     ###############################################################################
     #5. Save Files
     ###############################################################################
 
-    saveFiles(loadName, parsedEquations, skippedEquations, True) 
+    saveFiles(databank, True) 

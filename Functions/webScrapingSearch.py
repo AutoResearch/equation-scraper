@@ -32,6 +32,9 @@ if __name__ == '__main__':
     else:
         searchKeywords = ['Psychophysics']
         
+    #Setup databank variable
+    databank = {'searchKeywords': searchKeywords}
+        
     print('Web Scraping for Priors')
     print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
 
@@ -44,7 +47,7 @@ if __name__ == '__main__':
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
-    @params:
+    @parameters:
         iteration   - Required  : current iteration (Int)
         total       - Required  : total iterations (Int)
         prefix      - Optional  : prefix string (Str)
@@ -63,12 +66,14 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
         print()
 
 #Searches for all links on given URL
-def defineCategory(searchKeywords):
+def defineCategory(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
-
+    #Unpack databank
+    searchKeywords = databank['searchKeywords']
+    
     #Create filename to save to
     saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
     saveName = 'operations_' + saveKeywords + '.txt' #Create file name
@@ -78,10 +83,20 @@ def defineCategory(searchKeywords):
         _ = f.write('#CATEGORIES: ' + str(searchKeywords) + '\n') #Save title to file
         _ = f.write('#--------------------#\n\n') #Add separator to file
 
-    return saveName
+    #Pack databank
+    databank['saveName'] = saveName
+    
+    return databank
 
-def scrapeLinks(searchKeywords):
-        
+def scrapeLinks(databank):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''        
+    #Unpack databank
+    searchKeywords = databank['searchKeywords']
+    
+    #Define internal functions
     def searchLinks(URL):
         '''
         [INSERT FUNCTION DESCRIPTION]
@@ -92,20 +107,32 @@ def scrapeLinks(searchKeywords):
         bodyText = soup.find("div",{"id":"mw-content-text"}) #Isolate the body content
         bodyLinks = bodyText.find_all('a', href=True, class_=False, dir=False) #Find all links in body
         currentLinks = [link.get('href') for link in bodyLinks] #Extract links from list
-        return currentLinks
+        
+        #Pack databank
+        databank['currentLinks'] = currentLinks
+        
+        return databank
 
     #Removes any duplicate or unwanted links
-    def removeLinks(listOfInterest):
+    def removeLinks(databank):
         '''
         [INSERT FUNCTION DESCRIPTION]
         
         '''
+        #Unpack databank
+        expandedLinks = databank['expandedLinks']
+        
+        #Assess links
         seen = set() #Create set
         seen_add = seen.add #For optimization
-        uniqueLinks = [x for x in listOfInterest if not (x in seen or seen_add(x))] #Remove duplicates
+        uniqueLinks = [x for x in expandedLinks if not (x in seen or seen_add(x))] #Remove duplicates
         pageLinks = [x for x in uniqueLinks if 'Category:' not in x] #Remove unwanted #cite links
         keptLinks = [x for x in pageLinks if '#cite' not in x] #Remove unwanted #cite links
-        return keptLinks
+        
+        #Pack databank
+        databank['links'] = keptLinks
+        
+        return databank
     
     #Create empty list to be populated
     links = []
@@ -115,13 +142,27 @@ def scrapeLinks(searchKeywords):
 
     #Concatenate the lists from each keyword
     expandedLinks = [item for sublist in links for item in sublist] 
+    databank['expandedLinks'] = expandedLinks
 
     #Remove any duplicates and unwated lists
-    links = removeLinks(expandedLinks)
+    databank = removeLinks(databank)
     
-    return(links)
+    #Pack database
+    databank['links'] = links
+    
+    return databank
 
-def extractLinks(links, saveName):
+def extractLinks(database):
+    
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+        
+    '''
+    #Unpack databank
+    links = database['links']
+    saveName = database['saveName']
+
+    #Setup variables
     numberEquations = 0 #Initiate equation count
     fullInitial = time.time() #Initiate timing for entire process
     segmentInitial = time.time() #Initiate timing for each segment
@@ -141,9 +182,6 @@ def extractLinks(links, saveName):
             
             #Download webpage
             linkText = requests.get('https://en.wikipedia.org/' + link).text
-            
-            #Create Soup Object
-            categorySoup = BeautifulSoup(linkText, 'html.parser', parse_only = SoupStrainer("div",{"id":"mw-normal-catlinks"}))
             
             #Scan all equations on this page
             equations = []
@@ -185,16 +223,16 @@ if __name__ == '__main__':
     #2. User Inputs - Determine Which Category Pages to Scrape
     ###############################################################################
 
-    saveName = defineCategory(searchKeywords)
+    databank = defineCategory(databank)
 
     ###############################################################################
     #3. Determine all links to be scraped
     ###############################################################################
 
-    links = scrapeLinks(searchKeywords)
+    databank = scrapeLinks(databank)
 
     ###############################################################################
     #4. Extract and Save Equations from Each Link
     ###############################################################################
 
-    extractLinks(links, saveName)
+    extractLinks(databank)
