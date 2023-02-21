@@ -26,7 +26,7 @@ print('Web Scraping for Priors')
 print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
 
 ###############################################################################
-#2. webScrapingSearch.py
+#1. webScrapingSearch.py
 ###############################################################################
 
 print("Scraping Wikipedia...")
@@ -49,7 +49,7 @@ saveFiles(databank)
 print("Parsing Complete...")
 
 ###############################################################################
-#2. plotParsedEquations.py
+#3. plotParsedEquations.py
 ###############################################################################
 
 print("\nPlotting Results...")
