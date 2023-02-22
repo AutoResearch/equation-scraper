@@ -332,7 +332,9 @@ def appendVariables(databank):
 
 def parseEquations(databank):
     parsedEquations = []
+    skippedEquations = []
     parsedEq = 0
+    skippedEq = 0
     unparsedEq = 0
     skip = 0
     
@@ -340,6 +342,7 @@ def parseEquations(databank):
     scrapedWikiEquations = databank['scrapedWikiEquations']
     scrapedLinks = databank['scrapedLinks']
     scrapedEquations = databank['scrapedEquations']
+    databank['parsedEquations'] = parsedEquations
     
     #Cycle through each formatted equation
     for x, eq in enumerate(scrapedEquations):
@@ -350,7 +353,7 @@ def parseEquations(databank):
         if ((x % 30 == 0) | (x == len(scrapedEquations)-1)) & (__name__ == '__main__'):
             print('\nCurrent Equation:')
             print(eq)
-            print('Completed: ' + str(round((x/(len(scrapedEquations)-1))*100,2))+ '% ... Parsed: ' + str(parsedEq) + ' ... Unparsed: '+ str(unparsedEq))
+            print('Completed: ' + str(round((x/(len(scrapedEquations)-1))*100,2))+ '% ... Parsed: ' + str(parsedEq) + ' ... Skipped: ' + str(skippedEq) + ' ... Unparsed: '+ str(unparsedEq))
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case
@@ -393,17 +396,21 @@ def parseEquations(databank):
                     del opTypes[funcIdx]
                     
                 #Record operations into variable to be saved
-                if (eqOperations != ['0']):
-                    if operations: #Some of the above deletes operations and sometimes it will delete all operations, so we check to make sure there are some left before printing
-                        if eqSymbols: #When there exists no symbols, the equation is just a numerical transformation (e.g., 1/3) and should be ignored
-                            parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', dict(operations), 'LINK:', scrapedLinks[x],'WIKIEQUATION:',scrapedWikiEquations[x]])
+                if (eqOperations != ['0']) & (len(operations)!=0) &(len(eqSymbols)!=0):
+                    parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', dict(operations), 'LINK:', scrapedLinks[x],'WIKIEQUATION:',scrapedWikiEquations[x]])
+                    parsedEq += 1 
+                else:
+                    skippedEquations.append(['SKIPPED EQUATION: ' + eq])
+                    skippedEq += 1
+            else:
+                skippedEquations.append(['SKIPPED EQUATION: ' + eq])
+                skippedEq += 1
                 
-                #Increase counter
-                parsedEq += 1 
         except: #If the translation from latex to Sympy of the parsing fails
+            skippedEquations.append(['UNPARSED EQUATION: ' + eq])
             unparsedEq += 1 #Increase counter 
             print('FAILURE - Likely not convertible from latex to sympy') #Error warning
-            if skip > -1: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
+            if skip > 1000: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
                 print(scrapedWikiEquations[x]) #Print the scraped equation that failed
                 print(eq) #Print the equation that failed
                 break
@@ -412,6 +419,7 @@ def parseEquations(databank):
     
     #Pack databank
     databank['parsedEquations'] = parsedEquations
+    databank['skippedEquations'] = skippedEquations
     
     return databank
 

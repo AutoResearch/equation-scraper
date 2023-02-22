@@ -1,0 +1,39 @@
+OPERATIONS:~{'MUL': 4, 'POW': 1}~SYMBOLS:~[s, m_{x}, n, u, p_{x}, x_{x}]~EQUATION:~s*(u*(m_{x}**n*(pi(p_{x})*v(x_{x}))))~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle V=\sum _{i=1}^{n}\pi (p_{i})v(x_{i})}
+OPERATIONS:~{'MUL': 1}~SYMBOLS:~[x_{x}]~EQUATION:~x_{x}*x_{x}~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle x_{1},x_{2},\ldots ,x_{n}}
+OPERATIONS:~{'MUL': 4}~SYMBOLS:~[s, t, do, l, x_{x}]~EQUATION:~l*(do*(t*(s*x_{x})))~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle x_{1},x_{2},\ldots ,x_{n}}
+OPERATIONS:~{'MUL': 1}~SYMBOLS:~[p_{x}]~EQUATION:~p_{x}*p_{x}~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle p_{1},p_{2},\dots ,p_{n}}
+OPERATIONS:~{'MUL': 3}~SYMBOLS:~[s, t, do, p_{x}]~EQUATION:~do*(t*(p_{x}*s))~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle p_{1},p_{2},\dots ,p_{n}}
+OPERATIONS:~{'MUL': 3}~SYMBOLS:~[y, p, q, x]~EQUATION:~x*(p*(q*y))~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle (x,p;y,q)}
+OPERATIONS:~{'SUB': 2}~SYMBOLS:~[p, q]~EQUATION:~-q + (1 - p)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle 1-p-q}
+OPERATIONS:~{'MUL': 3}~SYMBOLS:~[y, p, q, x]~EQUATION:~x*(p*(q*y))~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle (x,p;y,q)}
+OPERATIONS:~{'ADD': 1, 'MUL': 3}~SYMBOLS:~[y, p, q, x]~EQUATION:~p*(i(p)*nu(x)) + nu(y)*pi(q)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle V(x,p;y,q)=\pi (p)\nu (x)+\pi (q)\nu (y)}
+OPERATIONS:~{'ADD': 1, 'MUL': 2, 'SUB': 1}~SYMBOLS:~[y, p, x, n]~EQUATION:~n*u(y) + (nu(x) - nu(y))*pi(p)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle V(x,p;y,q)=\nu (y)+\pi (p)\left[\nu (x)-\nu (y)\right]}
+OPERATIONS:~{'ADD': 1, 'NEG': 1}~SYMBOLS:~[x]~EQUATION:~nu(-x) + nu(x)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle \nu (y)+\nu (-y)>\nu (x)+\nu (-x)}
+OPERATIONS:~{'ADD': 1, 'NEG': 1}~SYMBOLS:~[x]~EQUATION:~nu(-x) + nu(x)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle \nu (-y)+\nu (-x)>\nu (x)+\nu (-x)}
+OPERATIONS:~{'MUL': 1}~SYMBOLS:~[p, x]~EQUATION:~p*x~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle (x,p)}
+OPERATIONS:~{'MUL': 2}~SYMBOLS:~[y, p, q]~EQUATION:~y*(p*q)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle (y,pq)}
+OPERATIONS:~{'MUL': 2}~SYMBOLS:~[p, r, x]~EQUATION:~x*(p*r)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle (x,pr)}
+OPERATIONS:~{'MUL': 3}~SYMBOLS:~[y, p, r, q]~EQUATION:~y*(p*(q*r))~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle (y,pqr)}
+OPERATIONS:~{'MUL': 3}~SYMBOLS:~[y, p, q]~EQUATION:~p*(i(p*q)*nu(y))~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle \pi (p)\nu (x)+\pi (pq)\nu (y)=\pi (pq)\nu (y)}
+OPERATIONS:~{'MUL': 2}~SYMBOLS:~[p, r, x]~EQUATION:~nu(x)*pi(p*r)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle \pi (pr)\nu (x)\leq \pi (pqr)\nu (y)}
+OPERATIONS:~{'DIV': 1, 'MUL': 1}~SYMBOLS:~[p, q]~EQUATION:~pi(p*q)/pi(p)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle {\frac {\pi \left(pq\right)}{\pi \left(p\right)}}\leq {\frac {\pi \left(pqr\right)}{\pi \left(pr\right)}}}
+OPERATIONS:~{'MUL': 3}~SYMBOLS:~[y, p, q, x]~EQUATION:~x*(p*(q*y))~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle (x,p';y,q)}
+OPERATIONS:~{'MUL': 3}~SYMBOLS:~[y, p, q, x]~EQUATION:~x*(p*(q*y))~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle (x,p';y,q')}
+OPERATIONS:~{'ADD': 1, 'MUL': 2}~SYMBOLS:~[y, p, q, x]~EQUATION:~nu(x)*pi(p) + nu(y)*pi(q)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle \pi (p)\nu (x)+\pi (q)\nu (y)>\pi (p')\nu (x)+\pi (q')\nu (y)}
+OPERATIONS:~{'DIV': 1, 'SUB': 2}~SYMBOLS:~[p, q]~EQUATION:~(-pi(p) + pi(p))/(-pi(q) + pi(q))~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle {\frac {\pi \left(p\right)-\pi (p')}{\pi \left(q'\right)-\pi \left(q\right)}}\leq {\frac {\nu \left(y\right)}{\nu \left(x\right)}}}
+OPERATIONS:~{'MUL': 1}~SYMBOLS:~[y, rightarrowx]~EQUATION:~rightarrowx*y~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle y\rightarrow x}
+OPERATIONS:~{'SUB': 1}~SYMBOLS:~[p]~EQUATION:~-pi(p) + pi(p)~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle \pi (p)-\pi (p')\rightarrow \pi (q')-\pi (q)}
+OPERATIONS:~{'SUB': 1}~SYMBOLS:~[q]~EQUATION:~-q + q~LINK:~/wiki/Prospect_theory~WIKIEQUATION:~{\displaystyle p-p'=q'-q}
+OPERATIONS:~{'ADD': 1}~SYMBOLS:~[g_{x}, x_{x}]~EQUATION:~g_{x} + x_{x}~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle w_{i}=x_{i}+g_{i},}
+OPERATIONS:~{'MUL': 3, 'POW': 1}~SYMBOLS:~[s, m_{x}, n, u, g_{x}]~EQUATION:~s*(u*(g_{x}*m_{x}**n))~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle G_{-i}=\sum _{i\neq j}^{n}(g_{j}).}
+OPERATIONS:~{'MUL': 1, 'POW': 1}~SYMBOLS:~[i, h, t]~EQUATION:~i**(h*t)~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle i^{th}}
+OPERATIONS:~{'ADD': 1}~SYMBOLS:~[G_{x}, g_{x}]~EQUATION:~G_{x} + g_{x}~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle G=g_{i}+G_{-i},}
+OPERATIONS:~{'MUL': 2}~SYMBOLS:~[G, g_{x}, x_{x}]~EQUATION:~U_{x}(x_{x}*(G*g_{x}))~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle U_{i}=U_{i}(x_{i},G,g_{i}),}
+OPERATIONS:~{'MUL': 1}~SYMBOLS:~[G, x_{x}]~EQUATION:~f(G*x_{x})~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle U_{altruist}=f(x_{i},G),}
+OPERATIONS:~{'MUL': 1}~SYMBOLS:~[g_{x}, x_{x}]~EQUATION:~f(g_{x}*x_{x})~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle U_{egoist}=f(x_{i},g_{i}).}
+OPERATIONS:~{'ADD': 1, 'MUL': 5, 'SUB': 2}~SYMBOLS:~[m, a, x, G, w_{x}, G_{x}]~EQUATION:~m*(a*(x*U_{x}(-G_{x} - (G*G*G + (G_{x} + w_{x})))))~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle maxU_{i}(w_{i}+G_{-i}-G,G,G-G_{-i}),}
+OPERATIONS:~{'MUL': 2}~SYMBOLS:~[G, g_{x}, x_{x}]~EQUATION:~U_{x}(x_{x}*(G*g_{x}))~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle U_{i}=U_{i}(x_{i},G,g_{i}),}
+OPERATIONS:~{'POW': 1}~SYMBOLS:~[g_{x}]~EQUATION:~g_{x}**0~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle (g_{i}^{0}).}
+OPERATIONS:~{'POW': 1}~SYMBOLS:~[g_{x}]~EQUATION:~g_{x}**0~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle (g_{i}^{0})}
+OPERATIONS:~{'MUL': 2, 'POW': 1}~SYMBOLS:~[G, g_{x}, x_{x}]~EQUATION:~U_{x}(x_{x}*(G*g_{x}**0))~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle U_{i}(x_{i},G,g_{i}^{*})<U_{i}(x_{i},G,g_{i}^{0})}
+OPERATIONS:~{'DIV': 1}~SYMBOLS:~[G, x_{x}]~EQUATION:~U_{x}(x_{x}*(G*0))~LINK:~/wiki/Warm-glow_giving~WIKIEQUATION:~{\displaystyle U_{i}(x_{i},G,g_{i}^{*})<U_{i}(x_{i},G,g_{i}^{0})<U_{i}(x_{i},G,0)}
