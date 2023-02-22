@@ -5,7 +5,7 @@ The goal of this project is to determine a distribution of mathematical operatio
 Specifically, the project scrapes wikipedia pages of a certain category to extract mathematical equations and then determines the distribution of operations contained within them. 
 
 ## There exists a main file:
--webScraping_main.py: Which run's the three function files consecutively using the same keywords.
+-webScraping_main.py: Which runs the three function files consecutively using the same keywords. This will take you from scraping wikipedia to parsing the equations to plotting the distributions of equations all in one execution. 
 
 ## This project contains three main function files:
 
