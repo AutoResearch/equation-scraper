@@ -1,6 +1,6 @@
 # webscrapingPriors
 
-The goal of this project is to determine a distribution of mathematical operation priors to help computational models such as Differentiable Architecture Search. These models link predictors to outcome via a mathematical equation.
+The goal of this project is to determine a distribution of mathematical operation as priors to help computational models such as Bayesian Symbolic Regression (BSR), Bayesian Machine Scientist (BMS), and Differentiable Architecture Search (DARTS). These models link predictors to outcome via a mathematical equation.
 
 Specifically, the project scrapes wikipedia pages of a certain category to extract mathematical equations and then determines the distribution of operations contained within them. 
 
