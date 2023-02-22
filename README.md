@@ -13,7 +13,7 @@ Specifically, the project scrapes wikipedia pages of a certain category to extra
 
 -sympyParsing.py: Determines operation distributions from the extracted equations,
 
--plotParsedEquations.py: Pots the distribution of operations as a pie chart.
+-plotParsedEquations.py: Plots the distribution of operations as a pie chart.
 
 ## How to use this package:
 The package is executable through terminal where you run the file normally and any provided arguments (space separated) will be taken as the keywords to search for:
