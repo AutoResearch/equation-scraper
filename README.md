@@ -1,4 +1,4 @@
-# webscrapingPriors
+# webScrapingPriors
 
 The goal of this project is to determine a distribution of mathematical operation as priors to help computational models such as Bayesian Symbolic Regression (BSR), Bayesian Machine Scientist (BMS), and Differentiable Architecture Search (DARTS). These models link predictors to outcome via a mathematical equation.
 
