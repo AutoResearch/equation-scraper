@@ -50,7 +50,7 @@ def loadParsedData(databank):
     
     #Determine filename to load
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
-    loadName = 'parsed_operations_' + saveKeywords + '.txt' #Create file name
+    loadName = 'parsed_equations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
     with open(os.path.dirname(__file__) + '/../Data/'+loadName,'r') as f:

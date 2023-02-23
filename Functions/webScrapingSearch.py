@@ -87,7 +87,7 @@ def defineCategory(databank):
     
     #Create filename to save to
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
-    saveName = 'operations_' + saveKeywords + '.txt' #Create file name
+    saveName = 'equations_' + saveKeywords + '.txt' #Create file name
 
     #Save search parameters to file
     with open(os.path.dirname(__file__) + '/../Data/'+saveName, 'w') as f: #Open file to be saved to

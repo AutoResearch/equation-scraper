@@ -70,7 +70,7 @@ def loadScrapedData(databank):
     
     #Determine filename to load
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
-    loadName = 'operations_' + saveKeywords + '.txt' #Create file name
+    loadName = 'equations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
     with open(os.path.dirname(__file__) + '/../Data/'+loadName,'r') as f:
@@ -356,7 +356,7 @@ def parseEquations(databank):
             print('Completed: ' + str(round((x/(len(scrapedEquations)-1))*100,2))+ '% ... Parsed: ' + str(parsedEq) + ' ... Skipped: ' + str(skippedEq) + ' ... Unparsed: '+ str(unparsedEq))
         #Create tree of computation graph
         try:
-            if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case
+            if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
 
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
                 eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
