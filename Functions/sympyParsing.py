@@ -28,6 +28,11 @@ if __name__ == '__main__':
         searchKeywords = sys.argv[1:]
     else:
         searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
+        
+    #Split super categories from normal categories
+    for keyIndex, searchKeyword in enumerate(searchKeywords):
+        if len(searchKeyword.split('_')) > 1: #If the keyword has two words and thus is split by an underscore
+            searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
     
     #Setup databank variable
     databank = {'searchKeywords': searchKeywords}
@@ -410,7 +415,7 @@ def parseEquations(databank):
             skippedEquations.append(['UNPARSED EQUATION: ' + eq])
             unparsedEq += 1 #Increase counter 
             print('FAILURE - Likely not convertible from latex to sympy') #Error warning
-            if skip > -1: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
+            if skip > 1000: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
                 print(scrapedWikiEquations[x]) #Print the scraped equation that failed
                 print(eq) #Print the equation that failed
                 break

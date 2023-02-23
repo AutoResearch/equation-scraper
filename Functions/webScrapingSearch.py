@@ -79,11 +79,15 @@ def defineCategory(databank):
     superKeywords = []
     
     #Split super categories from normal categories
-    for searchKeyword in searchKeywords:
+    for keyIndex, searchKeyword in enumerate(searchKeywords):
         if 'Super:' in searchKeyword:
             superKeywords.append(searchKeyword.replace('Super:',''))
         else:
             normalKeywords.append(searchKeyword)
+        
+        if len(searchKeyword.split('_')) > 1: #If the keyword has two words and thus is split by an underscore
+            searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
+        
     
     #Create filename to save to
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
@@ -105,6 +109,8 @@ def defineCategory(databank):
         databank['superKeywords'] = superKeywords
     else:
         databank['superKeywords'] = []
+        
+    databank['searchKeywords'] = searchKeywords
     
     return databank
 

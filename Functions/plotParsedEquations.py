@@ -29,6 +29,11 @@ if __name__ == '__main__':
         searchKeywords = sys.argv[1:]
     else:
         searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
+        
+    #Split super categories from normal categories
+    for keyIndex, searchKeyword in enumerate(searchKeywords):
+        if len(searchKeyword.split('_')) > 1: #If the keyword has two words and thus is split by an underscore
+            searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
     
     #Setup databank variable
     databank = {'searchKeywords': searchKeywords}
@@ -216,7 +221,18 @@ def createFigure(databank):
     #Setup figure
     fig, (ax,ax2) = plt.subplots(1,2,figsize=(14, 8), subplot_kw=dict(aspect="equal")) #Plot formatting
     fig.subplots_adjust(wspace=.75)
-    fig.suptitle('Category:\n' + '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_'), fontsize = 20)
+    
+    #Capitalize any super categories
+    for keyIndex, searchKeyword in enumerate(searchKeywords):
+        if "Super:" in searchKeyword:
+            searchKeywords[keyIndex] = searchKeyword.replace('Super:','').upper()
+            
+    #Combine keywords and plot title
+    categoryTitle = ', '.join(searchKeywords).replace('_',' ')
+    if len(searchKeywords) > 1: #If there are more than one categories searched
+        fig.suptitle('Categories:\n' + categoryTitle, fontsize = 20)
+    else: #If there is only one category searched
+        fig.suptitle('Category:\n' + categoryTitle, fontsize = 20)
 
     #Define function for plotting
     def plotPieChart(plotData, ax):    
