@@ -45,5 +45,7 @@ python webScraping_main.py Psychophysics Economics
 However, it is also possible to run the function files directly:
 ```
 python webScrapingSearch.py Psychophysics Economics
+python sympyParsing.py Psychophysics Economics
+python plotParsedEquations.py Psychophysics Economics
 ```
 Note, however, that each consecutive function script relies on a text file created by the last. So, to run sympyParsing.py you must first have gotten a file created by webScrapingSearch.py and so forth. The intent of making these function scripts discrete and themselves executable is so that you can work on one stage of the project without having to wait for the other stages. For example, you can continuously run sympyParsing.py without having to re-scrape wikipedia with webScrapingSearch.py each time. I suppose this is more for development reasons (e.g., debugging or expanding the code). 
