@@ -49,7 +49,7 @@ def loadParsedData(databank):
     searchKeywords = databank['searchKeywords']
     
     #Determine filename to load
-    saveKeywords = '_'.join(searchKeywords).replace('Super:','SUPER') #Create string of keywords for file name
+    saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
     loadName = 'parsed_operations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
@@ -216,7 +216,7 @@ def createFigure(databank):
     #Setup figure
     fig, (ax,ax2) = plt.subplots(1,2,figsize=(14, 8), subplot_kw=dict(aspect="equal")) #Plot formatting
     fig.subplots_adjust(wspace=.75)
-    fig.suptitle('Category:\n' + '_'.join(searchKeywords).replace('Super:','SUPER'), fontsize = 20)
+    fig.suptitle('Category:\n' + '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_'), fontsize = 20)
 
     #Define function for plotting
     def plotPieChart(plotData, ax):    
@@ -254,7 +254,7 @@ def saveFigure(databank):
     searchKeywords = databank['searchKeywords']
 
     #Save and display figure
-    plt.savefig(os.path.dirname(__file__)+'/../Figures/'+'_'.join(searchKeywords).replace('Super:','SUPER')+'_PriorPieChart.png') #Save figure
+    plt.savefig(os.path.dirname(__file__)+'/../Figures/'+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'_PriorPieChart.png') #Save figure
     plt.show() #Show figure
     
 ###############################################################################

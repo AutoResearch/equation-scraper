@@ -86,7 +86,7 @@ def defineCategory(databank):
             normalKeywords.append(searchKeyword)
     
     #Create filename to save to
-    saveKeywords = '_'.join(searchKeywords).replace('Super:','SUPER') #Create string of keywords for file name
+    saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
     saveName = 'operations_' + saveKeywords + '.txt' #Create file name
 
     #Save search parameters to file
@@ -97,9 +97,9 @@ def defineCategory(databank):
     #Pack databank
     databank['saveName'] = saveName
     if normalKeywords:
-        databank['searchKeywords'] = normalKeywords
+        databank['normalKeywords'] = normalKeywords
     else:
-        databank['searchKeywords'] = []    
+        databank['normalKeywords'] = []    
     
     if superKeywords:
         databank['superKeywords'] = superKeywords
@@ -114,7 +114,7 @@ def scrapeLinks(databank):
     
     '''        
     #Unpack databank
-    searchKeywords = databank['searchKeywords']
+    normalKeywords = databank['normalKeywords']
     superKeywords = databank['superKeywords']
     
     #Define internal functions
@@ -185,7 +185,7 @@ def scrapeLinks(databank):
 
     #Iterate through (Super and Normal) keywords, grabbing links from each page
     superLinks.extend([searchSuperLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in superKeywords])
-    links.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in searchKeywords]) 
+    links.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in normalKeywords]) 
      
     #Combine the two outputs
     links.extend(superLinks)

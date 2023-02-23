@@ -17,7 +17,7 @@ from Functions.plotParsedEquations import *
 if len(sys.argv) > 1:
     searchKeywords = sys.argv[1:]
 else:
-    searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
+    searchKeywords = ['Super:Cognitive_psychology']
     
 #Setup databank variable
 databank = {'searchKeywords': searchKeywords}

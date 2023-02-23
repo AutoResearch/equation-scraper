@@ -69,7 +69,7 @@ def loadScrapedData(databank):
     searchKeywords = databank['searchKeywords']
     
     #Determine filename to load
-    saveKeywords = '_'.join(searchKeywords).replace('Super:','SUPER') #Create string of keywords for file name
+    saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
     loadName = 'operations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
@@ -410,7 +410,7 @@ def parseEquations(databank):
             skippedEquations.append(['UNPARSED EQUATION: ' + eq])
             unparsedEq += 1 #Increase counter 
             print('FAILURE - Likely not convertible from latex to sympy') #Error warning
-            if skip > 1000: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
+            if skip > -1: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
                 print(scrapedWikiEquations[x]) #Print the scraped equation that failed
                 print(eq) #Print the equation that failed
                 break
