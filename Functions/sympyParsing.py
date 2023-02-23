@@ -194,8 +194,9 @@ def processEquation(databank):
     #Split equation dependent on break
     if ('\\\\' in currentLine):
         currentLine = currentLine.split('\\\\') #The equations are split if multiple exist
-    elif (',\\' in currentLine):
-        currentLine = currentLine.split(',\\') #The equations are split if multiple exist
+    #elif (',\\' in currentLine):
+    #    print(currentLine)
+    #    currentLine = currentLine.split(',\\') #The equations are split if multiple exist
     elif ('\\;' in currentLine):
         currentLine = currentLine.split('\\;')
     elif ('{\\begin{array}{c}' in currentLine):
@@ -203,7 +204,7 @@ def processEquation(databank):
     elif ('\\begin{aligned}' in currentLine):
         currentLine = currentLine.split('\end{aligned}}')[0]
     else: #No splitting necessary
-        currentLine = currentLine #Turn into a list
+        pass
     
     #Pack parameter
     databank['currentLine'] = currentLine
@@ -271,6 +272,7 @@ def formatEquation(databank):
                     
         #The descriptive sum conflicts, and so we convert it to a simple sum
         #if '\sum _{i=1}^{n}' in currentEquation:
+        
         for subLetter in string.ascii_letters:
             for supLetter in string.ascii_letters:
                 if '\\sum_{'+subLetter+'=1}^{'+supLetter+'}' == currentEquation:
@@ -283,10 +285,25 @@ def formatEquation(databank):
         #Remove odd notation
         if '\-' in currentEquation:
             currentEquation = currentEquation.replace('\-','-')
+            
+        #Sometimes comma separated parameters in subscript are split into separate notations, so here we combine them
+        if '}_{' in currentEquation:
+            currentEquation = currentEquation.replace('}_{','')
 
         #Remove backslashes at the end of the equations
         if '\\' == currentEquation[-1:]:
             currentEquation = currentEquation[:-1]
+            
+        #Symbols are sometimes within the text as a lone subscript, so we remove this and make it a normal symbol
+        if currentEquation:
+            if ('_' == currentEquation[0]):
+                currentEquation = currentEquation[1:]
+               
+        #Check if a number is preceeded by a slash (unsure why this occurs sometimes, but it is here removed) 
+        for subEq in currentEquation.split('\\'):
+            if subEq:
+                if subEq[0].isdigit():
+                    currentEquation = currentEquation.replace('\\'+subEq[0],subEq[0])
             
         #Remove the operatorname tag
         if 'operatorname' in currentEquation:
