@@ -30,7 +30,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
     else:
-        searchKeywords = ['Psychophysics']
+        searchKeywords = ['Super:Psychology']
         
     #Setup databank variable
     databank = {'searchKeywords': searchKeywords}
@@ -74,8 +74,19 @@ def defineCategory(databank):
     #Unpack databank
     searchKeywords = databank['searchKeywords']
     
+    #Setup variables
+    normalKeywords = []
+    superKeywords = []
+    
+    #Split super categories from normal categories
+    for searchKeyword in searchKeywords:
+        if 'Super:' in searchKeyword:
+            superKeywords.append(searchKeyword.replace('Super:',''))
+        else:
+            normalKeywords.append(searchKeyword)
+    
     #Create filename to save to
-    saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
+    saveKeywords = '_'.join(searchKeywords).replace('Super:','') #Create string of keywords for file name
     saveName = 'operations_' + saveKeywords + '.txt' #Create file name
 
     #Save search parameters to file
@@ -85,6 +96,15 @@ def defineCategory(databank):
 
     #Pack databank
     databank['saveName'] = saveName
+    if normalKeywords:
+        databank['searchKeywords'] = normalKeywords
+    else:
+        databank['searchKeywords'] = []    
+    
+    if superKeywords:
+        databank['superKeywords'] = superKeywords
+    else:
+        databank['superKeywords'] = []
     
     return databank
 
@@ -95,6 +115,7 @@ def scrapeLinks(databank):
     '''        
     #Unpack databank
     searchKeywords = databank['searchKeywords']
+    superKeywords = databank['superKeywords']
     
     #Define internal functions
     def searchLinks(URL):
@@ -108,6 +129,33 @@ def scrapeLinks(databank):
         bodyLinks = bodyText.find_all('a', href=True, class_=False, dir=False) #Find all links in body
         currentLinks = [link.get('href') for link in bodyLinks] #Extract links from list
         
+        return currentLinks
+    
+    def searchSuperLinks(URL):
+        '''
+        [INSERT FUNCTION DESCRIPTION]
+        
+        '''
+        #Setup variable
+        currentLinks = []
+
+        ###TODO: Go into subcategories (+pages in this category) then go into pages within those subcategories
+        webText = requests.get(URL).text #Download URL content
+        soup = BeautifulSoup(webText, 'html.parser') #Create soup object
+        categoryText = soup.find_all("div",{"class":"mw-category-generated"}) #Isolate the sub-category section
+
+        #Retrieve subcategory links from supercategory
+        subCategoryLinks = categoryText[0].find_all('a', href=True, class_=False, dir=False) #Find all links in body
+        for subCategory in subCategoryLinks: #Cycle through subcategories
+            if 'Category:' in subCategory.get('href'):
+                subWebText = requests.get('https://en.wikipedia.org'+subCategory.get('href')).text #Download URL content
+                subSoup = BeautifulSoup(subWebText, 'html.parser') #Create soup object
+                subCatText = subSoup.find_all("div",{"class":"mw-category-generated"}) #Retrieve direct links from supercategory
+                subLinks = subCatText[0].find_all('a', href=True, class_=False, dir=False) #Find all links in body   
+                currentLinks.extend([link.get('href') for link in subLinks if 'Category:' not in link.get('href')]) #Extract links from list
+            else: #Retrieve direct links from supercategory      
+                currentLinks.append(subCategory.get('href')) #Extract links from list
+                
         return currentLinks
 
     #Removes any duplicate or unwanted links
@@ -135,7 +183,8 @@ def scrapeLinks(databank):
     links = []
 
     #Iterate through keywords, grabbing links from each page
-    links.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in databank['searchKeywords']]) 
+    links.extend([searchSuperLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in superKeywords])
+    links.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in searchKeywords]) 
 
     #Concatenate the lists from each keyword
     expandedLinks = [item for sublist in links for item in sublist] 
