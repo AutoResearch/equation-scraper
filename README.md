@@ -7,7 +7,7 @@ Specifically, the project scrapes wikipedia pages of a certain category to extra
 ## There exists a main file:
 -webScraping_main.py: Which runs the three function files consecutively using the same keywords. This will take you from scraping wikipedia to parsing the equations to plotting the distributions of equations all in one execution. 
 
-## This project contains three main function files:
+## This project contains three function files:
 
 -webScrapingSearch.py: Extracts equations from Wikipedia,
 
