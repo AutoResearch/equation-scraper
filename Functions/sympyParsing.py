@@ -20,6 +20,7 @@ from sympy.parsing.latex import parse_latex
 import sympy as sp
 import re
 import os
+import string
 
 #Determine categories to search
 if __name__ == '__main__':
@@ -173,7 +174,8 @@ def processEquation(databank):
     subText = re.findall(r'\_\{.*?\}', currentLine)
     if subText:
         for sub in subText:
-            currentLine = currentLine.replace(sub,'_{x}')
+            if '=' not in sub:
+                currentLine = currentLine.replace(sub,'_{x}')
                     
     #Removing math formatting
     mathFormats = ['\mathnormal {', '\mathrm {', '\mathbf {', '\mathsf {', '\mathtt {','\mathfrak {','\mathcal {','\mathbb {','\mathscr {']
@@ -237,7 +239,7 @@ def formatEquation(databank):
     if (currentLine[0] != '#') & (currentLine != '\n'):
             
         #Split equations to remove the left hand side
-        separators = {'&=&': -1,'&=': -1,'=\\': -1,',&': 0, ':=': -1, '=:': -1,'=': -1, '\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0, '\cong': 0}
+        separators = {'&=&': -1,'&=': -1,'=\\': -1,',&': 0, ':=': -1, '=:': -1,'\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0, '\cong': 0}
         if ('\\equiv' not in currentLine) | ('\\approx' not in currentLine): #TODO: Removes equivalencies and approximations but should it?
             currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1] #TODO: I think this new method removed two equations, figure out if so and why
             
@@ -268,8 +270,11 @@ def formatEquation(databank):
             currentEquation = currentEquation.split('\le')[0]
                     
         #The descriptive sum conflicts, and so we convert it to a simple sum
-        if '\sum _{i=1}^{n}' in currentEquation:
-            currentEquation = currentEquation.replace('\sum _{i=1}^{n}','\sum')
+        #if '\sum _{i=1}^{n}' in currentEquation:
+        for subLetter in string.ascii_letters:
+            for supLetter in string.ascii_letters:
+                if '\\sum_{'+subLetter+'=1}^{'+supLetter+'}' == currentEquation:
+                    currentEquation = '\\sum_{'+subLetter+'=1}^{'+supLetter+'}'+'1'
         
         #Remove odd notation (this is caused by the symbol before the addition and not the addition itself)
         if '\+' in currentEquation:
@@ -335,7 +340,7 @@ def appendVariables(databank):
     
     return databank
 
-def parseEquations(databank):
+def parseEquations(databank, debug = True):
     parsedEquations = []
     skippedEquations = []
     parsedEq = 0
@@ -415,7 +420,7 @@ def parseEquations(databank):
             skippedEquations.append(['UNPARSED EQUATION: ' + eq])
             unparsedEq += 1 #Increase counter 
             print('FAILURE - Likely not convertible from latex to sympy') #Error warning
-            if skip > 1000: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
+            if debug==True: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
                 print(scrapedWikiEquations[x]) #Print the scraped equation that failed
                 print(eq) #Print the equation that failed
                 break
@@ -482,7 +487,7 @@ if __name__ == '__main__':
     #4. Parse Equations
     ###############################################################################
 
-    databank = parseEquations(databank)
+    databank = parseEquations(databank, True)
 
     ###############################################################################
     #5. Save Files
