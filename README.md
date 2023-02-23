@@ -16,11 +16,33 @@ Specifically, the project scrapes wikipedia pages of a certain category to extra
 -plotParsedEquations.py: Plots the distribution of operations as a pie chart.
 
 ## How to use this package:
-The package is executable through terminal where you run the file normally and any provided arguments (space separated) will be taken as the keywords to search for:
+The package is executable through terminal where you run the file normally and any provided arguments (space separated) will be taken as the category keywords to search for. This can come in two forms: Normal Categories and Super Categories. 
+
+### Normal Category Keywords
+Normal categories will scrape the pages linked to that category page and go no further (i.e., it takes one step from the category) - to provide normal category arguments, simply write them in plainly:
 ```
 python webScraping_main.py Psychophysics Economics
 ```
-The function files can be run through the main script, but also function if run directly:
+
+### Super Category Keywords
+Super categories will scrape the pages linked to that category page but also treat any subcategories on that page as normal category keywords (i.e., it takes two steps from the category) - to provide super category arguments, write them in with the 'Super:' preface:
+```
+python webScraping_main.py Super:Cognitive_psychology Super:Cognitive_neuroscience
+```
+
+### Hybrid Category Keywords
+It is also possible to include both normal and super category keywords:
+```
+python webScraping_main.py Super:Cognitive_psychology Economics
+```
+
+### Running Main Versus Function Scripts
+The main script will process your categories from scraping the web to plotting your distributions:
+```
+python webScraping_main.py Psychophysics Economics
+```
+
+However, it is also possible to run the function files directly:
 ```
 python webScrapingSearch.py Psychophysics Economics
 ```
