@@ -4,16 +4,16 @@ The goal of this project is to determine a distribution of mathematical operatio
 
 Specifically, the project scrapes wikipedia pages of a certain category to extract mathematical equations and then determines the distribution of operations contained within them. 
 
-## There exists a main file:
--webScraping_main.py: Which runs the three function files consecutively using the same keywords. This will take you from scraping wikipedia to parsing the equations to plotting the distributions of equations all in one execution. 
+## The Main File:
+**webScraping_main.py**: Which runs the three function files consecutively using the same keywords. This will take you from scraping wikipedia to parsing the equations to plotting the distributions of equations all in one execution. 
 
-## This project contains three function files:
+## The Function Files:
 
--webScrapingSearch.py: Extracts equations from Wikipedia,
+**webScrapingSearch.py**: Extracts equations from Wikipedia,
 
--sympyParsing.py: Determines operation distributions from the extracted equations,
+**sympyParsing.py**: Determines operation distributions from the extracted equations,
 
--plotParsedEquations.py: Plots the distribution of operations as a pie chart.
+**plotParsedEquations.py**: Plots the distribution of operations as a pie chart.
 
 ## How to use this package:
 The package is executable through terminal where you run the file normally and any provided arguments (space separated) will be taken as the category keywords to search for. This can come in two forms: Normal Categories and Super Categories. 
