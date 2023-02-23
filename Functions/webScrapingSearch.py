@@ -30,7 +30,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
     else:
-        searchKeywords = ['Super:Psychology']
+        searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
         
     #Setup databank variable
     databank = {'searchKeywords': searchKeywords}
@@ -86,7 +86,7 @@ def defineCategory(databank):
             normalKeywords.append(searchKeyword)
     
     #Create filename to save to
-    saveKeywords = '_'.join(searchKeywords).replace('Super:','') #Create string of keywords for file name
+    saveKeywords = '_'.join(searchKeywords).replace('Super:','SUPER') #Create string of keywords for file name
     saveName = 'operations_' + saveKeywords + '.txt' #Create file name
 
     #Save search parameters to file
@@ -139,7 +139,7 @@ def scrapeLinks(databank):
         #Setup variable
         currentLinks = []
 
-        ###TODO: Go into subcategories (+pages in this category) then go into pages within those subcategories
+        #Scrape URL
         webText = requests.get(URL).text #Download URL content
         soup = BeautifulSoup(webText, 'html.parser') #Create soup object
         categoryText = soup.find_all("div",{"class":"mw-category-generated"}) #Isolate the sub-category section
@@ -180,12 +180,16 @@ def scrapeLinks(databank):
         return databank
     
     #Create empty list to be populated
+    superLinks = []
     links = []
 
-    #Iterate through keywords, grabbing links from each page
-    links.extend([searchSuperLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in superKeywords])
+    #Iterate through (Super and Normal) keywords, grabbing links from each page
+    superLinks.extend([searchSuperLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in superKeywords])
     links.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in searchKeywords]) 
-
+     
+    #Combine the two outputs
+    links.extend(superLinks)
+    
     #Concatenate the lists from each keyword
     expandedLinks = [item for sublist in links for item in sublist] 
     databank['expandedLinks'] = expandedLinks

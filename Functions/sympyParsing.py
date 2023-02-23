@@ -27,7 +27,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
     else:
-        searchKeywords = ['Psychophysics']
+        searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
     
     #Setup databank variable
     databank = {'searchKeywords': searchKeywords}
@@ -69,7 +69,7 @@ def loadScrapedData(databank):
     searchKeywords = databank['searchKeywords']
     
     #Determine filename to load
-    saveKeywords = '_'.join(searchKeywords) #Create string of keywords for file name
+    saveKeywords = '_'.join(searchKeywords).replace('Super:','SUPER') #Create string of keywords for file name
     loadName = 'operations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
