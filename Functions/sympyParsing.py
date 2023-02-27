@@ -115,8 +115,6 @@ def cycleEquations(databank):
         
         #Determine if current line represents link
         if '#LINK:' in currentLine:
-            if __name__ == '__main__':
-                print(currentLine)
             databank['currentLink'] = currentLine
             
         #Process Equation
@@ -163,6 +161,12 @@ def processEquation(databank):
     if subText:
         for sub in subText:
             currentLine = currentLine.replace(sub,'p(x)')
+    
+    #Reformat conditional probability notations
+    subText = re.findall(r'P\\left\(.*?\|.*?\\right\)', currentLine) 
+    if subText:
+        for sub in subText:
+            currentLine = currentLine.replace(sub,'p(x)')
             
     #Remove text formatting and replace with t
     subText = re.findall('text\{.*?\}', currentLine)
@@ -195,10 +199,9 @@ def processEquation(databank):
     if ('\\\\' in currentLine):
         currentLine = currentLine.split('\\\\') #The equations are split if multiple exist
     #elif (',\\' in currentLine):
-    #    print(currentLine)
     #    currentLine = currentLine.split(',\\') #The equations are split if multiple exist
-    elif ('\\;' in currentLine):
-        currentLine = currentLine.split('\\;')
+    #elif ('\\;' in currentLine): #TODO: Is removing this an issue?
+    #    currentLine = currentLine.split('\\;')
     elif ('{\\begin{array}{c}' in currentLine):
         currentLine = currentLine.split('{\\begin{array}{c}')
     elif ('\\begin{aligned}' in currentLine):
@@ -240,9 +243,9 @@ def formatEquation(databank):
     if (currentLine[0] != '#') & (currentLine != '\n'):
             
         #Split equations to remove the left hand side
-        separators = {'&=&': -1,'&=': -1,'=\\': -1,',&': 0, ':=': -1, '=:': -1,'\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0, '\cong': 0}
-        if ('\\equiv' not in currentLine) | ('\\approx' not in currentLine): #TODO: Removes equivalencies and approximations but should it?
-            currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1] #TODO: I think this new method removed two equations, figure out if so and why
+        separators = {'&=&': -1,'&=': -1,'=\\': -1,',&': 0, ':=': -1, '=:': -1,'\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0, '\cong': 0, '\\equiv': 0, '\\approx': 0}
+        #if ('\\equiv' not in currentLine) | ('\\approx' not in currentLine): #TODO: I now use equiv and approx in separators above, but does this cause issues?
+        currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1]
             
         #Removes specific notations that Sympy cannot comprehend 
         excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
@@ -271,12 +274,13 @@ def formatEquation(databank):
             currentEquation = currentEquation.split('\le')[0]
                     
         #The descriptive sum conflicts, and so we convert it to a simple sum
-        #if '\sum _{i=1}^{n}' in currentEquation:
-        
         for subLetter in string.ascii_letters:
             for supLetter in string.ascii_letters:
                 if '\\sum_{'+subLetter+'=1}^{'+supLetter+'}' == currentEquation:
                     currentEquation = '\\sum_{'+subLetter+'=1}^{'+supLetter+'}'+'1'
+                    
+        #This is a separator function as part of the list bear the top of this function, however, must be delayed until the last chunk of code is run
+        currentEquation = currentEquation.split('=')[-1]
         
         #Remove odd notation (this is caused by the symbol before the addition and not the addition itself)
         if '\+' in currentEquation:
@@ -424,17 +428,17 @@ def parseEquations(databank, debug = True):
                     
                 #Record operations into variable to be saved
                 if (eqOperations != ['0']) & (len(operations)!=0) &(len(eqSymbols)!=0):
-                    parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', dict(operations), 'LINK:', scrapedLinks[x],'WIKIEQUATION:',scrapedWikiEquations[x]])
+                    parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', dict(operations), 'LINK:', scrapedLinks[x], 'WIKIEQUATION:',scrapedWikiEquations[x]])
                     parsedEq += 1 
                 else:
-                    skippedEquations.append(['SKIPPED EQUATION: ' + eq])
+                    skippedEquations.append(['SKIPPED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
                     skippedEq += 1
             else:
-                skippedEquations.append(['SKIPPED EQUATION: ' + eq])
+                skippedEquations.append(['SKIPPED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
                 skippedEq += 1
                 
         except: #If the translation from latex to Sympy of the parsing fails
-            skippedEquations.append(['UNPARSED EQUATION: ' + eq])
+            skippedEquations.append(['UNPARSED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
             unparsedEq += 1 #Increase counter 
             print('FAILURE - Likely not convertible from latex to sympy') #Error warning
             if debug==True: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
@@ -482,7 +486,6 @@ def saveFiles(databank, printDebug = False):
         for skippedItem in skippedEquations:
             if '#' not in skippedItem:
                 f.write(skippedItem[0])
-                f.write('\n')
             
 ###############################################################################
 ## IF SCRIPT WAS EXECUTED DIRECTLY:                                          ##
