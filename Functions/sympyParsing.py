@@ -341,7 +341,17 @@ def formatEquation(databank):
                 currentEquation = currentEquation.replace('\operatorname {'+operatorVar+'}',operatorVar[0])
             except:
                 currentEquation = currentEquation.replace('\operatorname {','')[:-1]
+                
+        #Adapt notations that use entire words
+        #Find all words
+        regex = r'\b\w+\b'
+        equationWords=re.findall(regex,currentEquation)
 
+        #Pull out only words 4+ characters and change notation
+        for equationWord in equationWords:
+            if (len(equationWord)> 3) & (equationWord != 'frac'):
+                currentEquation = currentEquation.replace(equationWord, 'x')
+                
     #If an equation was found and reformatted, return it
     if ('currentEquation' in locals()):
         if (currentEquation != ''):
