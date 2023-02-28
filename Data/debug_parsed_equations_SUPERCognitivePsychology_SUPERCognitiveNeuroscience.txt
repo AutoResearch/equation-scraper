@@ -1,0 +1,1134 @@
+
+************
+OPERATIONS:~{'ADD': 1}
+SYMBOLS:~[y, x]
+EQUATION:~x + y
+LINK:~/wiki/Augmented_cognition
+WIKIEQUATION:~{\displaystyle \sum _{k=1}^{N}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1}
+SYMBOLS:~[y, x]
+EQUATION:~x + y
+LINK:~/wiki/Augmented_cognition
+WIKIEQUATION:~{\displaystyle \sum _{k=1}^{M}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'MUL': 3, 'POW': 2, 'SUB': 1}
+SYMBOLS:~[y, X, sigma, e, mu_{x}, t, x]
+EQUATION:~e**((mu_{x} - p_{x}(t))**2/((2*(X*sigma))))*y + x
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle F_{tc}(t)=\sum _{i=1}^{n}e^{\left({\frac {(\mu _{tc}-p_{i}(t))^{2}}{2X\sigma }}\right)}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 2, 'SUB': 2}
+SYMBOLS:~[i_{x}, u_{x}, t, w_{x}]
+EQUATION:~-w_{x}*f(u_{x}(t)) + (w_{x}*f(u_{x}(t)) + (i_{x} - u_{x}))
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle \tau {\frac {\delta u_{1,2}(t)}{\delta t}}=-u_{1,2}+i_{1,2}+w_{+}f(u_{1,2}(t))-w_{-}f(u_{2,1}(t))}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1, 'SUB': 1}
+SYMBOLS:~[t, w_{x}]
+EQUATION:~w_{x}*u(t) - v_{x}(t)
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle \tau {\frac {\delta v_{1,2}(t)}{\delta t}}=-v_{1,2}(t)+w_{m,n}u(t)}
+
+************
+
+************
+OPERATIONS:~{'ABS': 1, 'ADD': 1, 'DIV': 2, 'EXP': 1, 'MUL': 3, 'POW': 1, 'SUB': 1}
+SYMBOLS:~[y, sigma, t, i_{x*x}, x]
+EQUATION:~x + y*exp(-Abs(-i_{x*x}*i_{x*x} + x_{x}(t)*y_{x}(t))**2/(2*sigma))
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle R_{\psi }(t)=\sum _{i=1}^{N}\exp \left(-{\frac {\left|(x_{i}(t),y_{i}(t))-(\mathrm {X} _{i},_{\psi },\mathrm {P} _{i},_{\psi })\right\vert ^{2}}{2\cdot \sigma }}\right)}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[y_{x}, x_{x}]
+EQUATION:~x_{x}*y_{x}
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle (x_{i},y_{i})}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[r_{x}, c_{x}]
+EQUATION:~c_{x}*r_{x}
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle (c_{i},r_{i})}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'MUL': 2, 'SUB': 1}
+SYMBOLS:~[t, R, bar]
+EQUATION:~(-R*bar + R_{x}(t))/((R*bar))
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle \nu _{\psi }(t)={\frac {R_{\psi }(t)-{\bar {R}}}{\bar {R}}}}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[R, bar]
+EQUATION:~R*bar
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle {\bar {R}}}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1, 'POW': 2}
+SYMBOLS:~[f, b, g]
+EQUATION:~g**b*g**f
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle g^{f},g^{b}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 2, 'MUL': 4}
+SYMBOLS:~[y, t, p, x]
+EQUATION:~(y*g_{x}(p*t))*nu_{x}(t) + (x*y + x)
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle r_{\psi }(\tau )=\sum _{t=0ms}^{\tau }\sum _{p=1}^{100}g_{\tau ,\psi }(t,p)\cdot \nu _{\psi }(t)}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1}
+SYMBOLS:~[y, t, p, tau, x]
+EQUATION:~(r_{x}(tau)/(y*g_{x}(p*t)**2 + (x*y + x)))*0
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle N_{\psi }(\tau )=\max \left[\left({\frac {r_{\psi }(\tau )}{\sum _{t}\sum _{p}g_{\tau ,\psi }(t,p)^{2}}}\right),0\right]}
+
+************
+
+************
+OPERATIONS:~{'MUL': 2, 'POW': 4, 'SUB': 1}
+SYMBOLS:~[B, tau, N_{x}, F]
+EQUATION:~-N_{x}**B*tau**2 + N_{x}**F*tau**2
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle \varepsilon _{\psi }(\tau )=N_{\psi }^{F}(\tau )^{2}-N_{\psi }^{B}(\tau )^{2}}
+
+************
+
+************
+OPERATIONS:~{'MUL': 4}
+SYMBOLS:~[theta_{x}, theta, v_{x}, x]
+EQUATION:~H((v_{x}*v_{x})*v(x))*b(theta*theta_{x})
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle G_{p}(x)=H(v(x),v_{1},v_{2})\cdot b(\theta ,\theta _{p})}
+
+************
+
+************
+OPERATIONS:~{'MUL': 2}
+SYMBOLS:~[v, v_{x}]
+EQUATION:~H(v*(v_{x}*v_{x}))
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle H(v,v_{1},v_{2})=1}
+
+************
+
+************
+OPERATIONS:~{'MUL': 2}
+SYMBOLS:~[v, v_{x}]
+EQUATION:~H(v*(v_{x}*v_{x}))
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle H(v,v_{1},v_{2})=0}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'MUL': 3, 'POW': 1}
+SYMBOLS:~[c, theta_{x}, theta, o, q]
+EQUATION:~((c*(o*s(theta*theta_{x})) + 1)/2)**q
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle b(\theta ,\theta _{p})=\left\{\left({\frac {1}{2}}\right)\left[\ 1+cos(\theta ,\theta _{p})\right]\ \right\}^{q}}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1, 'POW': 1}
+SYMBOLS:~[x_{x}]
+EQUATION:~sqrt(g_{x}(x_{x})*g_{x}(x_{x}))
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle o_{l}(x)={\sqrt {max(g_{p}(x_{i}))max(g_{r}(x_{j}))}}}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[i, j]
+EQUATION:~i*j
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle i,j}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1, 'POW': 2, 'SUB': 2}
+SYMBOLS:~[T, u, u_{x}, e]
+EQUATION:~e**((u - u_{x})**T*C(u - u_{x}))
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle G(u)=e^{(u-u_{0})^{T}C(u-u_{0})}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 2, 'MUL': 5, 'POW': 3, 'SUB': 2}
+SYMBOLS:~[m, H_{x}, k, t, G_{x}, l, y, x]
+EQUATION:~y*(f(G_{x}**l*t + H_{x}**l*t)*w(k - m)) - (H_{x}**l*t + x)
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle \tau H_{k}^{l}(t)=-H_{k}^{l}(t)+\sum _{m}w(k-m)f(H_{k}^{l}(t)+G_{k}^{l}(t))}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1, 'POW': 1}
+SYMBOLS:~[l, G_{x}, t]
+EQUATION:~G_{x}**l*t
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle G_{k}^{l}(t)}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1, 'POW': 1}
+SYMBOLS:~[l, H_{x}, t]
+EQUATION:~H_{x}**l*t
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle H_{l}^{l}(t)}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 3, 'POW': 2, 'SUB': 1}
+SYMBOLS:~[H_{x}, t, l, y, P, x]
+EQUATION:~y*(H_{x}**l*t) - (P**l*t + x)
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle \tau _{s}P^{l}(t)=-P^{l}(t)+\sum _{k}H_{l}^{l}(t)}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1, 'POW': 1}
+SYMBOLS:~[l, t, P]
+EQUATION:~P**l*t
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle P^{l}(t)}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1, 'POW': 1}
+SYMBOLS:~[l, H_{x}, t]
+EQUATION:~H_{x}**l*t
+LINK:~/wiki/Biological_motion_perception
+WIKIEQUATION:~{\displaystyle H_{k}^{l}(t)}
+
+************
+
+************
+OPERATIONS:~{'MUL': 4}
+SYMBOLS:~[in, y, Z, z, x]
+EQUATION:~x*(y*(z*(Z*in)))
+LINK:~/wiki/Critical_thinking
+WIKIEQUATION:~{\displaystyle x,y,z\in \mathbb {Z} }
+
+************
+
+************
+OPERATIONS:~{'MUL': 4}
+SYMBOLS:~[y, z]
+EQUATION:~2*(2*(y*(2*z)))
+LINK:~/wiki/Critical_thinking
+WIKIEQUATION:~{\displaystyle 2x,2y,2z}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[z]
+EQUATION:~2*z
+LINK:~/wiki/Critical_thinking
+WIKIEQUATION:~{\displaystyle 2x+2y=2(x+y)=2z}
+
+************
+
+************
+OPERATIONS:~{'SUB': 1}
+SYMBOLS:~[c_{x}, x]
+EQUATION:~-p(c_{x}) + p(x)
+LINK:~/wiki/Cue_validity
+WIKIEQUATION:~{\displaystyle p(c_{j}|f_{i})-p(c_{j})\ }
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 1}
+SYMBOLS:~[b, a, x]
+EQUATION:~a*x + b
+LINK:~/wiki/Information_integration_theory
+WIKIEQUATION:~{\displaystyle y=ax+b}
+
+************
+
+************
+OPERATIONS:~{'MUL': 3}
+SYMBOLS:~[s_{x}, I]
+EQUATION:~I*(s_{x}*(s_{x}*s_{x}))
+LINK:~/wiki/Information_integration_theory
+WIKIEQUATION:~{\displaystyle r=I\{s_{1},s_{2},..,s_{n}\}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1}
+SYMBOLS:~[G_{x}, F_{x}]
+EQUATION:~F_{x} + G_{x}
+LINK:~/wiki/Information_integration_theory
+WIKIEQUATION:~{\displaystyle R_{1}=F_{1}+G_{1}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1}
+SYMBOLS:~[G_{x}, F_{x}]
+EQUATION:~F_{x} + G_{x}
+LINK:~/wiki/Information_integration_theory
+WIKIEQUATION:~{\displaystyle R_{2}=F_{2}+G_{2}}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1}
+SYMBOLS:~[i]
+EQUATION:~(i/i)*100
+LINK:~/wiki/Mental_age
+WIKIEQUATION:~{\displaystyle \quad \mathrm {IQ} ={\frac {\mathrm {mental\;age} }{\mathrm {chronological\;age} }}\cdot 100}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'POW': 1}
+SYMBOLS:~[i, a, n, k]
+EQUATION:~a/(i**n) + k
+LINK:~/wiki/Mental_chronometry
+WIKIEQUATION:~{\displaystyle RT={\frac {a}{i^{n}}}+k}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'LOG': 1, 'MUL': 1}
+SYMBOLS:~[b, p, a]
+EQUATION:~a + b*log(1/p, E)
+LINK:~/wiki/Mental_chronometry
+WIKIEQUATION:~{\displaystyle RT=a+b\log {\frac {1}{p}},}
+
+************
+
+************
+OPERATIONS:~{'ADD': 2, 'LOG': 1, 'MUL': 1}
+SYMBOLS:~[b, a, n, x]
+EQUATION:~a + b*log(n + 1, x)
+LINK:~/wiki/Mental_chronometry
+WIKIEQUATION:~{\displaystyle RT=a+b\log _{2}(n+1)}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1}
+SYMBOLS:~[K, logN]
+EQUATION:~K + logN
+LINK:~/wiki/Mental_chronometry
+WIKIEQUATION:~{\displaystyle MRT=K+\log N}
+
+************
+
+************
+OPERATIONS:~{'MUL': 2}
+SYMBOLS:~[M, T, R]
+EQUATION:~M*(R*T)
+LINK:~/wiki/Mental_chronometry
+WIKIEQUATION:~{\displaystyle MRT}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1}
+SYMBOLS:~[n]
+EQUATION:~n + 1
+LINK:~/wiki/Mental_chronometry
+WIKIEQUATION:~{\displaystyle n+1}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'MUL': 2}
+SYMBOLS:~[t]
+EQUATION:~(t/t)*(t*t)
+LINK:~/wiki/Motivation
+WIKIEQUATION:~{\displaystyle {\text{Autonomy}}\,\times \,{\text{Feedback}}\,\times {\frac {\text{Skill Variety+Task Identity+Task Significance }}{\text{3}}}}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[i, midD]
+EQUATION:~p(i*midD)
+LINK:~/wiki/Base_rate_fallacy
+WIKIEQUATION:~{\displaystyle p(\mathrm {drunk} \mid D)}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'MUL': 2}
+SYMBOLS:~[i, midi, D]
+EQUATION:~(p(i)*p(D*midi))/p(D)
+LINK:~/wiki/Base_rate_fallacy
+WIKIEQUATION:~{\displaystyle p(\mathrm {drunk} \mid D)={\frac {p(D\mid \mathrm {drunk} )\,p(\mathrm {drunk} )}{p(D)}}.}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 4}
+SYMBOLS:~[i, midi, D]
+EQUATION:~p(i)*p(D*midi) + p(i)*p(D*midi)
+LINK:~/wiki/Base_rate_fallacy
+WIKIEQUATION:~{\displaystyle p(D)=p(D\mid \mathrm {drunk} )\,p(\mathrm {drunk} )+p(D\mid \mathrm {sober} )\,p(\mathrm {sober} )}
+
+************
+
+************
+OPERATIONS:~{'SUB': 1}
+SYMBOLS:~[epsilon, U]
+EQUATION:~U - epsilon
+LINK:~/wiki/Bounded_rationality
+WIKIEQUATION:~{\displaystyle U(s)\geq U^{*}-\epsilon .}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[A, landB]
+EQUATION:~Pr(A*landB)
+LINK:~/wiki/Conjunction_fallacy
+WIKIEQUATION:~{\displaystyle \Pr(A\land B)\leq \Pr(A)}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[A, landB]
+EQUATION:~Pr(A*landB)
+LINK:~/wiki/Conjunction_fallacy
+WIKIEQUATION:~{\displaystyle \Pr(A\land B)\leq \Pr(B)}
+
+************
+
+************
+OPERATIONS:~{'MUL': 2, 'POW': 1}
+SYMBOLS:~[over, n]
+EQUATION:~1*(2**n*over)
+LINK:~/wiki/Gambler%27s_fallacy
+WIKIEQUATION:~{\displaystyle \Pr \left(\bigcap _{i=1}^{n}A_{i}\right)=\prod _{i=1}^{n}\Pr(A_{i})={1 \over 2^{n}}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'MUL': 1}
+SYMBOLS:~[D, k]
+EQUATION:~1/(D*k + 1)
+LINK:~/wiki/Hyperbolic_discounting
+WIKIEQUATION:~{\displaystyle g(D)={\frac {1}{1+kD}}\,}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1, 'NEG': 1, 'POW': 1}
+SYMBOLS:~[k, D, e]
+EQUATION:~e**(-D*k)
+LINK:~/wiki/Hyperbolic_discounting
+WIKIEQUATION:~{\displaystyle f(D)=e^{-kD}\,}
+
+************
+
+************
+OPERATIONS:~{'NEG': 1, 'POW': 1}
+SYMBOLS:~[D]
+EQUATION:~2**(-D)
+LINK:~/wiki/Hyperbolic_discounting
+WIKIEQUATION:~{\displaystyle f(D)=2^{-D}\,}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1}
+SYMBOLS:~[D]
+EQUATION:~1/(D + 1)
+LINK:~/wiki/Hyperbolic_discounting
+WIKIEQUATION:~{\displaystyle g(D)={\frac {1}{1+D}}\,}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'SUB': 1}
+SYMBOLS:~[D]
+EQUATION:~1 - 1/(D + 2)
+LINK:~/wiki/Hyperbolic_discounting
+WIKIEQUATION:~{\displaystyle {\frac {g(D+1)}{g(D)}}=1-{\frac {1}{D+2}}\,}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1}
+SYMBOLS:~[D]
+EQUATION:~g(D + 1)/g(D)
+LINK:~/wiki/Hyperbolic_discounting
+WIKIEQUATION:~{\displaystyle {\frac {g(D+1)}{g(D)}}\,}
+
+************
+
+************
+OPERATIONS:~{'EXP': 1, 'NEG': 1}
+SYMBOLS:~[lambdat]
+EQUATION:~exp(-lambdat)
+LINK:~/wiki/Hyperbolic_discounting
+WIKIEQUATION:~{\displaystyle P(R_{t}|\lambda )=\exp(-\lambda t),\,}
+
+************
+
+************
+OPERATIONS:~{'DIV': 2, 'EXP': 1, 'NEG': 1}
+SYMBOLS:~[k, lambda]
+EQUATION:~exp((-lambda)/k)/k
+LINK:~/wiki/Hyperbolic_discounting
+WIKIEQUATION:~{\displaystyle p(\lambda )=\exp(-\lambda /k)/k,\,}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'MUL': 1}
+SYMBOLS:~[t, k]
+EQUATION:~1/(k*t + 1)
+LINK:~/wiki/Hyperbolic_discounting
+WIKIEQUATION:~{\displaystyle P(R_{t})=\int _{0}^{\infty }P(R_{t}|\lambda )p(\lambda )d\lambda ={\frac {1}{1+kt}},\,}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'LOG': 1, 'MUL': 2}
+SYMBOLS:~[k, P, D]
+EQUATION:~P*(log(D*k + 1, E)/k)
+LINK:~/wiki/Hyperbolic_discounting
+WIKIEQUATION:~{\displaystyle V=P{\frac {\ln(1+kD)}{k}},\,}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'SUB': 2}
+SYMBOLS:~[n, x_{x}, alpha_{x}]
+EQUATION:~-alpha_{x}/(n - 1*1) + x_{x}
+LINK:~/wiki/Inequity_aversion
+WIKIEQUATION:~{\displaystyle U_{i}(\{x_{i},x_{j}\})=x_{i}-{\frac {\alpha _{i}}{n-1}}\times \sum {\max(x_{j}-x_{i},0)}-{\frac {\beta _{i}}{n-1}}\times \sum {\max(x_{i}-x_{j},0)},}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1}
+SYMBOLS:~[H, x]
+EQUATION:~p(x)/P(H)
+LINK:~/wiki/Information_cascade
+WIKIEQUATION:~{\displaystyle {\begin{aligned}P\left(A|H\right)&={\frac {P\left(A\right)P\left(H|A\right)}{P\left(H\right)}}\\&={\frac {P\left(A\right)P\left(H|A\right)}{P\left(A\right)P\left(H|A\right)+P\left(R\right)P\left(H|R\right)}}\\&={\frac {pq}{pq+\left(1-p\right)\left(1-q\right)}}\\&>p\end{aligned}}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1}
+SYMBOLS:~[x]
+EQUATION:~p(x)/(p(x) + p(x))
+LINK:~/wiki/Information_cascade
+WIKIEQUATION:~{\displaystyle {\begin{aligned}P\left(A|H\right)&={\frac {P\left(A\right)P\left(H|A\right)}{P\left(H\right)}}\\&={\frac {P\left(A\right)P\left(H|A\right)}{P\left(A\right)P\left(H|A\right)+P\left(R\right)P\left(H|R\right)}}\\&={\frac {pq}{pq+\left(1-p\right)\left(1-q\right)}}\\&>p\end{aligned}}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'MUL': 3, 'SUB': 2}
+SYMBOLS:~[p, q]
+EQUATION:~(p*q)/(p*q + (1 - p)*(1 - q))
+LINK:~/wiki/Information_cascade
+WIKIEQUATION:~{\displaystyle {\begin{aligned}P\left(A|H\right)&={\frac {P\left(A\right)P\left(H|A\right)}{P\left(H\right)}}\\&={\frac {P\left(A\right)P\left(H|A\right)}{P\left(A\right)P\left(H|A\right)+P\left(R\right)P\left(H|R\right)}}\\&={\frac {pq}{pq+\left(1-p\right)\left(1-q\right)}}\\&>p\end{aligned}}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'MUL': 6, 'POW': 6, 'SUB': 4}
+SYMBOLS:~[a, b, p, q]
+EQUATION:~(p*(q**a*(1 - q)**b))/(p*(q**a*(1 - q)**b) + (q**b*(1 - q)**a)*(1 - p))
+LINK:~/wiki/Information_cascade
+WIKIEQUATION:~{\displaystyle P(A|{\text{Previous}},{\text{Personal signal}})={\frac {pq^{a}(1-q)^{b}}{pq^{a}(1-q)^{b}+(1-p)(1-q)^{a}q^{b}}}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'POW': 2, 'SUB': 1}
+SYMBOLS:~[p]
+EQUATION:~p**2 + (1 - p)**2
+LINK:~/wiki/Probability_matching
+WIKIEQUATION:~{\displaystyle p^{2}+(1-p)^{2}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'POW': 1}
+SYMBOLS:~[N]
+EQUATION:~sqrt(N) + N/2
+LINK:~/wiki/ABX_test
+WIKIEQUATION:~{\displaystyle N/2+{\sqrt {N}}}
+
+************
+
+************
+OPERATIONS:~{'SUB': 1}
+SYMBOLS:~[v_{x}]
+EQUATION:~-v_{x} + v_{x}
+LINK:~/wiki/Adaptive_comparative_judgement
+WIKIEQUATION:~{\displaystyle \mathrm {log\;odds} (A\ {\text{beats}}\ B\mid v_{a},v_{b})=v_{a}-v_{b}}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'MUL': 1}
+SYMBOLS:~[y, pi_{x}, x]
+EQUATION:~(pi_{x}*p(x))/p(y)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle p(H1|y)={\frac {p(y|H1)\cdot \pi _{1}}{p(y)}}}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'MUL': 1}
+SYMBOLS:~[y, pi_{x}, x]
+EQUATION:~(pi_{x}*p(x))/p(y)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle p(H2|y)={\frac {p(y|H2)\cdot \pi _{2}}{p(y)}}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 2}
+SYMBOLS:~[pi_{x}, x]
+EQUATION:~pi_{x}*p(x) + pi_{x}*p(x)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle p(y|H1)\cdot \pi _{1}+p(y|H2)\cdot \pi _{2}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'MUL': 3}
+SYMBOLS:~[pi_{x}, x]
+EQUATION:~(pi_{x}*p(x))/(pi_{x}*p(x) + pi_{x}*p(x))
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle {\frac {p(y|H2)\cdot \pi _{2}}{p(y|H1)\cdot \pi _{1}+p(y|H2)\cdot \pi _{2}}}\geq {\frac {p(y|H1)\cdot \pi _{1}}{p(y|H1)\cdot \pi _{1}+p(y|H2)\cdot \pi _{2}}}}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1}
+SYMBOLS:~[pi_{x}]
+EQUATION:~pi_{x}/pi_{x}
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle \Rightarrow {\frac {p(y|H2)}{p(y|H1)}}\geq {\frac {\pi _{1}}{\pi _{2}}}}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1}
+SYMBOLS:~[pi_{x}]
+EQUATION:~pi_{x}/pi_{x}
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle {\frac {\pi _{1}}{\pi _{2}}}}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1}
+SYMBOLS:~[x]
+EQUATION:~p(x)/p(x)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle {\frac {p(y|H2)}{p(y|H1)}}}
+
+************
+
+************
+OPERATIONS:~{'SUB': 1}
+SYMBOLS:~[U_{x}]
+EQUATION:~-U_{x} + U_{x}
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle U_{11}-U_{21}}
+
+************
+
+************
+OPERATIONS:~{'SUB': 1}
+SYMBOLS:~[U_{x}]
+EQUATION:~-U_{x} + U_{x}
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle U_{22}-U_{12}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 3, 'MUL': 4}
+SYMBOLS:~[U_{x}, P_{x}]
+EQUATION:~P_{x}*U_{x} + (P_{x}*U_{x} + (P_{x}*U_{x} + P_{x}*U_{x}))
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle E\{U\}=P_{11}\cdot U_{11}+P_{21}\cdot U_{21}+P_{12}\cdot U_{12}+P_{22}\cdot U_{22}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 3, 'MUL': 4, 'SUB': 2}
+SYMBOLS:~[U_{x}, P_{x}]
+EQUATION:~U_{x}*(1 - P_{x}) + (P_{x}*U_{x} + (P_{x}*U_{x} + U_{x}*(1 - P_{x})))
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle E\{U\}=P_{11}\cdot U_{11}+(1-P_{11})\cdot U_{21}+P_{12}\cdot U_{12}+(1-P_{12})\cdot U_{22}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 2, 'MUL': 2, 'SUB': 3}
+SYMBOLS:~[U_{x}, P_{x}]
+EQUATION:~-P_{x}*(-U_{x} + U_{x}) + (P_{x}*(-U_{x} + U_{x}) + (U_{x} + U_{x}))
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle E\{U\}=U_{21}+U_{22}+P_{11}\cdot (U_{11}-U_{21})-P_{12}\cdot (U_{22}-U_{12})}
+
+************
+
+************
+OPERATIONS:~{'MUL': 2, 'SUB': 3}
+SYMBOLS:~[U_{x}, P_{x}]
+EQUATION:~-P_{x}*(-U_{x} + U_{x}) + P_{x}*(-U_{x} + U_{x})
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle U'=P_{11}\cdot (U_{11}-U_{21})-P_{12}\cdot (U_{22}-U_{12})}
+
+************
+
+************
+OPERATIONS:~{'INTEGRAL': 1, 'MUL': 2}
+SYMBOLS:~[y, pi_{x}, x]
+EQUATION:~pi_{x}*Integral(x*p(x), y)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle P_{11}=\pi _{1}\cdot \int _{R_{1}}p(y|H1)\,dy}
+
+************
+
+************
+OPERATIONS:~{'INTEGRAL': 1, 'MUL': 1}
+SYMBOLS:~[pi_{x}, x]
+EQUATION:~pi_{x}*Integral(x, x)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle P_{12}=\pi _{2}\cdot \int _{R_{1}}p(y|H2)\,dy}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[H]
+EQUATION:~P(H*1)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle P(H1)}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[H]
+EQUATION:~P(H*2)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle P(H2)}
+
+************
+
+************
+OPERATIONS:~{'INTEGRAL': 1}
+SYMBOLS:~[x]
+EQUATION:~Integral(x, x)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle \Rightarrow U'=\int _{R_{1}}\left\{\pi _{1}\cdot (U_{11}-U_{21})\cdot p(y|H1)-\pi _{2}\cdot (U_{22}-U_{12})\cdot p(y|H2)\right\}\,dy}
+
+************
+
+************
+OPERATIONS:~{'MUL': 4, 'SUB': 3}
+SYMBOLS:~[U_{x}, pi_{x}, x]
+EQUATION:~-pi_{x}*(-U_{x} + U_{x})*p(x) + (pi_{x}*(-U_{x} + U_{x}))*p(x)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle \pi _{1}\cdot (U_{11}-U_{21})\cdot p(y|H1)-\pi _{2}\cdot (U_{22}-U_{12})\cdot p(y|H2)>0}
+
+************
+
+************
+OPERATIONS:~{'MUL': 2, 'SUB': 1}
+SYMBOLS:~[U_{x}, pi_{x}, x]
+EQUATION:~(pi_{x}*(-U_{x} + U_{x}))*p(x)
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle \pi _{2}\cdot (U_{22}-U_{12})\cdot p(y|H2)\geq \pi _{1}\cdot (U_{11}-U_{21})\cdot p(y|H1)}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'MUL': 2, 'SUB': 2}
+SYMBOLS:~[U_{x}, pi_{x}]
+EQUATION:~(pi_{x}*(-U_{x} + U_{x}))/((pi_{x}*(-U_{x} + U_{x})))
+LINK:~/wiki/Detection_theory
+WIKIEQUATION:~{\displaystyle \Rightarrow L(y)\equiv {\frac {p(y|H2)}{p(y|H1)}}\geq {\frac {\pi _{1}\cdot (U_{11}-U_{21})}{\pi _{2}\cdot (U_{22}-U_{12})}}\equiv \tau _{B}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 4, 'POW': 3, 'SUB': 1}
+SYMBOLS:~[r_{x}, x_{x}, sigma_{x}]
+EQUATION:~x_{x}*sqrt(-2*r_{x}*(sigma_{x}*sigma_{x}) + (sigma_{x}**2 + sigma_{x}**2))
+LINK:~/wiki/Law_of_comparative_judgment
+WIKIEQUATION:~{\displaystyle S_{i}-S_{j}=x_{ij}{\sqrt {\sigma _{i}^{2}+\sigma _{j}^{2}-2r_{ij}\sigma _{i}\sigma _{j}}},}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'SUB': 1}
+SYMBOLS:~[sigma, S_{x}]
+EQUATION:~(-S_{x} + S_{x})/sigma
+LINK:~/wiki/Law_of_comparative_judgment
+WIKIEQUATION:~{\displaystyle x_{ij}={\frac {S_{i}-S_{j}}{\sigma }}\,}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'POW': 3}
+SYMBOLS:~[sigma_{x}]
+EQUATION:~sqrt(sigma_{x}**2 + sigma_{x}**2)
+LINK:~/wiki/Law_of_comparative_judgment
+WIKIEQUATION:~{\displaystyle {\sigma }={\sqrt {\sigma _{i}^{2}+\sigma _{j}^{2}}}.\,}
+
+************
+
+************
+OPERATIONS:~{'SUB': 1}
+SYMBOLS:~[S_{x}]
+EQUATION:~-S_{x} + S_{x}
+LINK:~/wiki/Law_of_comparative_judgment
+WIKIEQUATION:~{\displaystyle {S_{i}-S_{j}}}
+
+************
+
+************
+OPERATIONS:~{'SUB': 1}
+SYMBOLS:~[S_{x}]
+EQUATION:~-S_{x} + S_{x}
+LINK:~/wiki/Law_of_comparative_judgment
+WIKIEQUATION:~{\displaystyle S_{i}-S_{j}\cong 1}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1, 'POW': 1}
+SYMBOLS:~[I, a, k]
+EQUATION:~I**a*k
+LINK:~/wiki/Stevens%27s_power_law
+WIKIEQUATION:~{\displaystyle \psi (I)=kI^{a},}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[b, a]
+EQUATION:~a*b
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle ab}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[b, a]
+EQUATION:~a*b
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle ba}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[mu_{x}, sigma_{x}]
+EQUATION:~N(mu_{x}*sigma_{x})
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle N(\mu _{a},\sigma _{a})}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[mu_{x}, sigma_{x}]
+EQUATION:~N(mu_{x}*sigma_{x})
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle N(\mu _{b},\sigma _{b})}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[x_{x}]
+EQUATION:~x_{x}*x_{x}
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle x_{1},x_{2}}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'POW': 2, 'SUB': 2}
+SYMBOLS:~[mu_{x}, sigma_{x}]
+EQUATION:~(-mu_{x} + mu_{x})/(-sigma_{x}**2 + sigma_{x}**2)
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\boldsymbol {w}}={\begin{bmatrix}\sigma _{a}^{2}&-\sigma _{b}^{2}\end{bmatrix}},\;{\boldsymbol {k}}={\begin{bmatrix}1&1\end{bmatrix}},\;{\boldsymbol {\lambda }}={\frac {\mu _{a}-\mu _{b}}{\sigma _{a}^{2}-\sigma _{b}^{2}}}{\begin{bmatrix}\sigma _{a}^{2}&\sigma _{b}^{2}\end{bmatrix}}.}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 3}
+SYMBOLS:~[c, A, dt, dW]
+EQUATION:~A*dt + c*(dW*x(0))
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle dx=Adt+cdW\ ,\ x(0)=0}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1}
+SYMBOLS:~[A, lambdax]
+EQUATION:~A + lambdax
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle dx\ =\ (\lambda x+A)dt\ +\ cdW}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 1}
+SYMBOLS:~[cdW_{x}, I_{x}, dt]
+EQUATION:~I_{x}*dt + cdW_{x}
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ I_{\text{1}}dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ I_{\text{2}}dt\ +\ cdW_{\text{2}}\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 2}
+SYMBOLS:~[end, I_{x}, cdW_{x}, dt]
+EQUATION:~I_{x}*dt + cdW_{x}*end
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ I_{\text{1}}dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ I_{\text{2}}dt\ +\ cdW_{\text{2}}\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 2, 'NEG': 1, 'SUB': 1}
+SYMBOLS:~[y_{x}, I_{x}, w, k]
+EQUATION:~I_{x} - (k*y_{x} - w*y_{x})
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{2}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{1}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 2, 'NEG': 1, 'SUB': 1}
+SYMBOLS:~[y_{x}, I_{x}, w, k]
+EQUATION:~I_{x} - (k*y_{x} - w*y_{x})
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{2}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{1}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
+
+************
+
+************
+OPERATIONS:~{'ADD': 2, 'MUL': 2, 'SUB': 1}
+SYMBOLS:~[cdW_{x}, I_{x}, dt]
+EQUATION:~(I_{x}*dt + cdW_{x}) - u(I_{x}*dt + cdW_{x})
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ I_{\text{1}}dt\ +\ cdW_{\text{1}}\ -\ u(I_{\text{2}}dt\ +\ cdW_{\text{2}})\\dy_{\text{2}}\ =\ I_{\text{2}}dt\ +\ cdW_{\text{2}}\ -\ u(I_{\text{1}}dt\ +\ cdW_{\text{1}})\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
+
+************
+
+************
+OPERATIONS:~{'ADD': 2, 'MUL': 3, 'SUB': 1}
+SYMBOLS:~[cdW_{x}, I_{x}, end, dt]
+EQUATION:~-end*u(I_{x}*dt + cdW_{x}) + (I_{x}*dt + cdW_{x})
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ I_{\text{1}}dt\ +\ cdW_{\text{1}}\ -\ u(I_{\text{2}}dt\ +\ cdW_{\text{2}})\\dy_{\text{2}}\ =\ I_{\text{2}}dt\ +\ cdW_{\text{2}}\ -\ u(I_{\text{1}}dt\ +\ cdW_{\text{1}})\end{aligned}},\quad y_{\text{1}}(0)\ =\ y_{\text{2}}(0)=0}
+
+************
+
+************
+OPERATIONS:~{'ADD': 2, 'MUL': 3, 'NEG': 1, 'SUB': 1}
+SYMBOLS:~[I_{x}, w, y_{x}, v, k]
+EQUATION:~I_{x} + (v*y_{x} - (k*y_{x} - w*y_{x}))
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{3}}+vy_{\text{1}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{3}}+vy_{\text{2}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\\dy_{\text{3}}\ =\ (-k_{\text{inh}}y_{\text{3}}+w'(y_{\text{1}}+y_{\text{2}}))dt\end{aligned}}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 2, 'MUL': 3, 'NEG': 1, 'SUB': 1}
+SYMBOLS:~[I_{x}, w, y_{x}, v, k]
+EQUATION:~I_{x} + (v*y_{x} - (k*y_{x} - w*y_{x}))
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{3}}+vy_{\text{1}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{3}}+vy_{\text{2}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\\dy_{\text{3}}\ =\ (-k_{\text{inh}}y_{\text{3}}+w'(y_{\text{1}}+y_{\text{2}}))dt\end{aligned}}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'MUL': 1, 'SUB': 1}
+SYMBOLS:~[y_{x}, k_{x}]
+EQUATION:~-k_{x}*y_{x} + w(y_{x} + y_{x})
+LINK:~/wiki/Two-alternative_forced_choice
+WIKIEQUATION:~{\displaystyle {\begin{aligned}dy_{\text{1}}\ =\ (-ky_{\text{1}}-wy_{\text{3}}+vy_{\text{1}}+I_{\text{1}})dt\ +\ cdW_{\text{1}}\\dy_{\text{2}}\ =\ (-ky_{\text{2}}-wy_{\text{3}}+vy_{\text{2}}+I_{\text{2}})dt\ +\ cdW_{\text{2}}\\dy_{\text{3}}\ =\ (-k_{\text{inh}}y_{\text{3}}+w'(y_{\text{1}}+y_{\text{2}}))dt\end{aligned}}}
+
+************
+
+************
+OPERATIONS:~{'MUL': 1}
+SYMBOLS:~[K, S]
+EQUATION:~K*S
+LINK:~/wiki/Weber%E2%80%93Fechner_law
+WIKIEQUATION:~{\displaystyle dS=K\cdot S}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1}
+SYMBOLS:~[S, dS]
+EQUATION:~dS/S
+LINK:~/wiki/Weber%E2%80%93Fechner_law
+WIKIEQUATION:~{\displaystyle dp={\frac {dS}{S}}\,\!}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'LOG': 1, 'MUL': 1}
+SYMBOLS:~[S, S_{x}, k]
+EQUATION:~k*log(S/S_{x}, E)
+LINK:~/wiki/Weber%E2%80%93Fechner_law
+WIKIEQUATION:~{\displaystyle p=k\ln {\frac {S}{S_{0}}}\,\!}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'MUL': 1}
+SYMBOLS:~[S, dS, k]
+EQUATION:~k*(dS/S)
+LINK:~/wiki/Weber%E2%80%93Fechner_law
+WIKIEQUATION:~{\displaystyle dp=k{\frac {dS}{S}}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'LOG': 1, 'MUL': 1}
+SYMBOLS:~[S, C, k]
+EQUATION:~C + k*log(S, E)
+LINK:~/wiki/Weber%E2%80%93Fechner_law
+WIKIEQUATION:~{\displaystyle p=k\ln {S}+C}
+
+************
+
+************
+OPERATIONS:~{'LOG': 1, 'MUL': 1, 'NEG': 1}
+SYMBOLS:~[S_{x}, k]
+EQUATION:~-k*log(S_{x}, E)
+LINK:~/wiki/Weber%E2%80%93Fechner_law
+WIKIEQUATION:~{\displaystyle C=-k\ln {S_{0}}}
+
+************
+
+************
+OPERATIONS:~{'DIV': 1, 'LOG': 1, 'MUL': 1}
+SYMBOLS:~[S, S_{x}, k]
+EQUATION:~k*log(S/S_{x}, E)
+LINK:~/wiki/Weber%E2%80%93Fechner_law
+WIKIEQUATION:~{\displaystyle p=k\ln {\frac {S}{S_{0}}}}
+
+************
+
+************
+OPERATIONS:~{'MUL': 2}
+SYMBOLS:~[lnotp, p, land]
+EQUATION:~lnot(p*(land*lnotp))
+LINK:~/wiki/Thought
+WIKIEQUATION:~{\displaystyle \lnot (p\land \lnot p)}
+
+************
+
+************
+OPERATIONS:~{'MUL': 2}
+SYMBOLS:~[lor, lnotp, p]
+EQUATION:~p*(lnotp*lor)
+LINK:~/wiki/Thought
+WIKIEQUATION:~{\displaystyle p\lor \lnot p}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1}
+SYMBOLS:~[j]
+EQUATION:~epsilon(j) + t_{x}(j)
+LINK:~/wiki/Multiple_trace_theory
+WIKIEQUATION:~{\displaystyle \mathbf {t_{i+1}(j)} =\mathbf {t_{i}(j)+\epsilon (j)} }
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'POW': 2, 'SUB': 1}
+SYMBOLS:~[j, x]
+EQUATION:~sqrt(x + y(-m_{x}(j) + p(j))**2)
+LINK:~/wiki/Multiple_trace_theory
+WIKIEQUATION:~{\displaystyle \left\Vert \mathbf {p-m_{i}} \right\|={\sqrt {\sum _{j=1}^{L}(p(j)-m_{i}(j))^{2}}}}
+
+************
+
+************
+OPERATIONS:~{'MUL': 2, 'NEG': 1, 'POW': 1, 'SUB': 1}
+SYMBOLS:~[m_{x}, e, p, Vert, tau]
+EQUATION:~e**(-tau*Vert*(-m_{x} + p))
+LINK:~/wiki/Multiple_trace_theory
+WIKIEQUATION:~{\displaystyle similarity(\mathbf {p,m_{i}} )=e^{-\tau \left\Vert \mathbf {p-m_{i}} \right\|}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 2, 'DIV': 1, 'MUL': 1, 'POW': 3, 'SUB': 1}
+SYMBOLS:~[y, e, j, tau, x]
+EQUATION:~x + y/e**(tau*sqrt(x + y(-m_{x}(j) + p(j))**2))
+LINK:~/wiki/Multiple_trace_theory
+WIKIEQUATION:~{\displaystyle \mathbf {SS(p,M)} =\sum _{i=1}^{n}e^{-\tau \left\Vert \mathbf {p-m_{i}} \right\|}=\sum _{i=1}^{n}e^{-\tau {\sqrt {\sum _{j=1}^{L}(p(j)-m_{i}(j))^{2}}}}}
+
+************
+
+************
+OPERATIONS:~{'ADD': 1, 'DIV': 1, 'MUL': 16}
+SYMBOLS:~[m, m_{x}, S, a, e, t, M, s, i, l, o, r]
+EQUATION:~(s*(i*(m*(i*(l*(a*(r*(i*(t*y(a*m_{x}))))))))))/(S*S(M*a) + e*(r*(r*(o*r))))
+LINK:~/wiki/Multiple_trace_theory
+WIKIEQUATION:~{\displaystyle P(recalling~m_{ab})~=~{\frac {similarity(a,m_{ab})}{SS(a,M)+error}}}
+
+************

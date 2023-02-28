@@ -203,7 +203,13 @@ def processEquation(databank):
             if sub.count('{') > sub.count('}'): #Integrals have multiple brackets within them and this ensures that it captures the number appropriately
                 sub = sub + '}'*(sub.count('{') - sub.count('}'))
             currentLine = currentLine.replace(sub,'\\int{x}')
-                                
+            
+    #Some variables are spelt out as a whole word, and this replaces that word with i
+    subText = re.findall(r'\\mathrm \{.*?\}', currentLine)
+    if subText:
+        for sub in subText:
+            currentLine = currentLine.replace(sub,'i')
+        
     ##################################
     ## Equation Splitting           ##
     ##################################
@@ -253,7 +259,7 @@ def formatEquation(databank):
     else:
         currentLine = databank['currentLine'] #If not a list, use the normal variable
     
-    if (currentLine[0] != '#') & (currentLine != '\n') & ('{\\begin{cases}' not in currentLine): #The last notation here specifies and if else conditional, and we ignore it as they are generally not equations (but always?)
+    if (currentLine[0] != '#') & (currentLine != '\n') & ('{\\begin{cases}' not in currentLine) & ('\\end{cases}' not in currentLine): #The last notation here specifies and if else conditional, and we ignore it as they are generally not equations (but always?)
             
         #TODO: This separator function only keeps one distinct part of the equations, but what about equations where multiple of these exist (e.g., x = f/g = 101). But also, maybe that's alright or else it would bias stronger for these equations as they are interpreted multiple times
         #Split equations to remove the left hand side
@@ -272,7 +278,7 @@ def formatEquation(databank):
                 currentEquation = currentEquation.split('=')[-1] #Use the end
         
         #Removes specific notations that Sympy cannot comprehend 
-        excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','\\min','\mathnormal', '\mathrm', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+        excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
         currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
         
         ###################################
