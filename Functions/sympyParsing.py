@@ -88,7 +88,7 @@ def loadScrapedData(databank):
     return databank
 
 #Cycles through all lines of the data to deal with them accordingly
-def cycleEquations(databank):
+def cycleEquations(databank, debug = False):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -117,12 +117,12 @@ def cycleEquations(databank):
             databank['currentLink'] = currentLine
             
         #Process Equation
-        databank = processEquation(databank)
+        databank = processEquation(databank, debug)
     
     return databank
 
 #The main function that organizes the current equation and it's metadata then feeds these to the processing functions
-def processEquation(databank):
+def processEquation(databank, debug = False):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -240,15 +240,15 @@ def processEquation(databank):
         for subEquation in currentLine: #Cycle through each equation
             databank['subEquation'] = subEquation
             if subEquation: #Ensure the sub-equation exists 
-                databank = formatEquation(databank) #Calls the format equation function 
+                databank = formatEquation(databank, debug) #Calls the format equation function 
                 databank = appendVariables(databank) #Calls the append variables function
     else:
-        databank = formatEquation(databank) #Calls the format equation function 
+        databank = formatEquation(databank, debug) #Calls the format equation function 
         databank = appendVariables(databank) #Calls the append variables function
         
     return databank
 
-def formatEquation(databank):
+def formatEquation(databank, debug = False):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -278,7 +278,7 @@ def formatEquation(databank):
                 currentEquation = currentEquation.split('=')[-1] #Use the end
         
         #Removes specific notations that Sympy cannot comprehend 
-        excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+        excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
         currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
         
         ###################################
@@ -348,9 +348,15 @@ def formatEquation(databank):
         equationWords=re.findall(regex,currentEquation)
 
         #Pull out only words 4+ characters and change notation
+        excludedWords = ['frac','sigma','Sigma','delta','Delta','theta','Theta','beta','Beta','lambda','Lambda','epsilon','Epsilon','sqrt','Sqrt','times','Times']
         for equationWord in equationWords:
-            if (len(equationWord)> 3) & (equationWord != 'frac'):
-                currentEquation = currentEquation.replace(equationWord, 'x')
+            exclude = [False if excludedWord not in equationWord else True for excludedWord in excludedWords]
+            if (len(equationWord.replace('_',''))> 3) & (True not in exclude) & (equationWord.replace('_','').isnumeric()==False):
+                if debug == True:
+                    with open('removedWords.txt', 'a') as f:
+                        f.write(equationWord.replace('_',''))
+                        f.write('\n')
+                currentEquation = currentEquation.replace(equationWord.replace('_',''), 'x')
                 
     #If an equation was found and reformatted, return it
     if ('currentEquation' in locals()):
@@ -489,7 +495,7 @@ def parseEquations(databank, debug = True):
     
     return databank
 
-def saveFiles(databank, printDebug = False):
+def saveFiles(databank, debug = False):
     
     #Unpack databank
     loadName = databank['loadName']
@@ -502,7 +508,7 @@ def saveFiles(databank, printDebug = False):
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
         
     #Debug mode prints a new file with a different layout    
-    if printDebug==True:        
+    if debug==True:        
         parsedFilename = os.path.dirname(__file__) + '/../Data/debug_parsed_'+loadName
         with open(parsedFilename, 'w') as f:       
             for parsedItem in parsedEquations:
@@ -536,7 +542,7 @@ if __name__ == '__main__':
     #3. Re-Format Latex Equations to Comply with Sympy Translation
     ###############################################################################
 
-    databank = cycleEquations(databank)
+    databank = cycleEquations(databank, True)
 
     ###############################################################################
     #4. Parse Equations
