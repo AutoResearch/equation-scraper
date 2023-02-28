@@ -20,7 +20,6 @@ from sympy.parsing.latex import parse_latex
 import sympy as sp
 import re
 import os
-import string
 
 #Determine categories to search
 if __name__ == '__main__':
@@ -168,6 +167,10 @@ def processEquation(databank):
         for sub in subText:
             currentLine = currentLine.replace(sub,'p(x)')
             
+    #Remove the redundant left and right notations
+    currentLine = currentLine.replace('\\left','')
+    currentLine = currentLine.replace('\\right','')
+            
     #Remove text formatting and replace with t
     subText = re.findall('text\{.*?\}', currentLine)
     if subText:
@@ -180,17 +183,27 @@ def processEquation(databank):
         for sub in subText:
             if '=' not in sub:
                 currentLine = currentLine.replace(sub,'_{x}')
-                    
-    #Removing math formatting
-    mathFormats = ['\mathnormal {', '\mathrm {', '\mathbf {', '\mathsf {', '\mathtt {','\mathfrak {','\mathcal {','\mathbb {','\mathscr {']
-    for mathFormat in mathFormats:
-        if mathFormat in currentLine:
-            tempLine = currentLine.split(mathFormat)
-            formattedLine = tempLine[0]
-            for i in range(1,len(tempLine)):
-                formattedLine = formattedLine + tempLine[i][:tempLine[i].find('}')]+ tempLine[i][(tempLine[i].find('}')+1):]
-            currentLine = formattedLine
     
+    #The descriptive sum conflicts, and so we convert it to an equation with the same elements
+    subText = re.findall(r'\\sum _\{.*?=.*?\}\^\{.*?\}', currentLine)
+    if subText:
+        for sub in subText:
+            currentLine = currentLine.replace(sub,'x+y')
+            
+    #The descriptive sum conflicts, and so we convert it to an equation with the same elements
+    subText = re.findall(r'\\sum _\{.*?\}', currentLine)
+    if subText:
+        for sub in subText:
+            currentLine = currentLine.replace(sub,'x+y')
+            
+    #The descriptive sum conflicts, and so we convert it to an equation with the same elements
+    subText = re.findall(r'\\int _\{.*?\}', currentLine)
+    if subText:
+        for sub in subText:
+            if sub.count('{') > sub.count('}'): #Integrals have multiple brackets within them and this ensures that it captures the number appropriately
+                sub = sub + '}'*(sub.count('{') - sub.count('}'))
+            currentLine = currentLine.replace(sub,'\\int{x}')
+                                
     ##################################
     ## Equation Splitting           ##
     ##################################
@@ -240,15 +253,26 @@ def formatEquation(databank):
     else:
         currentLine = databank['currentLine'] #If not a list, use the normal variable
     
-    if (currentLine[0] != '#') & (currentLine != '\n'):
+    if (currentLine[0] != '#') & (currentLine != '\n') & ('{\\begin{cases}' not in currentLine): #The last notation here specifies and if else conditional, and we ignore it as they are generally not equations (but always?)
             
+        #TODO: This separator function only keeps one distinct part of the equations, but what about equations where multiple of these exist (e.g., x = f/g = 101). But also, maybe that's alright or else it would bias stronger for these equations as they are interpreted multiple times
         #Split equations to remove the left hand side
-        separators = {'&=&': -1,'&=': -1,'=\\': -1,',&': 0, ':=': -1, '=:': -1,'\leq': 0, '\heq': 0, '\he': 0, '>': -1, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\in': 0, '\cong': 0, '\\equiv': 0, '\\approx': 0}
+        separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1, '\leq': 0, '\heq': 0, '\he': 0, '&>': 0, '>': 0, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\cong': 0, '\\equiv': 0, '\\approx': 0}
         #if ('\\equiv' not in currentLine) | ('\\approx' not in currentLine): #TODO: I now use equiv and approx in separators above, but does this cause issues?
         currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1]
             
+        #The equal symbol alone often results in a numeric number (e.g., f(x) = g*f+g = 0). If this is the case, take what's before the equals, otherwise take what's after
+        if '=' in currentEquation:
+            if currentEquation.split('=')[-1].isnumeric(): #If the last part of the equation is just a solution (i.e., number)
+                if len(currentEquation.split('=')) > 2: #If is more than one equals sign
+                    currentEquation = currentEquation.split('=')[1] #Take the second equation
+                else: #If there is only one equals sign
+                    currentEquation = currentEquation.split('=')[0] #Take the first equation
+            else: #If the last equation is not numeric
+                currentEquation = currentEquation.split('=')[-1] #Use the end
+        
         #Removes specific notations that Sympy cannot comprehend 
-        excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+        excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','\\min','\mathnormal', '\mathrm', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
         currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
         
         ###################################
@@ -273,14 +297,9 @@ def formatEquation(databank):
         if ('\le' in currentEquation) & ('\left' not in currentEquation):
             currentEquation = currentEquation.split('\le')[0]
                     
-        #The descriptive sum conflicts, and so we convert it to a simple sum
-        for subLetter in string.ascii_letters:
-            for supLetter in string.ascii_letters:
-                if '\\sum_{'+subLetter+'=1}^{'+supLetter+'}' == currentEquation:
-                    currentEquation = '\\sum_{'+subLetter+'=1}^{'+supLetter+'}'+'1'
-                    
-        #This is a separator function as part of the list bear the top of this function, however, must be delayed until the last chunk of code is run
-        currentEquation = currentEquation.split('=')[-1]
+        #Change vertical bar notations
+        if '\\vert' in currentEquation:
+            currentEquation = currentEquation.replace('\\vert','|')
         
         #Remove odd notation (this is caused by the symbol before the addition and not the addition itself)
         if '\+' in currentEquation:
