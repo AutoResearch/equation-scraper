@@ -254,6 +254,7 @@ def formatEquation(databank, debug = False):
     
     '''
     #Unpack databank
+    loadName = databank['loadName']
     if isinstance(databank['currentLine'], list): #Check to see if the input is a list of equations
         currentLine = databank['subEquation'] #If it's a list, use a different variable saying which equation from that list to process
     else:
@@ -353,7 +354,8 @@ def formatEquation(databank, debug = False):
             exclude = [False if excludedWord not in equationWord else True for excludedWord in excludedWords]
             if (len(equationWord.replace('_',''))> 3) & (True not in exclude) & (equationWord.replace('_','').isnumeric()==False):
                 if debug == True:
-                    with open('removedWords.txt', 'a') as f:
+                    removedFilename = os.path.dirname(__file__) + '/../Data/wordsRemoved_'+loadName
+                    with open(removedFilename, 'a') as f:
                         f.write(equationWord.replace('_',''))
                         f.write('\n')
                 currentEquation = currentEquation.replace(equationWord.replace('_',''), 'x')
