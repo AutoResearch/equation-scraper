@@ -20,6 +20,7 @@ from sympy.parsing.latex import parse_latex
 import sympy as sp
 import re
 import os
+import string
 
 #Determine categories to search
 if __name__ == '__main__':
@@ -183,6 +184,13 @@ def processEquation(databank, debug = False):
         for sub in subText:
             if '=' not in sub:
                 currentLine = currentLine.replace(sub,'_{x}')
+                
+    #Reformat comma separated terms
+    subText = re.findall(r'\(.*?\,.*?\)', currentLine)
+    if subText:
+        for sub in subText:
+            if '=' not in sub:
+                currentLine = currentLine.replace(sub,'(x)')
     
     #The descriptive sum conflicts, and so we convert it to an equation with the same elements
     subText = re.findall(r'\\sum _\{.*?=.*?\}\^\{.*?\}', currentLine)
@@ -279,7 +287,10 @@ def formatEquation(databank, debug = False):
                 currentEquation = currentEquation.split('=')[-1] #Use the end
         
         #Removes specific notations that Sympy cannot comprehend 
-        excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+            #With comma exclusion
+        #excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+            #Without comma exclusion:
+        excludedNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
         currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
         
         ###################################
@@ -317,8 +328,17 @@ def formatEquation(databank, debug = False):
             currentEquation = currentEquation.replace('\-','-')
             
         #Sometimes comma separated parameters in subscript are split into separate notations, so here we combine them
-        if '}_{' in currentEquation:
-            currentEquation = currentEquation.replace('}_{','')
+        if '},_{' in currentEquation:
+            currentEquation = currentEquation.replace('},_{','')
+            
+        #If there is a leading negative sign, we want to treat it as *-1, so we change it to a multiplication
+        if '(-{' in currentEquation:
+            currentEquation = currentEquation.replace('(-{','(x*{')
+            
+        #This indicates a ReLU function (max(x,0)), for now removing the ,0 is solving some issues
+        #TODO: Change this to explicitly link to ReLU (needs a method for this function to define operations)
+        if ',0' in currentEquation:
+            currentEquation = currentEquation.replace(',0','')
 
         #Remove backslashes at the end of the equations
         if '\\' == currentEquation[-1:]:
@@ -328,6 +348,25 @@ def formatEquation(databank, debug = False):
         if currentEquation:
             if ('_' == currentEquation[0]):
                 currentEquation = currentEquation[1:]
+                
+        #The n_{y}(z) notation can cause errors, so replace it with n_{x}    
+        for outer in string.ascii_letters:
+            if '_{x}('+outer+')' in currentEquation:
+                currentEquation = currentEquation.replace('_{x}('+outer+')','_{x}')
+            
+        #Compact arrays (x, y) into a single notaion (x)
+        commaSplit = currentEquation.split(',')
+        for x in range(len(commaSplit)-1):
+            currentEquation = currentEquation.replace('(' + commaSplit[x].split('(')[-1] + ',' + commaSplit[x+1].split(')')[0] + ')','(x_{x})')
+                
+        #Many notations is simply a comma between two letters (i,j), so we conform these to a symbol (i)
+        for first in string.ascii_letters:
+            for second in string.ascii_letters:
+                if first+','+second in currentEquation:
+                    currentEquation = currentEquation.replace(first+','+second,first)
+                
+        #Remove any leftover commas
+        currentEquation = currentEquation.replace(',','')
                
         #Check if a number is preceeded by a slash (unsure why this occurs sometimes, but it is here removed) 
         for subEq in currentEquation.split('\\'):
