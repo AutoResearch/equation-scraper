@@ -360,7 +360,12 @@ def formatEquation(databank, debug = False):
             if '_{x}('+outer+')' in currentEquation:
                 currentEquation = currentEquation.replace('_{x}('+outer+')','_{x}')
             
-        #Compact arrays (x, y) into a single notaion (x)
+        #Remove land notation
+        landSplit = currentEquation.split('\land')
+        for x in range(len(landSplit)-1):
+            currentEquation = currentEquation.replace('(' + landSplit[x].split('(')[-1] + '\land' + landSplit[x+1].split(')')[0] + ')','(x)')
+            
+        #Compact arrays (x, y) into a single notation (x)
         #TODO: Generalize this to include longer terms including when brackets exist within it (x, y(z), a)
         #->Need to manually split the equation by counting open and closed brackets and then seeing if commas exist within it
         commaSplit = currentEquation.split(',')
