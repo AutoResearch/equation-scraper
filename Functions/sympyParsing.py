@@ -159,11 +159,17 @@ def processEquation(databank, debug = False):
     #Replace \mid with |, which will be handled next
     currentLine = currentLine.replace('\\mid','|')
     
+    #Remove double vertical bars (norm)
+    if '\Vert' in currentLine:
+        doubleVBar = currentLine.split('\Vert')
+        for vBreak in range(1,len(doubleVBar)):
+            if '\|' in doubleVBar[vBreak]:
+                currentLine = currentLine.replace('\Vert' + doubleVBar[vBreak].split('\|')[0] + '\|', doubleVBar[vBreak].split('\|')[0])
+    
     #Reformat conditional probability notations
-    subText = re.findall(r'p\(.*?\|.*?\)', currentLine) 
-    if subText:
-        for sub in subText:
-            currentLine = currentLine.replace(sub,'p(x)')
+    vBarSplit = currentLine.split('|')
+    for x in range(len(vBarSplit)-1):
+        currentLine = currentLine.replace('(' + vBarSplit[x].split('(')[-1] + '|' + vBarSplit[x+1].split(')')[0] + ')','(x)')
     
     #Reformat conditional probability notations
     subText = re.findall(r'P\\left\(.*?\|.*?\\right\)', currentLine) 
@@ -187,13 +193,6 @@ def processEquation(databank, debug = False):
         for sub in subText:
             if '=' not in sub:
                 currentLine = currentLine.replace(sub,'_{x}')
-                
-    #Reformat comma separated terms
-    subText = re.findall(r'\(.*?\,.*?\)', currentLine)
-    if subText:
-        for sub in subText:
-            if '=' not in sub:
-                currentLine = currentLine.replace(sub,'(x)')
     
     #The descriptive sum conflicts, and so we convert it to an equation with the same elements
     subText = re.findall(r'\\sum _\{.*?=.*?\}\^\{.*?\}', currentLine)
