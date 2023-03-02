@@ -155,6 +155,9 @@ def processEquation(databank, debug = False):
     if subText:
         for sub in subText:
             currentLine = currentLine.replace(sub,'')
+            
+    #Replace \mid with |, which will be handled next
+    currentLine = currentLine.replace('\\mid','|')
     
     #Reformat conditional probability notations
     subText = re.findall(r'p\(.*?\|.*?\)', currentLine) 
@@ -217,6 +220,10 @@ def processEquation(databank, debug = False):
     if subText:
         for sub in subText:
             currentLine = currentLine.replace(sub,'i')
+            
+    #Ignore any euquations with ... as it is more likely a notation
+    if ('..' in currentLine) | ('...' in currentLine):
+        currentLine = 'x'
         
     ##################################
     ## Equation Splitting           ##
@@ -288,9 +295,9 @@ def formatEquation(databank, debug = False):
         
         #Removes specific notations that Sympy cannot comprehend 
             #With comma exclusion
-        #excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+        #excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
             #Without comma exclusion:
-        excludedNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+        excludedNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
         currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
         
         ###################################
@@ -355,6 +362,8 @@ def formatEquation(databank, debug = False):
                 currentEquation = currentEquation.replace('_{x}('+outer+')','_{x}')
             
         #Compact arrays (x, y) into a single notaion (x)
+        #TODO: Generalize this to include longer terms including when brackets exist within it (x, y(z), a)
+        #->Need to manually split the equation by counting open and closed brackets and then seeing if commas exist within it
         commaSplit = currentEquation.split(',')
         for x in range(len(commaSplit)-1):
             currentEquation = currentEquation.replace('(' + commaSplit[x].split('(')[-1] + ',' + commaSplit[x+1].split(')')[0] + ')','(x_{x})')
