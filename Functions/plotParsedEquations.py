@@ -235,9 +235,9 @@ def createFigure(databank):
         fig.suptitle('Category:\n' + categoryTitle, fontsize = 20)
 
     #Define function for plotting
-    def plotPieChart(plotData, ax):    
+    def plotPieChart(plotData, ax, titleLabel):    
         wedges, texts = ax.pie(plotData.values(), startangle=-40, colors = plt.get_cmap("Pastel1")(np.linspace(0.0, 1, len(plotData.keys())))) #Add pie chart
-        ax.set_title('Types of Operations\n\n', loc='left', fontsize = 15) #Add title
+        ax.set_title(titleLabel + '\n\n', loc='left', fontsize = 15) #Add title
 
         #Move labels outside of the pie chart
         bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72) #Format label locations
@@ -258,8 +258,8 @@ def createFigure(databank):
                 ax.annotate(list(plotData.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=14, horizontalalignment=horizontalalignment, **kw) #Add label to pie chart
 
     #Plot each pie chart
-    plotPieChart(plotOps, ax)
-    plotPieChart(plotCounts, ax2)
+    plotPieChart(plotOps, ax, 'Type of Operations')
+    plotPieChart(plotCounts, ax2, 'Number of Operations')
     
 def saveFigure(databank):
     '''
