@@ -185,8 +185,14 @@ def processEquation(databank, debug = False):
     subText = re.findall('text\{.*?\}', currentLine)
     if subText:
         for sub in subText:
-            currentLine = currentLine.replace('\\'+sub,'t')
-            
+            #Special circumstance where multiple variables are grouped within text formatting
+            if '+' in sub:
+                sub.split('{')[1].split('}')[0].count('+')
+                currentLine = currentLine.replace('\\'+sub,'+'.join(['x']*(sub.split('{')[1].split('}')[0].count('+')+1)))
+            #Normal cases
+            else:
+                currentLine = currentLine.replace('\\'+sub,'t')
+                
     #Reformat subscript notations
     subText = re.findall(r'\_\{.*?\}', currentLine)
     if subText:
@@ -221,7 +227,7 @@ def processEquation(databank, debug = False):
             currentLine = currentLine.replace(sub,'i')
             
     #Ignore any euquations with ... as it is more likely a notation
-    if ('..' in currentLine) | ('...' in currentLine):
+    if ('..' in currentLine) | ('...' in currentLine) | ('\in' in currentLine):
         currentLine = 'x'
         
     ##################################
@@ -333,6 +339,22 @@ def formatEquation(databank, debug = False):
         if '\-' in currentEquation:
             currentEquation = currentEquation.replace('\-','-')
             
+        #Reformat cosine
+        if ('cos' in currentEquation) & ('\cos' not in currentEquation):
+            currentEquation = currentEquation.replace('cos','\cos')
+            
+        #Reformat sine
+        if ('sin' in currentEquation) & ('\sin' not in currentEquation):
+            currentEquation = currentEquation.replace('sin','\sin')
+            
+        #Reformat over into division
+        if ('\\over' in currentEquation):
+            currentEquation = currentEquation.replace('\\over','/')
+            
+        #Different log notations exist, so we need to conform any log operation to fir these notations
+        if ('\log' in currentEquation) & ('\log(' not in currentEquation) & ('\log{' not in currentEquation):
+            currentEquation = currentEquation.replace('\log','\log ')    
+            
         #Sometimes comma separated parameters in subscript are split into separate notations, so here we combine them
         if '},_{' in currentEquation:
             currentEquation = currentEquation.replace('},_{','')
@@ -359,6 +381,18 @@ def formatEquation(databank, debug = False):
         for outer in string.ascii_letters:
             if '_{x}('+outer+')' in currentEquation:
                 currentEquation = currentEquation.replace('_{x}('+outer+')','_{x}')
+                
+                    
+        #The n^{y}(z) notation can cause errors, so replace it with n_{x}    
+        for inner in string.ascii_letters:
+            for outer in string.ascii_letters:
+                if '^{'+inner+'}('+outer+')' in currentEquation:
+                    currentEquation = currentEquation.replace('^{'+inner+'}('+outer+')','_{x}')
+                
+        #The n_{y}^{z}(a) notation can cause errors, so replace it with n_{x}    
+        for outer in string.ascii_letters:
+            if '_{x}^{'+outer+'}(' in currentEquation:
+                currentEquation = currentEquation.replace('_{x}^{'+outer+'}','_{x}')
             
         #Remove land notation
         landSplit = currentEquation.split('\land')
