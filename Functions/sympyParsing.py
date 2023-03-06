@@ -212,7 +212,10 @@ def processEquation(databank, debug = False):
         for sub in subText:
             currentLine = currentLine.replace(sub,'x+y')
             
-    #The descriptive sum conflicts, and so we convert it to an equation with the same elements
+    #Reformat leftover sum notations
+    currentLine = currentLine.replace('\\sum','x+')
+            
+    #The descriptive int conflicts, and so we convert it to an equation with the same elements
     subText = re.findall(r'\\int _\{.*?\}', currentLine)
     if subText:
         for sub in subText:

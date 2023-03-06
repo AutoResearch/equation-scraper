@@ -1,5 +1,5 @@
 
-currentLine = r'{\displaystyle \Pr \left(\bigcap _{i=1}^{n}A_{i}\right)=\prod _{i=1}^{n}\Pr(A_{i})={1 \over 2^{n}}}'
+currentLine = r'x_{i}-{\frac {\alpha _{i}}{n-1}}\times \sum {\max(x_{j}-x_{i},0)}-{\frac {\beta _{i}}{n-1}}\times \sum {\max(x_{i}-x_{j},0)},}'
 
 #############################################################################################
 #############################################################################################
@@ -88,7 +88,10 @@ def processEquation(currentLine):
         for sub in subText:
             currentLine = currentLine.replace(sub,'x+y')
             
-    #The descriptive sum conflicts, and so we convert it to an equation with the same elements
+    #Reformat leftover sum notations
+    currentLine = currentLine.replace('\\sum','x+')
+            
+    #The descriptive int conflicts, and so we convert it to an equation with the same elements
     subText = re.findall(r'\\int _\{.*?\}', currentLine)
     if subText:
         for sub in subText:

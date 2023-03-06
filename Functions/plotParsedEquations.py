@@ -236,7 +236,11 @@ def createFigure(databank):
 
     #Define function for plotting
     def plotPieChart(plotData, ax, titleLabel):    
-        wedges, texts = ax.pie(plotData.values(), startangle=-40, colors = plt.get_cmap("Pastel1")(np.linspace(0.0, 1, len(plotData.keys())))) #Add pie chart
+        if len(plotData.keys()) > 9:   
+            wedges, texts = ax.pie(plotData.values(), startangle=-40, colors = np.concatenate((plt.get_cmap("Pastel1")(np.linspace(0.0, 1, 9)),plt.get_cmap("Pastel2")(np.linspace(0.0, 1,len(plotData.keys())-9))))) #Add pie chart
+        else:
+            wedges, texts = ax.pie(plotData.values(), startangle=-40, colors = plt.get_cmap("Pastel1")(np.linspace(0.0, 1, len(plotData.keys())))) #Add pie chart
+
         ax.set_title(titleLabel + '\n\n', loc='left', fontsize = 15) #Add title
 
         #Move labels outside of the pie chart
