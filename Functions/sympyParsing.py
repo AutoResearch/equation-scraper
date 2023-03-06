@@ -44,7 +44,7 @@ if __name__ == '__main__':
 ###############################################################################
 #1. Determine Functions
 ###############################################################################
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
+def printProgressBar (databank, iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
     @parameters:
@@ -60,7 +60,9 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+    progressParsed = 'Parsed: ' + str(databank['parsedEq']) + ' ... Skipped: ' + str(databank['skippedEq']) + ' ... Unparsed: '+ str(databank['unparsedEq']) 
+
+    print(f'\r{prefix} |{bar}| {percent}% {suffix} {progressParsed}', end = printEnd)
     # Print New Line on Complete
     if iteration == total: 
         print()
@@ -510,13 +512,11 @@ def parseEquations(databank, debug = True):
     #Cycle through each formatted equation
     for x, eq in enumerate(scrapedEquations):
         #Progress bar
-        printProgressBar(x,len(scrapedEquations)-1)
-        
-        #Display metrics for every 10 equations scraped 
-        if ((x % 30 == 0) | (x == len(scrapedEquations)-1)) & (__name__ == '__main__'):
-            print('\nCurrent Equation:')
-            print(eq)
-            print('Completed: ' + str(round((x/(len(scrapedEquations)-1))*100,2))+ '% ... Parsed: ' + str(parsedEq) + ' ... Skipped: ' + str(skippedEq) + ' ... Unparsed: '+ str(unparsedEq))
+        databank['parsedEq'] = parsedEq
+        databank['skippedEq'] = skippedEq
+        databank['unparsedEq'] = unparsedEq
+        printProgressBar(databank,x,len(scrapedEquations)-1)
+
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
