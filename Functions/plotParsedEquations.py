@@ -205,6 +205,7 @@ def reformatOperations(databank):
     #Pack databank
     databank['plotOps'] = plotOps
     databank['plotCounts'] = plotCounts
+    databank['otherKeys'] = otherKeys
     
     return databank
 
@@ -216,6 +217,7 @@ def createFigure(databank):
     #Unpack databank
     plotOps = databank['plotOps']
     plotCounts = databank['plotCounts']
+    otherKeys = databank['otherKeys']
     searchKeywords = databank['searchKeywords']
 
     #Setup figure
@@ -235,13 +237,15 @@ def createFigure(databank):
         fig.suptitle('Category:\n' + categoryTitle, fontsize = 20)
 
     #Define function for plotting
-    def plotPieChart(plotData, ax, titleLabel):    
+    def plotPieChart(plotData, otherKeys, ax, titleLabel):    
         if len(plotData.keys()) > 9:   
             wedges, texts = ax.pie(plotData.values(), startangle=-40, colors = np.concatenate((plt.get_cmap("Pastel1")(np.linspace(0.0, 1, 9)),plt.get_cmap("Pastel2")(np.linspace(0.0, 1,len(plotData.keys())-9))))) #Add pie chart
         else:
             wedges, texts = ax.pie(plotData.values(), startangle=-40, colors = plt.get_cmap("Pastel1")(np.linspace(0.0, 1, len(plotData.keys())))) #Add pie chart
 
         ax.set_title(titleLabel + '\n\n', loc='left', fontsize = 15) #Add title
+        if otherKeys:
+            ax.annotate('Note: Other category contains ' + ', '.join(otherKeys), xy = (-.1, -.2), xycoords='axes fraction', ha='left', va="center", fontsize=10)
 
         #Move labels outside of the pie chart
         bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72) #Format label locations
@@ -257,13 +261,13 @@ def createFigure(databank):
             kw["arrowprops"].update({"connectionstyle": connectionstyle}) #Add line linking label to plot
             #TODO ADJUST THE FOLLOWING - THIS WAS FOR A SPECIFIC PLOT WHERE LABELS OVERLAPPED, BUT INSTEAD THE SCRIPT SHOULD DETECT OVERLAP AND MOVE THESE AUTOMATICALLY
             if (list(plotData.keys())[i] == 'Derivative') | (list(plotData.keys())[i] == 'Cosine'):
-                ax.annotate(list(plotData.keys())[i], xy=(x, y), xytext=(1.8*np.sign(x), 1.4*y), fontsize=14, horizontalalignment=horizontalalignment, **kw) #Add adjusted label to pie chart
+                ax.annotate(list(plotData.keys())[i], xy=(x, y), xytext=(1.8*np.sign(x), 1.4*y), fontsize=12, horizontalalignment=horizontalalignment, **kw) #Add adjusted label to pie chart
             else: 
-                ax.annotate(list(plotData.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=14, horizontalalignment=horizontalalignment, **kw) #Add label to pie chart
+                ax.annotate(list(plotData.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=12, horizontalalignment=horizontalalignment, **kw) #Add label to pie chart
 
     #Plot each pie chart
-    plotPieChart(plotOps, ax, 'Type of Operations')
-    plotPieChart(plotCounts, ax2, 'Number of Operations')
+    plotPieChart(plotOps, otherKeys, ax, 'Type of Operations')
+    plotPieChart(plotCounts, [], ax2, 'Number of Operations')
     
 def saveFigure(databank):
     '''
