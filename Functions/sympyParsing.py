@@ -360,6 +360,10 @@ def formatEquation(databank, debug = False):
         if ('\log' in currentEquation) & ('\log(' not in currentEquation) & ('\log{' not in currentEquation):
             currentEquation = currentEquation.replace('\log','\log ')    
             
+        #Encapsulate lambda so it does not concatenate with other notations
+        if '\\lambda' in currentEquation:
+            currentEquation = currentEquation.replace('\\lambda','(\\lambda)')
+            
         #Sometimes comma separated parameters in subscript are split into separate notations, so here we combine them
         if '},_{' in currentEquation:
             currentEquation = currentEquation.replace('},_{','')
@@ -381,24 +385,23 @@ def formatEquation(databank, debug = False):
         if currentEquation:
             if ('_' == currentEquation[0]):
                 currentEquation = currentEquation[1:]
+            
+        #The n_{y}^{z}(a) notation can cause errors, so replace it with n_{x}    
+        for outer in string.ascii_letters:
+            if '_{x}^{'+outer+'}(' in currentEquation:
+                currentEquation = currentEquation.replace('_{x}^{'+outer+'}','_{x}')
                 
         #The n_{y}(z) notation can cause errors, so replace it with n_{x}    
         for outer in string.ascii_letters:
             if '_{x}('+outer+')' in currentEquation:
                 currentEquation = currentEquation.replace('_{x}('+outer+')','_{x}')
                 
-                    
         #The n^{y}(z) notation can cause errors, so replace it with n_{x}    
         for inner in string.ascii_letters:
             for outer in string.ascii_letters:
                 if '^{'+inner+'}('+outer+')' in currentEquation:
                     currentEquation = currentEquation.replace('^{'+inner+'}('+outer+')','_{x}')
-                
-        #The n_{y}^{z}(a) notation can cause errors, so replace it with n_{x}    
-        for outer in string.ascii_letters:
-            if '_{x}^{'+outer+'}(' in currentEquation:
-                currentEquation = currentEquation.replace('_{x}^{'+outer+'}','_{x}')
-            
+                       
         #Remove land notation
         landSplit = currentEquation.split('\land')
         for x in range(len(landSplit)-1):

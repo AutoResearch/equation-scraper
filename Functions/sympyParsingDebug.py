@@ -1,5 +1,5 @@
 
-currentLine = r'{\displaystyle b(\theta ,\theta _{p})=\left\{\left({\frac {1}{2}}\right)\left[\ 1+cos(\theta ,\theta _{p})\right]\ \right\}^{q}}'
+currentLine = r'{\displaystyle P(R_{t}|\lambda )=\exp(-\lambda t),\,}'
 
 #############################################################################################
 #############################################################################################
@@ -201,6 +201,10 @@ def formatEquation(currentLine):
     #Different log notations exist, so we need to conform any log operation to fir these notations
     if ('\log' in currentEquation) & ('\log(' not in currentEquation) & ('\log{' not in currentEquation):
         currentEquation = currentEquation.replace('\log','\log ')     
+        
+    #Encapsulate lambda so it does not concatenate with other notations
+    if '\\lambda' in currentEquation:
+        currentEquation = currentEquation.replace('\\lambda','(\\lambda)')
 
     #Sometimes comma separated parameters in subscript are split into separate notations, so here we combine them
     #if '}_{' in currentEquation:
@@ -226,6 +230,11 @@ def formatEquation(currentLine):
         if ('_' == currentEquation[0]):
             currentEquation = currentEquation[1:] 
             
+    #The n_{y}^{z}(a) notation can cause errors, so replace it with n_{x}    
+    for outer in string.ascii_letters:
+        if '_{x}^{'+outer+'}(' in currentEquation:
+            currentEquation = currentEquation.replace('_{x}^{'+outer+'}','_{x}')
+            
     #The n_{y}(z) notation can cause errors, so replace it with n_{x}    
     for outer in string.ascii_letters:
         if '_{x}('+outer+')' in currentEquation:
@@ -236,11 +245,6 @@ def formatEquation(currentLine):
         for outer in string.ascii_letters:
             if '^{'+inner+'}('+outer+')' in currentEquation:
                 currentEquation = currentEquation.replace('^{'+inner+'}('+outer+')','_{x}')
-            
-    #The n_{y}^{z}(a) notation can cause errors, so replace it with n_{x}    
-    for outer in string.ascii_letters:
-        if '_{x}^{'+outer+'}(' in currentEquation:
-            currentEquation = currentEquation.replace('_{x}^{'+outer+'}','_{x}')
            
     #Remove land notation
     landSplit = currentEquation.split('\land')
