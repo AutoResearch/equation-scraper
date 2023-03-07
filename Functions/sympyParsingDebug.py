@@ -1,5 +1,5 @@
 
-currentLine = r'x_{i}-{\frac {\alpha _{i}}{n-1}}\times \sum {\max(x_{j}-x_{i},0)}-{\frac {\beta _{i}}{n-1}}\times \sum {\max(x_{i}-x_{j},0)},}'
+currentLine = r'{\displaystyle b(\theta ,\theta _{p})=\left\{\left({\frac {1}{2}}\right)\left[\ 1+cos(\theta ,\theta _{p})\right]\ \right\}^{q}}'
 
 #############################################################################################
 #############################################################################################
@@ -99,11 +99,11 @@ def processEquation(currentLine):
                 sub = sub + '}'*(sub.count('{') - sub.count('}'))
             currentLine = currentLine.replace(sub,'\\int{x}')
             
-    #Some variables are spelt out as a whole word, and this replaces that word with i
+    #Some variables are spelt out as a whole word, and this replaces that word with the starting letter
     subText = re.findall(r'\\mathrm \{.*?\}', currentLine)
     if subText:
         for sub in subText:
-            currentLine = currentLine.replace(sub,'i')
+            currentLine = currentLine.replace(sub,sub.split('{')[1][0])
             
     #Ignore any euquations with ... as it is more likely a notation
     if ('..' in currentLine) | ('...' in currentLine) | ('\in' in currentLine):
@@ -247,17 +247,45 @@ def formatEquation(currentLine):
     for x in range(len(landSplit)-1):
         currentEquation = currentEquation.replace('(' + landSplit[x].split('(')[-1] + '\land' + landSplit[x+1].split(')')[0] + ')','(x)')
             
-    #Compact arrays (x, y) into a single notation (x)
-    commaSplit = currentEquation.split(',')
-    for x in range(len(commaSplit)-1):
-        currentEquation = currentEquation.replace('(' + commaSplit[x].split('(')[-1] + ',' + commaSplit[x+1].split(')')[0] + ')','(x_{x})')
-        
     #Many notations is simply a comma between two letters (i,j), so we conform these to a symbol (i)
     for first in string.ascii_letters:
         for second in string.ascii_letters:
             if first+','+second in currentEquation:
                 currentEquation = currentEquation.replace(first+','+second,first)
-                
+           
+    #Compact arrays (x, y, ...) into a single notation (x)
+    commaSplit = currentEquation.split(',')
+    for x in range(len(commaSplit)-1): #Check one sub-list at a time
+        if '(' in commaSplit[x]: #Check if this sublist begins a bracket
+            trackNotations = [] #Create empty variable
+            openBracketCount = 0 #Create bracket count
+            
+            #Determine now many brackets exist within the first notation, while ignoring everything before the bracket itself
+            bracketSplit = commaSplit[x].split('(') #Split all brackets
+            bracketSplit.reverse() #Reverse order
+            openBracketTotal = 0 #Initiate defaul value 
+            for sub in bracketSplit: #Iterate through brackets
+                if ')' in sub: #Determine if there is a closed bracket
+                    openBracketTotal += 1 #Record number of closed brackets
+                else: #If no closed brackets, this is where the bracket was opened
+                    break #Move ahead
+            
+            for y in range(x+1,len(commaSplit)): #Cycle through all sub-lists after current 
+                if '(' in commaSplit[y].split(')')[0]: #Check if another open bracket exists within these brackets
+                    openBracketCount += 1 #If so, keep count
+                    openBracketTotal += 1 #If so, keep count
+                if ')' in commaSplit[y]: #Check if the end bracket exists
+                    if openBracketCount == 0: #Check if this is the end bracket for the current open bracket
+                        trackNotations.append(commaSplit[y].split(')')[0]) #Track what was in the bracket before the end
+                        break #Stop searching
+                    else: #If it is not the proper end bracket
+                        openBracketCount -= 1 #Reduce count
+                        trackNotations.append(commaSplit[y]) #Track notation
+                else:
+                    trackNotations.append(commaSplit[y]) #Track intermediate notations  
+        if 'trackNotations' in locals():
+            currentEquation = currentEquation.replace('(' + '('.join(commaSplit[x].split('(')[-1-openBracketTotal:]) + ',' + ','.join(trackNotations) + ')','(x)') #Replace complex bracket with simple one
+
     #Remove any leftover commas
     currentEquation = currentEquation.replace(',','')
     
