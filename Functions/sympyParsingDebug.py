@@ -155,6 +155,9 @@ def formatEquation(currentLine):
     #Change cdot to multiplication
     currentEquation = currentEquation.replace('\\cdot','*')
     
+    #Change times to multiplication
+    currentEquation = currentEquation.replace('\\times','*')
+    
     #Change four slashes
     currentEquation = currentEquation.replace('\\\\','\\') #In some cases, these do not indicate multiple equations (as above), but an artificial combination of two sets of slashes (perhaps due to the splitting of equations)
     

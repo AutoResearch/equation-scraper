@@ -12,6 +12,8 @@ pip install antlr4-python3-runtime==4.10
 Note: There exists a requirements.txt file
 '''
 
+#TODO: It might be skipping anything that ends with \,dy
+
 ###############################################################################
 #0. Import Modules & Determine Keywords
 ###############################################################################
@@ -316,6 +318,9 @@ def formatEquation(databank, debug = False):
         
         #Change cdot to multiplication
         currentEquation = currentEquation.replace('\\cdot','*')
+    
+        #Change times to multiplication
+        currentEquation = currentEquation.replace('\\times','*')
         
         #Change four slashes
         currentEquation = currentEquation.replace('\\\\','\\') #In some cases, these do not indicate multiple equations (as above), but an artificial combination of two sets of slashes (perhaps due to the splitting of equations)
