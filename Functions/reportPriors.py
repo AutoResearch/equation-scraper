@@ -116,52 +116,8 @@ def extractOperations(databank):
     
     return databank
 
-def reformatOperations(databank):
-    '''
-    [INSERT FUNCTION DESCRIPTION]
-    
-    '''
-    ##########################################
-    ## Format the number of operations data ##
-    ##########################################
-    
-    #Unpack databank
-    allOps = databank['allOps']
-    opCounts = databank['opCounts']
-    
-    #Determine frequency table of number of operators
-    opCounter = collections.Counter(opCounts)
-
-    #Sort the frequency table
-    sortCounter = list(opCounter.keys())
-    sortCounter.sort(reverse=True)
-    sortedCounter = {i: opCounter[i] for i in sortCounter}
-
-    #Change labels to words
-    plotCounts = dict()
-    for opCountKey in sortedCounter.keys():
-        plotCounts[str(p.number_to_words(opCountKey)).capitalize()] = sortedCounter[opCountKey]
-    
-    #########################################
-    ## Format the types of operations data ##
-    #########################################
-
-    plotOps = {} #Create operator variable
-    plotOps['Other'] = 0 #Begin other category as absent
-    otherKeys = [] #Tracks other category keys
-    #First, force any operators that are too infrequent into the 'other category'
-    for key in allOps.keys():
-        if allOps[key] < round(np.sum(list(allOps.values()))*.03): #Here, determine if the frequency is too low (current = 3% or lower frequencies are forced to other category)
-            plotOps['Other'] += allOps[key] #Increment other category if exists with corresponding frequency
-            otherKeys.append(key) #Tracks other keys for debugging purposes
-        else:
-            plotOps[key] = allOps[key] #Add other category with corresponding frequency
-            
-    #Remove other category if none were determined
-    if plotOps['Other'] == 0:
-        del plotOps['Other']
-
-    #Rename corresponding operators from Sympy terminology to English
+#Function to rename corresponding operators from Sympy terminology to English
+def renameOperations(plotOps):
     if 'MUL' in plotOps:
         plotOps['Multiplication'] = plotOps['MUL']
         del plotOps['MUL']
@@ -202,8 +158,66 @@ def reformatOperations(databank):
         plotOps['Logarithm'] = plotOps['LOG']
         del plotOps['LOG']  
         
+    if 'EXP' in plotOps:
+        plotOps['Exponent'] = plotOps['EXP']
+        del plotOps['EXP']
+        
+    return plotOps
+    
+def reformatOperations(databank):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
+    ##########################################
+    ## Format the number of operations data ##
+    ##########################################
+    
+    #Unpack databank
+    allOps = databank['allOps']
+    opCounts = databank['opCounts']
+    
+    #Determine frequency table of number of operators
+    opCounter = collections.Counter(opCounts)
+
+    #Sort the frequency table
+    sortCounter = list(opCounter.keys())
+    sortCounter.sort(reverse=True)
+    sortedCounter = {i: opCounter[i] for i in sortCounter}
+
+    #Change labels to words
+    plotCounts = dict()
+    for opCountKey in sortedCounter.keys():
+        plotCounts[str(p.number_to_words(opCountKey)).capitalize()] = sortedCounter[opCountKey]
+    
+    #########################################
+    ## Format the types of operations data ##
+    #########################################
+
+    reportOps = {} #Create operator variable
+    plotOps = {} #Create operator variable
+    plotOps['Other'] = 0 #Begin other category as absent
+    otherKeys = [] #Tracks other category keys
+    #First, force any operators that are too infrequent into the 'other category'
+    for key in allOps.keys():
+        reportOps[key] = allOps[key] #Add other category with corresponding frequency
+        if allOps[key] < round(np.sum(list(allOps.values()))*.03): #Here, determine if the frequency is too low (current = 3% or lower frequencies are forced to other category)
+            plotOps['Other'] += allOps[key] #Increment other category if exists with corresponding frequency
+            otherKeys.append(key) #Tracks other keys for debugging purposes
+        else:
+            plotOps[key] = allOps[key] #Add other category with corresponding frequency
+            
+    #Remove other category if none were determined
+    if plotOps['Other'] == 0:
+        del plotOps['Other']
+        
+    #Rename labels
+    plotOps = renameOperations(plotOps)
+    reportOps = renameOperations(reportOps)
+        
     #Pack databank
     databank['plotOps'] = plotOps
+    databank['reportOps'] = reportOps
     databank['plotCounts'] = plotCounts
     databank['otherKeys'] = otherKeys
     
@@ -281,6 +295,26 @@ def saveFigure(databank):
     plt.savefig(os.path.dirname(__file__)+'/../Figures/'+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'_PriorPieChart.png') #Save figure
     plt.show() #Show figure
     
+def savePriors(databank):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
+    
+    #Unpack databank
+    searchKeywords = databank['searchKeywords']
+    reportOps = databank['reportOps'] 
+    
+    #Sort the frequency table
+    sortedReportOps = {key: value for key, value in sorted(reportOps.items(), key=lambda item: item[1], reverse=True)}
+    
+    #Save data into a priors file
+    priorFilename = os.path.dirname(__file__) + '/../Data/priors_'+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'.txt'
+    with open(priorFilename,'w') as f:
+        f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
+        for key in sortedReportOps.keys():
+            f.write(key + ',' + str(sortedReportOps[key]) +'\n')
+
 ###############################################################################
 ## IF SCRIPT WAS EXECUTED DIRECTLY:                                          ##
 ###############################################################################
@@ -311,7 +345,13 @@ if __name__ == '__main__':
     createFigure(databank)
 
     ###############################################################################
-    #6. Save and plot figure
+    #6. Save priors file
+    ###############################################################################
+    
+    savePriors(databank)
+        
+    ###############################################################################
+    #7. Save and plot figure
     ###############################################################################
 
     saveFigure(databank)

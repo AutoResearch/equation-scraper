@@ -11,7 +11,7 @@
 import sys
 from Functions.webScrapingSearch import *
 from Functions.sympyParsing import *
-from Functions.plotParsedEquations import *
+from Functions.reportPriors import *
 
 #Determine categories to search
 if len(sys.argv) > 1:
@@ -49,7 +49,7 @@ saveFiles(databank)
 print("Parsing Complete...")
 
 ###############################################################################
-#3. plotParsedEquations.py
+#3. reportPriors.py
 ###############################################################################
 
 print("\nPlotting Results...")
@@ -58,6 +58,7 @@ databank = loadParsedData(databank)
 databank = extractOperations(databank)
 databank = reformatOperations(databank)
 createFigure(databank)
+savePriors(databank)
 saveFigure(databank)
 
-print("Results Plotted and saved.")
+print("Results Printed and Plotted.")
