@@ -117,68 +117,72 @@ def extractOperations(databank):
     return databank
 
 #Function to rename corresponding operators from Sympy terminology to English
-def renameOperations(plotOps):
-    if 'MUL' in plotOps:
-        plotOps['Multiplication'] = plotOps['MUL']
-        del plotOps['MUL']
+def renameOperations(ops):
+    if 'MUL' in ops:
+        ops['Multiplication'] = ops['MUL']
+        del ops['MUL']
 
-    if 'DIV' in plotOps:
-        plotOps['Division'] = plotOps['DIV']
-        del plotOps['DIV']    
+    if 'DIV' in ops:
+        ops['Division'] = ops['DIV']
+        del ops['DIV']    
         
-    if 'ADD' in plotOps:
-        plotOps['Addition'] = plotOps['ADD']
-        del plotOps['ADD'] 
+    if 'ADD' in ops:
+        ops['Addition'] = ops['ADD']
+        del ops['ADD'] 
         
-    if 'SUB' in plotOps:
-        plotOps['Subtraction'] = plotOps['SUB']
-        del plotOps['SUB']  
+    if 'SUB' in ops:
+        ops['Subtraction'] = ops['SUB']
+        del ops['SUB']  
         
-    if 'POW' in plotOps:
-        plotOps['Power'] = plotOps['POW']
-        del plotOps['POW']   
+    if 'POW' in ops:
+        ops['Power'] = ops['POW']
+        del ops['POW']   
 
-    if 'POW-1' in plotOps:
-        plotOps['Reciprocal'] = plotOps['POW-1']
-        del plotOps['POW-1']
-
-    if 'POW2' in plotOps:
-        plotOps['Squared'] = plotOps['POW2']
-        del plotOps['POW2']    
+    if 'POW-1' in ops:
+        ops['Reciprocal'] = ops['POW-1']
+        del ops['POW-1']
+        
+    if 'POW0' in ops:
+        ops['Zero Power'] = ops['POW0']
+        del ops['POW0']   
+        
+    if 'POW2' in ops:
+        ops['Squared'] = ops['POW2']
+        del ops['POW2']    
     
-    if 'POW3' in plotOps:
-        plotOps['Cubed'] = plotOps['POW3']
-        del plotOps['POW3'] 
+    if 'POW3' in ops:
+        ops['Cubed'] = ops['POW3']
+        del ops['POW3'] 
            
-    if 'SQRT' in plotOps:
-        plotOps['Square Root'] = plotOps['SQRT']
-        del plotOps['SQRT']    
+    if 'SQRT' in ops:
+        ops['Square Root'] = ops['SQRT']
+        del ops['SQRT']    
         
-    if 'NEG' in plotOps:
-        plotOps['Negative'] = plotOps['NEG']
-        del plotOps['NEG']    
+    if 'NEG' in ops:
+        ops['Negative'] = ops['NEG']
+        del ops['NEG']    
     
-    if 'COS' in plotOps:
-        plotOps['Cosine'] = plotOps['COS']
-        del plotOps['COS']   
+    if 'COS' in ops:
+        ops['Cosine'] = ops['COS']
+        del ops['COS']   
 
-    if 'SIN' in plotOps:
-        plotOps['Sine'] = plotOps['SIN']
-        del plotOps['SIN']   
+    if 'SIN' in ops:
+        ops['Sine'] = ops['SIN']
+        del ops['SIN']   
         
-    if 'DERIVATIVE' in plotOps:
-        plotOps['Derivative'] = plotOps['DERIVATIVE']
-        del plotOps['DERIVATIVE']    
+    if 'DERIVATIVE' in ops:
+        ops['Derivative'] = ops['DERIVATIVE']
+        del ops['DERIVATIVE']    
         
-    if 'LOG' in plotOps:
-        plotOps['Logarithm'] = plotOps['LOG']
-        del plotOps['LOG']  
+    if 'LOG' in ops:
+        ops['Logarithm'] = ops['LOG']
+        del ops['LOG']  
         
-    if 'EXP' in plotOps:
-        plotOps['Exponent'] = plotOps['EXP']
-        del plotOps['EXP']
+    if 'EXP' in ops:
+        ops['Exponent'] = ops['EXP']
+        del ops['EXP']
         
-    return plotOps
+    return ops
     
 def reformatOperations(databank):
     '''
@@ -231,7 +235,7 @@ def reformatOperations(databank):
     otherKeys = renameOperations(otherKeys)
     plotOps = renameOperations(plotOps)
     reportOps = renameOperations(reportOps)
-        
+
     #Pack databank
     databank['plotOps'] = plotOps
     databank['reportOps'] = reportOps
@@ -325,12 +329,13 @@ def savePriors(databank):
     
     #Sort the frequency tables
     sortedReportOps = {key: value for key, value in sorted(reportOps.items(), key=lambda item: item[1], reverse=True)}
-    
+
     #Save operation data into a priors file
     priorOperationsFilename = os.path.dirname(__file__) + '/../Data/priorOperations_'+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'.txt'
     with open(priorOperationsFilename,'w') as f:
         f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
         for key in sortedReportOps.keys():
+            print(key)
             f.write(key + ',' + str(sortedReportOps[key]) +'\n')
             
     #Save operation count data into a priors file

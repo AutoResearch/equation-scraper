@@ -328,7 +328,7 @@ def parseEquations(currentEquation):
     
     #Define a walking function
     def powerWalk(eq, powerLabels):
-        if ('Pow' in str(eq.func)):
+        if ('Pow' in str(eq.func)) & (str(eq) != '1/2'):
             exponents = [arg for arg in eq.args if 'numbers' in str(arg.func)]
             for exponent in exponents:
                 if str(exponent) == '1/2':

@@ -556,7 +556,7 @@ def parseEquations(databank, debug = True):
     
     #Define a walking function
     def powerWalk(eq, powerLabels):
-        if ('Pow' in str(eq.func)):
+        if ('Pow' in str(eq.func)) & (str(eq) != '1/2'):
             exponents = [arg for arg in eq.args if 'numbers' in str(arg.func)]
             for exponent in exponents:
                 if str(exponent) == '1/2':
@@ -610,13 +610,19 @@ def parseEquations(databank, debug = True):
                     powerLabels = powerWalk(tempEq, [])
                     
                     #Iterate through the labels and add them to the operation
+                    print('*******************')
+                    print(tempEq)
+                    print('POWER PRE: ' + str(operations[opTypes.index('POW')][1]))
                     for powerLabel in powerLabels:
-                        operations[opTypes.index('POW')][1] -= 1
+                        print(powerLabel)
+                        if powerLabel != 'POW-1':
+                            operations[opTypes.index('POW')][1] -= 1
                         if powerLabel not in opTypes: #If the label does not exist, add it
                             opTypes.append(powerLabel)
                             operations.append([powerLabel, 1])
                         else: #If the label exists, add one to it's count
                             operations[opTypes.index(powerLabel)][1] += 1
+                    print('POWER POST: ' + str(operations[opTypes.index('POW')][1]))
                             
                     #Remove power if it has decreased count to zero
                     if operations[opTypes.index('POW')][1] == 0:
@@ -648,7 +654,8 @@ def parseEquations(databank, debug = True):
                 skippedEq += 1
                 
         except: #If the translation from latex to Sympy of the parsing fails
-            raise
+            if not debug:
+                raise
             skippedEquations.append(['UNPARSED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
             unparsedEq += 1 #Increase counter 
             print('FAILURE - Likely not convertible from latex to sympy') #Error warning
