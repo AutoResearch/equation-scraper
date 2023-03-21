@@ -23,13 +23,25 @@ import sympy as sp
 import re
 import os
 import string
+import sys    
 
 #Determine categories to search
 if __name__ == '__main__':
-    import sys
     if len(sys.argv) > 1:
+        #Check for the debug argument
+        debug = False
+        debug = [True for arg in sys.argv[1:] if arg=='Debug']
+        
+        #If debug exists
+        if debug:
+            debug = debug[0] #Pull it from the list
+            sys.argv.remove('Debug') #Remove it from the argument list
+            print(sys.argv)
+            
+        #Check for all 
         searchKeywords = sys.argv[1:]
     else:
+        debug = False
         searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
         
     #Split super categories from normal categories
@@ -535,7 +547,16 @@ def parseEquations(databank, debug = True):
     parsedEq = 0
     skippedEq = 0
     unparsedEq = 0
-    skip = 0
+    
+    #Define a walking function
+    def powerWalk(eq):
+        print(eq)
+        print(type(eq.args))
+        if ('POW' in eq.func):
+            print(eq.args)
+        print(list(eq.args))
+        for arg in eq.args:
+            powerWalk(arg)
     
     #Unpack databank
     scrapedWikiEquations = databank['scrapedWikiEquations']
@@ -579,6 +600,11 @@ def parseEquations(databank, debug = True):
                         del operations[opTypes.index('DIV')]
                         del opTypes[opTypes.index('DIV')]
                         
+                #Adjust power operations to be specific
+                if ('POW' in opTypes):
+                    powerWalk(tempEq)
+                    check = 1
+                        
                 #Natural Logarithm
                 if ('LOG' in opTypes) & ('EXP' in opTypes): #Square root is represented as both power and division
                     operations[opTypes.index('EXP')][1] = operations[opTypes.index('EXP')][1] - operations[opTypes.index('LOG')][1] #Remove the EXP count by number of LOGs
@@ -607,12 +633,13 @@ def parseEquations(databank, debug = True):
             skippedEquations.append(['UNPARSED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
             unparsedEq += 1 #Increase counter 
             print('FAILURE - Likely not convertible from latex to sympy') #Error warning
-            if debug==True: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
+            if debug: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
+                print(scrapedWikiEquations[x]) #Print the scraped equation that failed
+                print(eq) #Print the equation that failed
+            else:
                 print(scrapedWikiEquations[x]) #Print the scraped equation that failed
                 print(eq) #Print the equation that failed
                 break
-            else:
-                skip += 1 #Increase skip count
     
     #Pack databank
     databank['parsedEquations'] = parsedEquations
@@ -667,16 +694,16 @@ if __name__ == '__main__':
     #3. Re-Format Latex Equations to Comply with Sympy Translation
     ###############################################################################
 
-    databank = cycleEquations(databank, True)
+    databank = cycleEquations(databank, debug)
 
     ###############################################################################
     #4. Parse Equations
     ###############################################################################
 
-    databank = parseEquations(databank, True)
+    databank = parseEquations(databank, debug)
 
     ###############################################################################
     #5. Save Files
     ###############################################################################
 
-    saveFiles(databank, True) 
+    saveFiles(databank, debug) 

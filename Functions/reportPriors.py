@@ -304,16 +304,24 @@ def savePriors(databank):
     #Unpack databank
     searchKeywords = databank['searchKeywords']
     reportOps = databank['reportOps'] 
+    reportCounts = databank['plotCounts']
     
-    #Sort the frequency table
+    #Sort the frequency tables
     sortedReportOps = {key: value for key, value in sorted(reportOps.items(), key=lambda item: item[1], reverse=True)}
     
-    #Save data into a priors file
-    priorFilename = os.path.dirname(__file__) + '/../Data/priors_'+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'.txt'
-    with open(priorFilename,'w') as f:
+    #Save operation data into a priors file
+    priorOperationsFilename = os.path.dirname(__file__) + '/../Data/priorOperations_'+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'.txt'
+    with open(priorOperationsFilename,'w') as f:
         f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
         for key in sortedReportOps.keys():
             f.write(key + ',' + str(sortedReportOps[key]) +'\n')
+            
+    #Save operation count data into a priors file
+    priorCountsFilename = os.path.dirname(__file__) + '/../Data/priorCounts_'+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'.txt'
+    with open(priorCountsFilename,'w') as f:
+        f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
+        for key in reportCounts.keys():
+            f.write(key + ',' + str(reportCounts[key]) +'\n')
 
 ###############################################################################
 ## IF SCRIPT WAS EXECUTED DIRECTLY:                                          ##
