@@ -548,21 +548,26 @@ def parseEquations(databank, debug = True):
     skippedEq = 0
     unparsedEq = 0
     
-    #Define a walking function
-    def powerWalk(eq):
-        print(eq)
-        print(type(eq.args))
-        if ('POW' in eq.func):
-            print(eq.args)
-        print(list(eq.args))
-        for arg in eq.args:
-            powerWalk(arg)
-    
     #Unpack databank
     scrapedWikiEquations = databank['scrapedWikiEquations']
     scrapedLinks = databank['scrapedLinks']
     scrapedEquations = databank['scrapedEquations']
     databank['parsedEquations'] = parsedEquations
+    
+    #Define a walking function
+    def powerWalk(eq, powerLabels):
+        if ('Pow' in str(eq.func)):
+            exponents = [arg for arg in eq.args if 'numbers' in str(arg.func)]
+            for exponent in exponents:
+                if str(exponent) == '1/2':
+                    powerLabels.append('SQRT')
+                elif exponent <= 3:
+                    powerLabels.append('POW'+str(exponent))
+                else: #If it's a power of 4 or higher, we will keep it as a general label of 'power'
+                    pass
+        for arg in eq.args:
+            powerWalk(arg, powerLabels)
+        return powerLabels
     
     #Cycle through each formatted equation
     for x, eq in enumerate(scrapedEquations):
@@ -591,20 +596,33 @@ def parseEquations(databank, debug = True):
                         operations.append([eqOp.strip(), 1])
                         opTypes.append(eqOp.strip())
                         
-                #Adjust Operations (Sympy sometimes represents operations weirdly - e.g., square root = power and division)
+                #Adjust Operations (Sympy sometimes represents operations with extra steps - e.g., square root = power and division, because x^(1/2))
                 
-                #Square Root
+                #Square Root adjustment (TODO: could combine this with the next process)
                 if ('POW' in opTypes) & ('sqrt' in eq): #Square root is represented as both power and division
                     operations[opTypes.index('DIV')][1] = int(operations[opTypes.index('DIV')][1])-eq.count('sqrt') #Remove the division count by number of square roots
                     if operations[opTypes.index('DIV')][1] == 0: #Remove division if it has decreased count to zero
                         del operations[opTypes.index('DIV')]
                         del opTypes[opTypes.index('DIV')]
                         
-                #Adjust power operations to be specific
+                #Adjust power operations to be more specific (e.g., power of 2, square root)
                 if ('POW' in opTypes):
-                    powerWalk(tempEq)
-                    check = 1
-                        
+                    powerLabels = powerWalk(tempEq, [])
+                    
+                    #Iterate through the labels and add them to the operation
+                    for powerLabel in powerLabels:
+                        operations[opTypes.index('POW')][1] -= 1
+                        if powerLabel not in opTypes: #If the label does not exist, add it
+                            opTypes.append(powerLabel)
+                            operations.append([powerLabel, 1])
+                        else: #If the label exists, add one to it's count
+                            operations[opTypes.index(powerLabel)][1] += 1
+                            
+                    #Remove power if it has decreased count to zero
+                    if operations[opTypes.index('POW')][1] == 0:
+                        del operations[opTypes.index('POW')]
+                        del opTypes[opTypes.index('POW')]   
+                                   
                 #Natural Logarithm
                 if ('LOG' in opTypes) & ('EXP' in opTypes): #Square root is represented as both power and division
                     operations[opTypes.index('EXP')][1] = operations[opTypes.index('EXP')][1] - operations[opTypes.index('LOG')][1] #Remove the EXP count by number of LOGs
@@ -630,6 +648,7 @@ def parseEquations(databank, debug = True):
                 skippedEq += 1
                 
         except: #If the translation from latex to Sympy of the parsing fails
+            raise
             skippedEquations.append(['UNPARSED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
             unparsedEq += 1 #Increase counter 
             print('FAILURE - Likely not convertible from latex to sympy') #Error warning

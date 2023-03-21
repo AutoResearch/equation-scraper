@@ -136,7 +136,23 @@ def renameOperations(plotOps):
         
     if 'POW' in plotOps:
         plotOps['Power'] = plotOps['POW']
-        del plotOps['POW']    
+        del plotOps['POW']   
+
+    if 'POW-1' in plotOps:
+        plotOps['Reciprocal'] = plotOps['POW-1']
+        del plotOps['POW-1']
+
+    if 'POW2' in plotOps:
+        plotOps['Squared'] = plotOps['POW2']
+        del plotOps['POW2']    
+    
+    if 'POW3' in plotOps:
+        plotOps['Cubed'] = plotOps['POW3']
+        del plotOps['POW3'] 
+           
+    if 'SQRT' in plotOps:
+        plotOps['Square Root'] = plotOps['SQRT']
+        del plotOps['SQRT']    
         
     if 'NEG' in plotOps:
         plotOps['Negative'] = plotOps['NEG']
@@ -197,13 +213,13 @@ def reformatOperations(databank):
     reportOps = {} #Create operator variable
     plotOps = {} #Create operator variable
     plotOps['Other'] = 0 #Begin other category as absent
-    otherKeys = [] #Tracks other category keys
+    otherKeys = {} #Tracks other category keys
     #First, force any operators that are too infrequent into the 'other category'
     for key in allOps.keys():
         reportOps[key] = allOps[key] #Add other category with corresponding frequency
         if allOps[key] < round(np.sum(list(allOps.values()))*.03): #Here, determine if the frequency is too low (current = 3% or lower frequencies are forced to other category)
             plotOps['Other'] += allOps[key] #Increment other category if exists with corresponding frequency
-            otherKeys.append(key) #Tracks other keys for debugging purposes
+            otherKeys[key] = 1 #Tracks other keys for debugging purposes
         else:
             plotOps[key] = allOps[key] #Add other category with corresponding frequency
             
@@ -212,6 +228,7 @@ def reformatOperations(databank):
         del plotOps['Other']
         
     #Rename labels
+    otherKeys = renameOperations(otherKeys)
     plotOps = renameOperations(plotOps)
     reportOps = renameOperations(reportOps)
         
@@ -259,7 +276,7 @@ def createFigure(databank):
 
         ax.set_title(titleLabel + '\n\n', loc='left', fontsize = 15) #Add title
         if otherKeys:
-            ax.annotate('Note: Other category contains ' + ', '.join(otherKeys), xy = (-.1, -.2), xycoords='axes fraction', ha='left', va="center", fontsize=10)
+            ax.annotate('Note: Other category contains ' + ', '.join(otherKeys.keys()), xy = (-.1, -.2), xycoords='axes fraction', ha='left', va="center", fontsize=10)
 
         #Move labels outside of the pie chart
         bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72) #Format label locations

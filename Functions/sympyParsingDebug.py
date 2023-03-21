@@ -1,5 +1,5 @@
 
-currentLine = r'{\displaystyle P(R_{t}|\lambda )=\exp(-\lambda t),\,}'
+currentLine = r'{\displaystyle P(H1)}'
 
 #############################################################################################
 #############################################################################################
@@ -324,7 +324,22 @@ def formatEquation(currentLine):
             
     return currentEquation
 
-def parseEquation(currentEquation):
+def parseEquations(currentEquation):
+    
+    #Define a walking function
+    def powerWalk(eq, powerLabels):
+        if ('Pow' in str(eq.func)):
+            exponents = [arg for arg in eq.args if 'numbers' in str(arg.func)]
+            for exponent in exponents:
+                if str(exponent) == '1/2':
+                    powerLabels.append('SQRT')
+                elif exponent <= 3:
+                    powerLabels.append('POW'+str(exponent))
+                else: #If it's a power of 4 or higher, we will keep it as a general label of 'power'
+                    pass
+        for arg in eq.args:
+            powerWalk(arg, powerLabels)
+        return powerLabels
     
     tempEq = parse_latex(currentEquation) #Translate equation from Latex to Sympy format
     eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
@@ -350,6 +365,24 @@ def parseEquation(currentEquation):
             del operations[opTypes.index('DIV')]
             del opTypes[opTypes.index('DIV')]
             
+    #Adjust power operations to be more specific (e.g., power of 2, square root)
+    if ('POW' in opTypes):
+        powerLabels = powerWalk(tempEq, [])
+        
+        #Iterate through the labels and add them to the operation
+        for powerLabel in powerLabels:
+            operations[opTypes.index('POW')][1] -= 1
+            if powerLabel not in opTypes: #If the label does not exist, add it
+                opTypes.append(powerLabel)
+                operations.append([powerLabel, 1])
+            else: #If the label exists, add one to it's count
+                operations[opTypes.index(powerLabel)][1] += 1
+                
+        #Remove power if it has decreased count to zero
+        if operations[opTypes.index('POW')][1] == 0:
+            del operations[opTypes.index('POW')]
+            del opTypes[opTypes.index('POW')]   
+            
     #Natural Logarithm
     if ('LOG' in opTypes) & ('EXP' in opTypes): #Square root is represented as both power and division
         operations[opTypes.index('EXP')][1] = operations[opTypes.index('EXP')][1] - operations[opTypes.index('LOG')][1] #Remove the EXP count by number of LOGs
@@ -371,7 +404,7 @@ print(currentLine)
 currentEquation = formatEquation(currentLine)
 print('Formatted: ')
 print(currentEquation)
-operations, symbols = parseEquation(currentEquation)
+operations, symbols = parseEquations(currentEquation)
 print('Parsed: ')
 print(operations)
 
