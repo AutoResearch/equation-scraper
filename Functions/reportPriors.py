@@ -170,6 +170,10 @@ def renameOperations(ops):
         ops['Logarithm'] = ops['LOG']
         del ops['LOG']  
         
+    if 'SUM' in ops:
+        ops['Summation'] = ops['SUM']
+        del ops['SUM']  
+        
     if 'NL' in ops:
         ops['Natural Logarithm'] = ops['NL']
         del ops['NL']  

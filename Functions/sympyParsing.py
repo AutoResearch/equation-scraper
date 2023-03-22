@@ -219,16 +219,16 @@ def processEquation(databank, debug = False):
     subText = re.findall(r'\\sum _\{.*?=.*?\}\^\{.*?\}', currentLine)
     if subText:
         for sub in subText:
-            currentLine = currentLine.replace(sub,'x+y')
+            currentLine = currentLine.replace(sub,'\Sum(x)')
             
     #The descriptive sum conflicts, and so we convert it to an equation with the same elements
     subText = re.findall(r'\\sum _\{.*?\}', currentLine)
     if subText:
         for sub in subText:
-            currentLine = currentLine.replace(sub,'x+y')
+            currentLine = currentLine.replace(sub,'\Sum(x)')
             
     #Reformat leftover sum notations
-    currentLine = currentLine.replace('\\sum','x+')
+    currentLine = currentLine.replace('\\sum','\Sum(x)')
             
     #The descriptive int conflicts, and so we convert it to an equation with the same elements
     subText = re.findall(r'\\int _\{.*?\}', currentLine)
@@ -635,6 +635,11 @@ def parseEquations(databank, debug = True):
                         del operations[opTypes.index('LOG')]
                         del opTypes[opTypes.index('LOG')]
                         
+                #Sum
+                if ('FUNC_SUM' in opTypes):
+                    operations[opTypes.index('FUNC_SUM')][0] = 'SUM'
+                    opTypes[opTypes.index('FUNC_SUM')] = 'SUM'
+                                    
                 #Functions
                 funcIndexes = [idx for idx, opType in enumerate(opTypes) if 'FUNC' in opType]
                 for funcIdx in funcIndexes[::-1]:
