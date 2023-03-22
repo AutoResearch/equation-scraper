@@ -137,14 +137,6 @@ def renameOperations(ops):
     if 'POW' in ops:
         ops['Power'] = ops['POW']
         del ops['POW']   
-
-    if 'POW-1' in ops:
-        ops['Reciprocal'] = ops['POW-1']
-        del ops['POW-1']
-        
-    if 'POW0' in ops:
-        ops['Zero Power'] = ops['POW0']
-        del ops['POW0']   
         
     if 'POW2' in ops:
         ops['Squared'] = ops['POW2']
@@ -179,7 +171,7 @@ def renameOperations(ops):
         del ops['LOG']  
         
     if 'EXP' in ops:
-        ops['Exponent'] = ops['EXP']
+        ops['Exponential'] = ops['EXP']
         del ops['EXP']
         
     return ops

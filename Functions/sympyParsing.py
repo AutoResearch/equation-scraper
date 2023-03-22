@@ -561,7 +561,7 @@ def parseEquations(databank, debug = True):
             for exponent in exponents:
                 if str(exponent) == '1/2':
                     powerLabels.append('SQRT')
-                elif exponent <= 3:
+                elif (exponent <= 3) & (exponent > 0):
                     powerLabels.append('POW'+str(exponent))
                 else: #If it's a power of 4 or higher, we will keep it as a general label of 'power'
                     pass
@@ -615,8 +615,7 @@ def parseEquations(databank, debug = True):
                     print('POWER PRE: ' + str(operations[opTypes.index('POW')][1]))
                     for powerLabel in powerLabels:
                         print(powerLabel)
-                        if powerLabel != 'POW-1':
-                            operations[opTypes.index('POW')][1] -= 1
+                        operations[opTypes.index('POW')][1] -= 1
                         if powerLabel not in opTypes: #If the label does not exist, add it
                             opTypes.append(powerLabel)
                             operations.append([powerLabel, 1])
