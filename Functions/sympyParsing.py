@@ -36,7 +36,6 @@ if __name__ == '__main__':
         if debug:
             debug = debug[0] #Pull it from the list
             sys.argv.remove('Debug') #Remove it from the argument list
-            print(sys.argv)
             
         #Check for all 
         searchKeywords = sys.argv[1:]
@@ -610,18 +609,13 @@ def parseEquations(databank, debug = True):
                     powerLabels = powerWalk(tempEq, [])
                     
                     #Iterate through the labels and add them to the operation
-                    print('*******************')
-                    print(tempEq)
-                    print('POWER PRE: ' + str(operations[opTypes.index('POW')][1]))
                     for powerLabel in powerLabels:
-                        print(powerLabel)
                         operations[opTypes.index('POW')][1] -= 1
                         if powerLabel not in opTypes: #If the label does not exist, add it
                             opTypes.append(powerLabel)
                             operations.append([powerLabel, 1])
                         else: #If the label exists, add one to it's count
                             operations[opTypes.index(powerLabel)][1] += 1
-                    print('POWER POST: ' + str(operations[opTypes.index('POW')][1]))
                             
                     #Remove power if it has decreased count to zero
                     if operations[opTypes.index('POW')][1] == 0:
@@ -629,11 +623,17 @@ def parseEquations(databank, debug = True):
                         del opTypes[opTypes.index('POW')]   
                                    
                 #Natural Logarithm
-                if ('LOG' in opTypes) & ('EXP' in opTypes): #Square root is represented as both power and division
-                    operations[opTypes.index('EXP')][1] = operations[opTypes.index('EXP')][1] - operations[opTypes.index('LOG')][1] #Remove the EXP count by number of LOGs
-                    if operations[opTypes.index('EXP')][1] == 0: #Remove division if it has decreased count to zero
+                if ('LOG' in opTypes) & ('EXP' in opTypes): #Natural logarithm is represented as Log and Exp
+                    numberNL = eq.count('\ln') #Determine number of NLs
+                    operations[opTypes.index('EXP')][1] -= numberNL #Remove from log
+                    operations[opTypes.index('LOG')][1] -= numberNL #Remove from exp
+                    operations.append(['NL',numberNL]) #Add as NL
+                    if operations[opTypes.index('EXP')][1] == 0: #Remove exp if it has decreased count to zero
                         del operations[opTypes.index('EXP')]
                         del opTypes[opTypes.index('EXP')]
+                    if operations[opTypes.index('LOG')][1] == 0: #Remove log if it has decreased count to zero
+                        del operations[opTypes.index('LOG')]
+                        del opTypes[opTypes.index('LOG')]
                         
                 #Functions
                 funcIndexes = [idx for idx, opType in enumerate(opTypes) if 'FUNC' in opType]

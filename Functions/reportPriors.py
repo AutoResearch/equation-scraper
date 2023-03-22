@@ -170,6 +170,10 @@ def renameOperations(ops):
         ops['Logarithm'] = ops['LOG']
         del ops['LOG']  
         
+    if 'NL' in ops:
+        ops['Natural Logarithm'] = ops['NL']
+        del ops['NL']  
+        
     if 'EXP' in ops:
         ops['Exponential'] = ops['EXP']
         del ops['EXP']
@@ -327,7 +331,6 @@ def savePriors(databank):
     with open(priorOperationsFilename,'w') as f:
         f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
         for key in sortedReportOps.keys():
-            print(key)
             f.write(key + ',' + str(sortedReportOps[key]) +'\n')
             
     #Save operation count data into a priors file

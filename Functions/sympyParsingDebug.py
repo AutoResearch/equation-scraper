@@ -333,7 +333,7 @@ def parseEquations(currentEquation):
             for exponent in exponents:
                 if str(exponent) == '1/2':
                     powerLabels.append('SQRT')
-                elif exponent <= 3:
+                elif (exponent <= 3) & (exponent > 0):
                     powerLabels.append('POW'+str(exponent))
                 else: #If it's a power of 4 or higher, we will keep it as a general label of 'power'
                     pass
@@ -384,11 +384,17 @@ def parseEquations(currentEquation):
             del opTypes[opTypes.index('POW')]   
             
     #Natural Logarithm
-    if ('LOG' in opTypes) & ('EXP' in opTypes): #Square root is represented as both power and division
-        operations[opTypes.index('EXP')][1] = operations[opTypes.index('EXP')][1] - operations[opTypes.index('LOG')][1] #Remove the EXP count by number of LOGs
-        if operations[opTypes.index('EXP')][1] == 0: #Remove division if it has decreased count to zero
+    if ('LOG' in opTypes) & ('EXP' in opTypes): #Natural logarithm is represented as Log and Exp
+        numberNL = eq.count('\ln') #Determine number of NLs
+        operations[opTypes.index('EXP')][1] -= numberNL #Remove from log
+        operations[opTypes.index('LOG')][1] -= numberNL #Remove from exp
+        operations.append(['NL',numberNL]) #Add as NL
+        if operations[opTypes.index('EXP')][1] == 0: #Remove exp if it has decreased count to zero
             del operations[opTypes.index('EXP')]
             del opTypes[opTypes.index('EXP')]
+        if operations[opTypes.index('LOG')][1] == 0: #Remove log if it has decreased count to zero
+            del operations[opTypes.index('LOG')]
+            del opTypes[opTypes.index('LOG')]
             
     #Functions
     funcIndexes = [idx for idx, opType in enumerate(opTypes) if 'FUNC' in opType]
