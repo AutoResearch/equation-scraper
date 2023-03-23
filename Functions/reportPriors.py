@@ -182,6 +182,18 @@ def renameOperations(ops):
         ops['Exponential'] = ops['EXP']
         del ops['EXP']
         
+    if 'MIN' in ops:
+        ops['Minimum'] = ops['MIN']
+        del ops['MIN']
+    
+    if 'MAX' in ops:
+        ops['Maximum'] = ops['MAX']
+        del ops['MAX']
+    
+    if 'RELU' in ops:
+        ops['ReLU'] = ops['RELU']
+        del ops['RELU']
+        
     return ops
     
 def reformatOperations(databank):

@@ -318,9 +318,9 @@ def formatEquation(databank, debug = False):
         
         #Removes specific notations that Sympy cannot comprehend 
             #With comma exclusion
-        #excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+        #excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
             #Without comma exclusion:
-        excludedNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\max','max','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+        excludedNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
         currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
         
         ###################################
@@ -388,10 +388,24 @@ def formatEquation(databank, debug = False):
         if '(-{' in currentEquation:
             currentEquation = currentEquation.replace('(-{','(x*{')
             
-        #This indicates a ReLU function (max(x,0)), for now removing the ,0 is solving some issues
-        #TODO: Change this to explicitly link to ReLU (needs a method for this function to define operations)
-        if ',0' in currentEquation:
-            currentEquation = currentEquation.replace(',0','')
+        #Transform min notation into a function            
+        if ('min' in currentEquation) & ('\min' not in currentEquation):
+            currentEquation = currentEquation.replace('min','\min')
+            
+        #Transform max notation into a function            
+        if ('max' in currentEquation) & ('\max' not in currentEquation):
+            currentEquation = currentEquation.replace('max','\max')
+            
+        #Transform max to ReLU
+        if ('\max' in currentEquation) & (',0' in currentEquation):
+            maxSplits = currentEquation.split('\max')
+            for x, maxSplit in enumerate(maxSplits):
+                if x > 0:
+                    if ',0' in maxSplit:
+                        maxSplits[x] = '\ReLU' + maxSplit.replace(',0','')
+                    else: 
+                        maxSplits[x] = '\max' +  maxSplit
+            currentEquation = ''.join(maxSplits)
 
         #Remove backslashes at the end of the equations
         if '\\' == currentEquation[-1:]:
@@ -485,7 +499,7 @@ def formatEquation(databank, debug = False):
         equationWords=re.findall(regex,currentEquation)
 
         #Pull out only words 4+ characters and change notation
-        excludedWords = ['frac','sigma','Sigma','delta','Delta','theta','Theta','beta','Beta','lambda','Lambda','epsilon','Epsilon','sqrt','Sqrt','times','Times']
+        excludedWords = ['frac','sigma','Sigma','delta','Delta','theta','Theta','beta','Beta','lambda','Lambda','epsilon','Epsilon','sqrt','Sqrt','times','Times','ReLU']
         for equationWord in equationWords:
             exclude = [False if excludedWord not in equationWord else True for excludedWord in excludedWords]
             if (len(equationWord.replace('_',''))> 3) & (True not in exclude) & (equationWord.replace('_','').isnumeric()==False):
@@ -639,6 +653,21 @@ def parseEquations(databank, debug = True):
                 if ('FUNC_SUM' in opTypes):
                     operations[opTypes.index('FUNC_SUM')][0] = 'SUM'
                     opTypes[opTypes.index('FUNC_SUM')] = 'SUM'
+                    
+                #ReLU
+                if ('FUNC_RELU' in opTypes):
+                    operations[opTypes.index('FUNC_RELU')][0] = 'RELU'
+                    opTypes[opTypes.index('FUNC_RELU')] = 'RELU'
+                    
+                #Max
+                if ('FUNC_MAX' in opTypes):
+                    operations[opTypes.index('FUNC_MAX')][0] = 'MAX'
+                    opTypes[opTypes.index('FUNC_MAX')] = 'MAX'                    
+                
+                #Min
+                if ('FUNC_MIN' in opTypes):
+                    operations[opTypes.index('FUNC_MIN')][0] = 'MIN'
+                    opTypes[opTypes.index('FUNC_MIN')] = 'MIN'        
                                     
                 #Functions
                 funcIndexes = [idx for idx, opType in enumerate(opTypes) if 'FUNC' in opType]
