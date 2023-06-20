@@ -55,13 +55,15 @@ def loadParsedData(databank):
     
     #Determine filename to load
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
+    loadPath = saveKeywords.replace('Super:','SUPER')+'/'
     loadName = 'parsed_equations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
-    with open(os.path.dirname(__file__) + '/../Data/'+loadName,'r') as f:
+    with open(os.path.dirname(__file__) + '/../Data/'+loadPath+loadName,'r') as f:
         parsedEqs = f.readlines()
 
     #Pack databank
+    databank['loadPath'] = loadPath
     databank['loadName'] = loadName
     databank['parsedEqs'] = parsedEqs
     
@@ -322,10 +324,14 @@ def saveFigure(databank):
     
     '''
     #Unpack databank
+    
     searchKeywords = databank['searchKeywords']
+    loadPath = databank['loadPath']
+    loadName = databank['loadName']
 
     #Save and display figure
-    plt.savefig(os.path.dirname(__file__)+'/../Figures/'+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'_PriorPieChart.png') #Save figure
+    
+    plt.savefig(os.path.dirname(__file__)+'/../Data/'+loadPath+loadName.replace('parsed_equations_','').replace('.txt','')+'_PriorPieChart.png') #Save figure
     plt.show() #Show figure
     
 def savePriors(databank):
@@ -336,6 +342,8 @@ def savePriors(databank):
     
     #Unpack databank
     searchKeywords = databank['searchKeywords']
+    loadPath = databank['loadPath']
+    loadName = databank['loadName']
     reportOps = databank['reportOps'] 
     reportCounts = databank['plotCounts']
     
@@ -343,15 +351,13 @@ def savePriors(databank):
     sortedReportOps = {key: value for key, value in sorted(reportOps.items(), key=lambda item: item[1], reverse=True)}
 
     #Save operation data into a priors file
-    priorOperationsFilename = os.path.dirname(__file__) + '/../Data/priorOperations_'+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'.txt'
-    with open(priorOperationsFilename,'w') as f:
+    with open('./Data/'+loadPath+'priorOperations_'+loadName,'w') as f:
         f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
         for key in sortedReportOps.keys():
             f.write(key + ',' + str(sortedReportOps[key]) +'\n')
             
     #Save operation count data into a priors file
-    priorCountsFilename = os.path.dirname(__file__) + '/../Data/priorCounts_'+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'.txt'
-    with open(priorCountsFilename,'w') as f:
+    with open('./Data/'+loadPath+'priorCounts_'+loadName,'w') as f:
         f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
         for key in reportCounts.keys():
             f.write(key + ',' + str(reportCounts[key]) +'\n')

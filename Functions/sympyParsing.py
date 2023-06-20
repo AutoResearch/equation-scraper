@@ -91,13 +91,15 @@ def loadScrapedData(databank):
     
     #Determine filename to load
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
+    loadPath = saveKeywords.replace('Super:','SUPER')+'/'
     loadName = 'equations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
-    with open(os.path.dirname(__file__) + '/../Data/'+loadName,'r') as f:
+    with open(os.path.dirname(__file__) + '/../Data/'+loadPath+loadName,'r') as f:
         scrapedWiki = f.readlines()
 
     #Pack databank
+    databank['loadPath'] = loadPath
     databank['loadName'] = loadName
     databank['scrapedWiki'] = scrapedWiki
     
@@ -292,6 +294,7 @@ def formatEquation(databank, debug = False):
     
     '''
     #Unpack databank
+    loadPath = databank['loadPath']
     loadName = databank['loadName']
     if isinstance(databank['currentLine'], list): #Check to see if the input is a list of equations
         currentLine = databank['subEquation'] #If it's a list, use a different variable saying which equation from that list to process
@@ -504,7 +507,7 @@ def formatEquation(databank, debug = False):
             exclude = [False if excludedWord not in equationWord else True for excludedWord in excludedWords]
             if (len(equationWord.replace('_',''))> 3) & (True not in exclude) & (equationWord.replace('_','').isnumeric()==False):
                 if debug == True:
-                    removedFilename = os.path.dirname(__file__) + '/../Data/wordsRemoved_'+loadName
+                    removedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'wordsRemoved_'+loadName
                     with open(removedFilename, 'a') as f:
                         f.write(equationWord.replace('_',''))
                         f.write('\n')
@@ -709,18 +712,19 @@ def parseEquations(databank, debug = True):
 def saveFiles(databank, debug = False):
     
     #Unpack databank
+    loadPath = databank['loadPath']
     loadName = databank['loadName']
     parsedEquations = databank['parsedEquations']
     skippedEquations = databank['skippedEquations']
     
-    parsedFilename = os.path.dirname(__file__) + '/../Data/parsed_'+loadName
+    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'parsed_'+loadName
     with open(parsedFilename, 'w') as f:
         for parsedItem in parsedEquations:
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
         
     #Debug mode prints a new file with a different layout    
     if debug==True:        
-        parsedFilename = os.path.dirname(__file__) + '/../Data/debug_parsed_'+loadName
+        parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/debug_parsed_'+loadName
         with open(parsedFilename, 'w') as f:       
             for parsedItem in parsedEquations:
                 f.write('\n')
@@ -733,7 +737,7 @@ def saveFiles(databank, debug = False):
                 f.write('************\n')            
 
     #Save file of skipped equations, if any
-    skippedFilename = os.path.dirname(__file__) + '/../Data/skipped_'+loadName
+    skippedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'debug/skipped_'+loadName
     with open(skippedFilename, 'w') as f:
         for skippedItem in skippedEquations:
             if '#' not in skippedItem:

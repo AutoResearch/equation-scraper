@@ -91,14 +91,19 @@ def defineCategory(databank):
     
     #Create filename to save to
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
+    savePath = saveKeywords.replace('Super:','SUPER') +'/'
+    if not os.path.exists('./Data/'+savePath):
+        os.makedirs('./Data/'+savePath)
+        os.makedirs('./Data/'+savePath+'debug/')
     saveName = 'equations_' + saveKeywords + '.txt' #Create file name
 
     #Save search parameters to file
-    with open(os.path.dirname(__file__) + '/../Data/'+saveName, 'w') as f: #Open file to be saved to
+    with open(os.path.dirname(__file__) + '/../Data/'+savePath+saveName, 'w') as f: #Open file to be saved to
         _ = f.write('#CATEGORIES: ' + str(searchKeywords) + '\n') #Save title to file
         _ = f.write('#--------------------#\n\n') #Add separator to file
 
     #Pack databank
+    databank['savePath'] = savePath
     databank['saveName'] = saveName
     if normalKeywords:
         databank['normalKeywords'] = normalKeywords
@@ -205,15 +210,16 @@ def scrapeLinks(databank):
     
     return databank
 
-def extractLinks(database):
+def extractLinks(databank):
     
     '''
     [INSERT FUNCTION DESCRIPTION]
         
     '''
     #Unpack databank
-    links = database['links']
-    saveName = database['saveName']
+    links = databank['links']
+    savePath = databank['savePath']
+    saveName = databank['saveName']
 
     #Setup variables
     numberEquations = 0 #Initiate equation count
@@ -246,7 +252,7 @@ def extractLinks(database):
 
             #Save equations to a file
             if equations: #If equations exist on this page
-                with open(os.path.dirname(__file__) + '/../Data/'+saveName, 'a') as f: #Open file to be saved to
+                with open(os.path.dirname(__file__) + '/../Data/'+savePath+saveName, 'a') as f: #Open file to be saved to
                     titleSoup = BeautifulSoup(linkText, 'html.parser', parse_only = SoupStrainer('h1')) #Extract title of page
                     root = titleSoup.find('h1').text #Convert title to be saved
                     _ = f.write('#ROOT: ' + root + '\n') #Save title to file
