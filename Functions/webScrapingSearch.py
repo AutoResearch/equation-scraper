@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup, SoupStrainer
 from pip._vendor import requests
 import time
 import os
+import shutil
 
 #Determine categories to search
 if __name__ == '__main__':
@@ -92,9 +93,10 @@ def defineCategory(databank):
     #Create filename to save to
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
     savePath = saveKeywords.replace('Super:','SUPER') +'/'
-    if not os.path.exists('./Data/'+savePath):
-        os.makedirs('./Data/'+savePath)
-        os.makedirs('./Data/'+savePath+'debug/')
+    if os.path.exists('./Data/'+savePath):
+        shutil.rmtree('./Data/'+savePath)
+    os.makedirs('./Data/'+savePath)
+    os.makedirs('./Data/'+savePath+'debug/')
     saveName = 'equations_' + saveKeywords + '.txt' #Create file name
 
     #Save search parameters to file
