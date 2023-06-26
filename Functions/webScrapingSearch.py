@@ -31,7 +31,8 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
     else:
-        searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
+        #searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
+        searchKeywords = ["Super:Materials_science", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages"]
         
     #Setup databank variable
     databank = {'searchKeywords': searchKeywords}
@@ -78,17 +79,22 @@ def defineCategory(databank):
     #Setup variables
     normalKeywords = []
     superKeywords = []
+    directKeywords = []
     
     #Split super categories from normal categories
     for keyIndex, searchKeyword in enumerate(searchKeywords):
         if 'Super:' in searchKeyword:
             superKeywords.append(searchKeyword.replace('Super:',''))
+        elif 'Direct:' in searchKeyword:
+            directKeywords.append(searchKeyword.replace('Direct:',''))
         else:
             normalKeywords.append(searchKeyword)
         
         if len(searchKeyword.split('_')) > 1: #If the keyword has two words and thus is split by an underscore
             searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
-        
+    
+    #Remove directs
+    searchKeywords = [searchKeyword for searchKeyword in searchKeywords if 'Direct' not in searchKeyword]
     
     #Create filename to save to
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
@@ -117,6 +123,11 @@ def defineCategory(databank):
     else:
         databank['superKeywords'] = []
         
+    if directKeywords:
+        databank['directKeywords'] = directKeywords
+    else:
+        databank['directKeywords'] = []
+        
     databank['searchKeywords'] = searchKeywords
     
     return databank
@@ -129,6 +140,7 @@ def scrapeLinks(databank):
     #Unpack databank
     normalKeywords = databank['normalKeywords']
     superKeywords = databank['superKeywords']
+    directKeywords = databank['directKeywords']
     
     #Define internal functions
     def searchLinks(URL):
@@ -194,14 +206,17 @@ def scrapeLinks(databank):
     
     #Create empty list to be populated
     superLinks = []
+    directLinks = []
     links = []
 
     #Iterate through (Super and Normal) keywords, grabbing links from each page
     superLinks.extend([searchSuperLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in superKeywords])
+    directLinks.extend([searchSuperLinks(str(keyword)) for keyword in directKeywords])
     links.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in normalKeywords]) 
      
     #Combine the two outputs
     links.extend(superLinks)
+    links.extend(directLinks)
     
     #Concatenate the lists from each keyword
     expandedLinks = [item for sublist in links for item in sublist] 

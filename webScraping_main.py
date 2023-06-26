@@ -42,8 +42,8 @@ extractLinks(databank)
 print("\nParsing Equations...")
 
 databank = loadScrapedData(databank)
-databank = cycleEquations(databank)
-databank = parseEquations(databank)
+databank = cycleEquations(databank, True)
+databank = parseEquations(databank, True)
 saveFiles(databank) 
 
 print("Parsing Complete...")

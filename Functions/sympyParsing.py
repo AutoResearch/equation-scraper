@@ -13,6 +13,7 @@ Note: There exists a requirements.txt file
 '''
 
 #TODO: It might be skipping anything that ends with \,dy
+#TODO: IF manual_debug is still in the code, delete all references and uses for it
 
 ###############################################################################
 #0. Import Modules & Determine Keywords
@@ -40,8 +41,11 @@ if __name__ == '__main__':
         #Check for all 
         searchKeywords = sys.argv[1:]
     else:
-        debug = False
-        searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
+        #debug = False
+        debug = True
+        #searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
+        searchKeywords = ['Super:Cognitive_science']
+
         
     #Split super categories from normal categories
     for keyIndex, searchKeyword in enumerate(searchKeywords):
@@ -140,13 +144,16 @@ def cycleEquations(databank, debug = False):
     return databank
 
 #The main function that organizes the current equation and it's metadata then feeds these to the processing functions
-def processEquation(databank, debug = False):
+def processEquation(databank, debug = False, manual_debug = False):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
     #Unpack databank
     currentLine = databank['currentLine']
+    
+    if manual_debug:
+        hold = 1
     
     ##################################
     ## Preliminary equation cleanup ##
@@ -244,7 +251,7 @@ def processEquation(databank, debug = False):
     subText = re.findall(r'\\mathrm \{.*?\}', currentLine)
     if subText:
         for sub in subText:
-            currentLine = currentLine.replace(sub,sub.split('{')[1][0])
+            currentLine = currentLine.replace(sub,sub.split('{')[1].split('}')[0])
             
     #Ignore any euquations with ... as it is more likely a notation
     if ('..' in currentLine) | ('...' in currentLine) | ('\in' in currentLine):
@@ -280,15 +287,21 @@ def processEquation(databank, debug = False):
         for subEquation in currentLine: #Cycle through each equation
             databank['subEquation'] = subEquation
             if subEquation: #Ensure the sub-equation exists 
-                databank = formatEquation(databank, debug) #Calls the format equation function 
+                if manual_debug:
+                    databank = formatEquation(databank, debug, True) #Calls the format equation function 
+                else:
+                    databank = formatEquation(databank, debug) #Calls the format equation function 
                 databank = appendVariables(databank) #Calls the append variables function
     else:
-        databank = formatEquation(databank, debug) #Calls the format equation function 
+        if manual_debug:
+            databank = formatEquation(databank, debug, True) #Calls the format equation function
+        else:
+            databank = formatEquation(databank, debug) #Calls the format equation function 
         databank = appendVariables(databank) #Calls the append variables function
         
     return databank
 
-def formatEquation(databank, debug = False):
+def formatEquation(databank, debug = False, manualDebug = False):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -300,6 +313,10 @@ def formatEquation(databank, debug = False):
         currentLine = databank['subEquation'] #If it's a list, use a different variable saying which equation from that list to process
     else:
         currentLine = databank['currentLine'] #If not a list, use the normal variable
+        
+    #TODO: The following if for debugging, remove if it's still here (also remove the function parameter)
+    if manualDebug:
+        hold = True
     
     if (currentLine[0] != '#') & (currentLine != '\n') & ('{\\begin{cases}' not in currentLine) & ('\\end{cases}' not in currentLine): #The last notation here specifies and if else conditional, and we ignore it as they are generally not equations (but always?)
             
@@ -371,6 +388,10 @@ def formatEquation(databank, debug = False):
         if ('sin' in currentEquation) & ('\sin' not in currentEquation):
             currentEquation = currentEquation.replace('sin','\sin')
             
+        #Remove repeated (overline) formatting
+        if ('\\overline' in currentEquation):
+            currentEquation = currentEquation.replace('\\overline','')
+            
         #Reformat over into division
         if ('\\over' in currentEquation):
             currentEquation = currentEquation.replace('\\over','/')
@@ -418,6 +439,11 @@ def formatEquation(databank, debug = False):
         if currentEquation:
             if ('_' == currentEquation[0]):
                 currentEquation = currentEquation[1:]
+                
+        #Remove hat formatting
+        if manualDebug:
+            if '\hat{' in currentEquation:
+                currentEquation.split('\hat{')
             
         #The n_{y}^{z}(a) notation can cause errors, so replace it with n_{x}    
         for outer in string.ascii_letters:
@@ -507,7 +533,7 @@ def formatEquation(databank, debug = False):
             exclude = [False if excludedWord not in equationWord else True for excludedWord in excludedWords]
             if (len(equationWord.replace('_',''))> 3) & (True not in exclude) & (equationWord.replace('_','').isnumeric()==False):
                 if debug == True:
-                    removedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'wordsRemoved_'+loadName
+                    removedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/wordsRemoved_'+loadName
                     with open(removedFilename, 'a') as f:
                         f.write(equationWord.replace('_',''))
                         f.write('\n')
@@ -521,6 +547,10 @@ def formatEquation(databank, debug = False):
             databank['currentEquation'] = []
     else:
         databank['currentEquation'] = []
+        
+    #TODO: Remove this
+    if manualDebug:
+        databank['manualEquation'] = currentEquation
     
     return databank
     
@@ -553,11 +583,12 @@ def appendVariables(databank):
     databank['scrapedWikiEquations'] = scrapedWikiEquations
     databank['scrapedLinks'] = scrapedLinks
     databank['scrapedEquations'] = scrapedEquations
-    databank['skippedEquations'] = skippedEquations
+    databank['skippedEquations'] = skippedEquations        
     
     return databank
 
-def parseEquations(databank, debug = True):
+def parseEquations(databank, debug = True, manualDebug = False):
+    
     parsedEquations = []
     skippedEquations = []
     parsedEq = 0
@@ -569,6 +600,10 @@ def parseEquations(databank, debug = True):
     scrapedLinks = databank['scrapedLinks']
     scrapedEquations = databank['scrapedEquations']
     databank['parsedEquations'] = parsedEquations
+    
+    #TODO: Remove the manual debug stuff
+    if manualDebug:
+        hold = 1
     
     #Define a walking function
     def powerWalk(eq, powerLabels):
@@ -596,8 +631,8 @@ def parseEquations(databank, debug = True):
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
-
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
+                
                 eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
                 eqOperations = str(sp.count_ops(tempEq,visual=True)).split('+') #Extract all nodes of the Sympy tree from the equation
 
@@ -702,7 +737,15 @@ def parseEquations(databank, debug = True):
                 print(scrapedWikiEquations[x]) #Print the scraped equation that failed
                 print(eq) #Print the equation that failed
                 break
-    
+            '''
+            failedEq=scrapedWikiEquations[x]
+            databank['currentLine'] = failedEq
+            #processEquation(databank, True, True)
+            #formatEquation(databank, True, True)
+            #parse_latex(databank['manualEquation'])
+            '''
+
+                    
     #Pack databank
     databank['parsedEquations'] = parsedEquations
     databank['skippedEquations'] = skippedEquations
