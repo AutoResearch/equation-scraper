@@ -41,10 +41,9 @@ if __name__ == '__main__':
         #Check for all 
         searchKeywords = sys.argv[1:]
     else:
-        #debug = False
-        debug = True
-        #searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
-        searchKeywords = ['Super:Cognitive_science']
+        debug = False
+        searchKeywords = ["Super:Materials_science"]
+        #searchKeywords = ['Super:Cognitive_science']
 
         
     #Split super categories from normal categories
@@ -99,7 +98,7 @@ def loadScrapedData(databank):
     loadName = 'equations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
-    with open(os.path.dirname(__file__) + '/../Data/'+loadPath+loadName,'r') as f:
+    with open(os.path.dirname(__file__) + '/../Data/'+loadPath+loadName,'r', encoding="utf-8") as f:
         scrapedWiki = f.readlines()
 
     #Pack databank
@@ -201,6 +200,10 @@ def processEquation(databank, debug = False, manual_debug = False):
         for sub in subText:
             currentLine = currentLine.replace(sub,'p(x)')
             
+    #Replace angle brackets with brackets
+    currentLine = currentLine.replace('\\langle','(')
+    currentLine = currentLine.replace('\\rangle',')')
+
     #Remove the redundant left and right notations
     currentLine = currentLine.replace('\\left','')
     currentLine = currentLine.replace('\\right','')
@@ -246,6 +249,12 @@ def processEquation(databank, debug = False, manual_debug = False):
             if sub.count('{') > sub.count('}'): #Integrals have multiple brackets within them and this ensures that it captures the number appropriately
                 sub = sub + '}'*(sub.count('{') - sub.count('}'))
             currentLine = currentLine.replace(sub,'\\int{x}')
+            
+    #Remove any superscripts with brakets as they are not power but instead references
+    subText = re.findall(r'\{\(.*?\)\}', currentLine)
+    if subText:
+        for sub in subText:
+            currentLine = currentLine.replace(sub,'')
             
     #Some variables are spelt out as a whole word, and this replaces that word with the starting letter
     subText = re.findall(r'\\mathrm \{.*?\}', currentLine)
@@ -322,7 +331,7 @@ def formatEquation(databank, debug = False, manualDebug = False):
             
         #TODO: This separator function only keeps one distinct part of the equations, but what about equations where multiple of these exist (e.g., x = f/g = 101). But also, maybe that's alright or else it would bias stronger for these equations as they are interpreted multiple times
         #Split equations to remove the left hand side
-        separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1, '\leq': 0, '\heq': 0, '\he': 0, '&>': 0, '>': 0, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\cong': 0, '\\equiv': 0, '\\approx': 0}
+        separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1, '\leq': 0, '\heq': 0, '\he': 0, '&>': 0, '>': 0, '>=': -1, '\geq': -1, '\\neq': -1, '\seq': -1, '<=': -1, '<': -1, '\cong': 0, '\\equiv': 0, '\\approx': 0}
         #if ('\\equiv' not in currentLine) | ('\\approx' not in currentLine): #TODO: I now use equiv and approx in separators above, but does this cause issues?
         currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1]
             
@@ -340,7 +349,7 @@ def formatEquation(databank, debug = False, manualDebug = False):
             #With comma exclusion
         #excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
             #Without comma exclusion:
-        excludedNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+        excludedNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\mathit','\textbf','\textit','\texttt','\ltextsf','\textrm','\\underline','\\overline','\\bar','\hat','\tilde','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
         currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
         
         ###################################
@@ -387,10 +396,6 @@ def formatEquation(databank, debug = False, manualDebug = False):
         #Reformat sine
         if ('sin' in currentEquation) & ('\sin' not in currentEquation):
             currentEquation = currentEquation.replace('sin','\sin')
-            
-        #Remove repeated (overline) formatting
-        if ('\\overline' in currentEquation):
-            currentEquation = currentEquation.replace('\\overline','')
             
         #Reformat over into division
         if ('\\over' in currentEquation):
@@ -439,11 +444,6 @@ def formatEquation(databank, debug = False, manualDebug = False):
         if currentEquation:
             if ('_' == currentEquation[0]):
                 currentEquation = currentEquation[1:]
-                
-        #Remove hat formatting
-        if manualDebug:
-            if '\hat{' in currentEquation:
-                currentEquation.split('\hat{')
             
         #The n_{y}^{z}(a) notation can cause errors, so replace it with n_{x}    
         for outer in string.ascii_letters:
@@ -503,7 +503,8 @@ def formatEquation(databank, debug = False, manualDebug = False):
                     else:
                         trackNotations.append(commaSplit[y]) #Track intermediate notations  
             if 'trackNotations' in locals():
-                currentEquation = currentEquation.replace('(' + '('.join(commaSplit[x].split('(')[-1-openBracketTotal:]) + ',' + ','.join(trackNotations) + ')','(x)') #Replace complex bracket with simple one
+                #currentEquation = currentEquation.replace('(' + '('.join(commaSplit[x].split('(')[-1-openBracketTotal:]) + ',' + ','.join(trackNotations) + ')','(x)') #Replace complex bracket with simple one
+                currentEquation = currentEquation.replace('('.join(commaSplit[x].split('(')[-1-openBracketTotal:]) + ',' + ','.join(trackNotations),'(x)') #Replace complex bracket with simple one
 
         #Remove any leftover commas
         currentEquation = currentEquation.replace(',','')
@@ -528,15 +529,14 @@ def formatEquation(databank, debug = False, manualDebug = False):
         equationWords=re.findall(regex,currentEquation)
 
         #Pull out only words 4+ characters and change notation
-        excludedWords = ['frac','sigma','Sigma','delta','Delta','theta','Theta','beta','Beta','lambda','Lambda','epsilon','Epsilon','sqrt','Sqrt','times','Times','ReLU']
+        excludedWords = ['frac','sigma','Sigma','delta','Delta','theta','Theta','beta','Beta','lambda','Lambda','epsilon','Epsilon','sqrt','Sqrt','times','Times','ReLU','log','Sum','Phi','phi','alpha','tau','mu','gamma','pi','Rho','rho','Eta','eta','zeta','Omega']
         for equationWord in equationWords:
             exclude = [False if excludedWord not in equationWord else True for excludedWord in excludedWords]
-            if (len(equationWord.replace('_',''))> 3) & (True not in exclude) & (equationWord.replace('_','').isnumeric()==False):
-                if debug == True:
-                    removedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/wordsRemoved_'+loadName
-                    with open(removedFilename, 'a') as f:
-                        f.write(equationWord.replace('_',''))
-                        f.write('\n')
+            if (len(equationWord.replace('_',''))> 1) & (True not in exclude) & (equationWord.replace('_','').isnumeric()==False):
+                removedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/wordsRemoved_'+loadName
+                with open(removedFilename, 'a', encoding="utf-8") as f:
+                    f.write(equationWord.replace('_',''))
+                    f.write('\n')
                 currentEquation = currentEquation.replace(equationWord.replace('_',''), 'x')
                 
     #If an equation was found and reformatted, return it
@@ -725,12 +725,10 @@ def parseEquations(databank, debug = True, manualDebug = False):
                 skippedEq += 1
                 
         except: #If the translation from latex to Sympy of the parsing fails
-            if not debug:
-                raise
             skippedEquations.append(['UNPARSED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
             unparsedEq += 1 #Increase counter 
             print('FAILURE - Likely not convertible from latex to sympy') #Error warning
-            if debug: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
+            if not debug: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
                 print(scrapedWikiEquations[x]) #Print the scraped equation that failed
                 print(eq) #Print the equation that failed
             else:
@@ -761,14 +759,14 @@ def saveFiles(databank, debug = False):
     skippedEquations = databank['skippedEquations']
     
     parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'parsed_'+loadName
-    with open(parsedFilename, 'w') as f:
+    with open(parsedFilename, 'w', encoding="utf-8") as f:
         for parsedItem in parsedEquations:
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
         
     #Debug mode prints a new file with a different layout    
     if debug==True:        
         parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/debug_parsed_'+loadName
-        with open(parsedFilename, 'w') as f:       
+        with open(parsedFilename, 'w', encoding="utf-8") as f:       
             for parsedItem in parsedEquations:
                 f.write('\n')
                 f.write('************\n')
@@ -781,7 +779,7 @@ def saveFiles(databank, debug = False):
 
     #Save file of skipped equations, if any
     skippedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'debug/skipped_'+loadName
-    with open(skippedFilename, 'w') as f:
+    with open(skippedFilename, 'w', encoding="utf-8") as f:
         for skippedItem in skippedEquations:
             if '#' not in skippedItem:
                 f.write(skippedItem[0])

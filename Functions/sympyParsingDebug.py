@@ -1,5 +1,5 @@
 
-currentLine = r'{\displaystyle o_{l}(x)={\sqrt {max(g_{p}(x_{i}),0)max(g_{r}(x_{j}))}}}'
+currentLine = r'{\displaystyle \langle O(1),poly(n)\rangle }'
 
 #############################################################################################
 #############################################################################################
@@ -52,6 +52,10 @@ def processEquation(currentLine):
     if subText:
         for sub in subText:
             currentLine = currentLine.replace(sub,'p(x)')
+            
+    #Replace angle brackets with brackets
+    currentLine = currentLine.replace('\\langle','(')
+    currentLine = currentLine.replace('\\rangle',')')
             
     #Remove the redundant left and right notations
     currentLine = currentLine.replace('\\left','')
@@ -127,7 +131,7 @@ def processEquation(currentLine):
 def formatEquation(currentLine):
     #TODO: This separator function only keeps one distinct part of the equations, but what about equations where multiple of these exist (e.g., x = f/g = 101). But also, maybe that's alright or else it would bias stronger for these equations as they are interpreted multiple times
     #Split equations to remove the left hand side
-    separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1, '\leq': 0, '\heq': 0, '\he': 0, '&>': 0, '>': 0, '>=': -1, '\geq': -1, '\seq': -1, '<=': -1, '<': -1, '\cong': 0, '\\equiv': 0, '\\approx': 0}
+    separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1, '\leq': 0, '\heq': 0, '\he': 0, '&>': 0, '>': 0, '>=': -1, '\geq': -1,'\\neq': -1, '\seq': -1, '<=': -1, '<': -1, '\cong': 0, '\\equiv': 0, '\\approx': 0}
     #if ('\\equiv' not in currentLine) | ('\\approx' not in currentLine): #TODO: I now use equiv and approx in separators above, but does this cause issues?
     currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1]
         
@@ -145,7 +149,7 @@ def formatEquation(currentLine):
         #With comma exclusion
     #excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
         #Without comma exclusion:
-    excludedNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+    excludedNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\mathit','\\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
     currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
     
     ###################################
@@ -305,7 +309,8 @@ def formatEquation(currentLine):
                 else:
                     trackNotations.append(commaSplit[y]) #Track intermediate notations  
         if 'trackNotations' in locals():
-            currentEquation = currentEquation.replace('(' + '('.join(commaSplit[x].split('(')[-1-openBracketTotal:]) + ',' + ','.join(trackNotations) + ')','(x)') #Replace complex bracket with simple one
+            #currentEquation = currentEquation.replace('(' + '('.join(commaSplit[x].split('(')[-1-openBracketTotal:]) + ',' + ','.join(trackNotations) + ')','(x)') #Replace complex bracket with simple one
+            currentEquation = currentEquation.replace('('.join(commaSplit[x].split('(')[-1-openBracketTotal:]) + ',' + ','.join(trackNotations),'(x)') #Replace complex bracket with simple one
 
     #Remove any leftover commas
     currentEquation = currentEquation.replace(',','')

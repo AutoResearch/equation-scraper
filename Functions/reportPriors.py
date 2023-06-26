@@ -59,7 +59,7 @@ def loadParsedData(databank):
     loadName = 'parsed_equations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
-    with open(os.path.dirname(__file__) + '/../Data/'+loadPath+loadName,'r') as f:
+    with open(os.path.dirname(__file__) + '/../Data/'+loadPath+loadName,'r', encoding="utf-8") as f:
         parsedEqs = f.readlines()
 
     #Pack databank
@@ -139,6 +139,9 @@ def renameOperations(ops):
     if 'POW' in ops:
         ops['Power'] = ops['POW']
         del ops['POW']   
+    
+    if 'POW1' in ops:
+        del ops['POW1']  
         
     if 'POW2' in ops:
         ops['Squared'] = ops['POW2']
@@ -195,6 +198,10 @@ def renameOperations(ops):
     if 'RELU' in ops:
         ops['ReLU'] = ops['RELU']
         del ops['RELU']
+        
+    if 'ABS' in ops:
+        ops['Absolute'] = ops['ABS']
+        del ops['ABS']
         
     return ops
     
@@ -351,13 +358,13 @@ def savePriors(databank):
     sortedReportOps = {key: value for key, value in sorted(reportOps.items(), key=lambda item: item[1], reverse=True)}
 
     #Save operation data into a priors file
-    with open('./Data/'+loadPath+'priorOperations_'+loadName,'w') as f:
+    with open('./Data/'+loadPath+'priorOperations_'+loadName,'w', encoding="utf-8") as f:
         f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
         for key in sortedReportOps.keys():
             f.write(key + ',' + str(sortedReportOps[key]) +'\n')
             
     #Save operation count data into a priors file
-    with open('./Data/'+loadPath+'priorCounts_'+loadName,'w') as f:
+    with open('./Data/'+loadPath+'priorCounts_'+loadName,'w', encoding="utf-8") as f:
         f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
         for key in reportCounts.keys():
             f.write(key + ',' + str(reportCounts[key]) +'\n')

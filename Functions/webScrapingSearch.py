@@ -96,17 +96,17 @@ def defineCategory(databank):
     #Remove directs
     searchKeywords = [searchKeyword for searchKeyword in searchKeywords if 'Direct' not in searchKeyword]
     
-    #Create filename to save to
+    #Create filename to save to, including the creation of folders to store it in
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
     savePath = saveKeywords.replace('Super:','SUPER') +'/'
     if os.path.exists('./Data/'+savePath):
-        shutil.rmtree('./Data/'+savePath)
+        shutil.rmtree('./Data/'+savePath) #Remove old scraping
     os.makedirs('./Data/'+savePath)
     os.makedirs('./Data/'+savePath+'debug/')
     saveName = 'equations_' + saveKeywords + '.txt' #Create file name
 
     #Save search parameters to file
-    with open(os.path.dirname(__file__) + '/../Data/'+savePath+saveName, 'w') as f: #Open file to be saved to
+    with open(os.path.dirname(__file__) + '/../Data/'+savePath+saveName, 'w', encoding="utf-8") as f: #Open file to be saved to
         _ = f.write('#CATEGORIES: ' + str(searchKeywords) + '\n') #Save title to file
         _ = f.write('#--------------------#\n\n') #Add separator to file
 
@@ -209,7 +209,7 @@ def scrapeLinks(databank):
     directLinks = []
     links = []
 
-    #Iterate through (Super and Normal) keywords, grabbing links from each page
+    #Iterate through (Super, Direct, and Normal) keywords, grabbing links from each page
     superLinks.extend([searchSuperLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in superKeywords])
     directLinks.extend([searchSuperLinks(str(keyword)) for keyword in directKeywords])
     links.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in normalKeywords]) 
@@ -269,7 +269,7 @@ def extractLinks(databank):
 
             #Save equations to a file
             if equations: #If equations exist on this page
-                with open(os.path.dirname(__file__) + '/../Data/'+savePath+saveName, 'a') as f: #Open file to be saved to
+                with open(os.path.dirname(__file__) + '/../Data/'+savePath+saveName, 'a', encoding="utf-8") as f: #Open file to be saved to
                     titleSoup = BeautifulSoup(linkText, 'html.parser', parse_only = SoupStrainer('h1')) #Extract title of page
                     root = titleSoup.find('h1').text #Convert title to be saved
                     _ = f.write('#ROOT: ' + root + '\n') #Save title to file
