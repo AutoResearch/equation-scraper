@@ -28,7 +28,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
     else:
-        searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
+        searchKeywords = ['Super:Cognitive_psychology']
         
     #Split super categories from normal categories
     for keyIndex, searchKeyword in enumerate(searchKeywords):
@@ -79,6 +79,7 @@ def extractOperations(databank):
     
     #Setup Variables
     allOps = {}
+    allOpsProp = {}
     opCounts = []
     #Cycle through each line to extract operation information
     for parsedEq in parsedEqs:
@@ -95,14 +96,17 @@ def extractOperations(databank):
                     break
         
         #Cycle through operators 
+        total_ops = np.sum([int(parsedOp.split(':')[1]) for parsedOp in parsedOps if 'FUNC' not in parsedOp.split(':')[0]])
         for parsedOp in parsedOps:
             #if ('FUNC' not in parsedOp.split(':')[0]) & ('NEG' not in parsedOp.split(':')[0]): #TODO: I think we keep NEG as it is a special case (could be transformed to MULT maybe?)
             if ('FUNC' not in parsedOp.split(':')[0]): #Skip function operators #TODO: SHOULD WE KEEP THESE?
                 try:
                     if parsedOp.split(':')[0].replace(' ','') in allOps.keys(): #If the operator already exists in the tracking variable, increment accordingly
                         allOps[parsedOp.split(':')[0].replace(' ','')] += int((parsedOp.split(':')[1]).replace(' ','')) #Increment by corresponding frequency
+                        allOpsProp[parsedOp.split(':')[0].replace(' ','')].append(int((parsedOp.split(':')[1]).replace(' ',''))/total_ops)
                     else: #If operator does not exist in tracking variable, add it
                         allOps[parsedOp.split(':')[0].replace(' ','')] = int((parsedOp.split(':')[1]).replace(' ','')) #Add operator with corresponding frequency
+                        allOpsProp[parsedOp.split(':')[0].replace(' ','')] = [int((parsedOp.split(':')[1]).replace(' ',''))/total_ops]
                 except:
                     pass #TODO: ADD DEBUG IN CASE CODE REACHES HERE
 
@@ -112,7 +116,11 @@ def extractOperations(databank):
             opCount += int(ops.split(' ')[-1])
         opCounts.append(opCount)
     
+    #Average the averaged operation variable
+    allOpsProp = {key: np.mean(vals) for key, vals in allOpsProp.items()}
+    
     #Pack databank
+    databank['allOpsProp'] = allOpsProp
     databank['allOps'] = allOps
     databank['opCounts'] = opCounts
     
@@ -216,6 +224,7 @@ def reformatOperations(databank):
     
     #Unpack databank
     allOps = databank['allOps']
+    allOpsProp = databank['allOpsProp']
     opCounts = databank['opCounts']
     
     #Determine frequency table of number of operators
@@ -236,9 +245,15 @@ def reformatOperations(databank):
     #########################################
 
     reportOps = {} #Create operator variable
+    reportOpsProp = {} #Create operator variable
     plotOps = {} #Create operator variable
     plotOps['Other'] = 0 #Begin other category as absent
+    plotOpsProp = {} #Create operator variable
+    plotOpsProp['Other'] = 0 #Begin other category as absent
     otherKeys = {} #Tracks other category keys
+    otherKeysProp = {} #Tracks other category keys
+    
+    #### Operations with frequency counts first
     #First, force any operators that are too infrequent into the 'other category'
     for key in allOps.keys():
         reportOps[key] = allOps[key] #Add other category with corresponding frequency
@@ -248,20 +263,41 @@ def reformatOperations(databank):
         else:
             plotOps[key] = allOps[key] #Add other category with corresponding frequency
             
+    #### Operations with proportion counts next
+    #First, force any operators that are too infrequent into the 'other category'
+    for key in allOpsProp.keys():
+        reportOpsProp[key] = allOpsProp[key] #Add other category with corresponding frequency
+        if allOpsProp[key] < np.mean(list(allOpsProp.values()))*.03: #Here, determine if the frequency is too low (current = 3% or lower frequencies are forced to other category)
+            plotOpsProp['Other'] += allOpsProp[key] #Increment other category if exists with corresponding frequency
+            otherKeysProp[key] = 1 #Tracks other keys for debugging purposes
+        else:
+            plotOpsProp[key] = allOpsProp[key] #Add other category with corresponding frequency
+            
     #Remove other category if none were determined
     if plotOps['Other'] == 0:
         del plotOps['Other']
+    
+    if plotOpsProp['Other'] == 0:
+        del plotOpsProp['Other']
         
     #Rename labels
     otherKeys = renameOperations(otherKeys)
     plotOps = renameOperations(plotOps)
     reportOps = renameOperations(reportOps)
+    
+    otherKeysProp = renameOperations(otherKeysProp)
+    plotOpsProp = renameOperations(plotOpsProp)
+    reportOpsProp = renameOperations(reportOpsProp)
 
     #Pack databank
     databank['plotOps'] = plotOps
     databank['reportOps'] = reportOps
     databank['plotCounts'] = plotCounts
     databank['otherKeys'] = otherKeys
+    
+    databank['plotOpsProp'] = plotOpsProp
+    databank['reportOpsProp'] = reportOpsProp
+    databank['otherKeysProp'] = otherKeysProp
     
     return databank
 
@@ -272,8 +308,10 @@ def createFigure(databank):
     '''
     #Unpack databank
     plotOps = databank['plotOps']
+    plotOpsProp = databank['plotOpsProp']
     plotCounts = databank['plotCounts']
     otherKeys = databank['otherKeys']
+    otherKeysProp = databank['otherKeysProp']
     searchKeywords = databank['searchKeywords']
 
     #Setup figure
@@ -322,8 +360,9 @@ def createFigure(databank):
                 ax.annotate(list(plotData.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=12, horizontalalignment=horizontalalignment, **kw) #Add label to pie chart
 
     #Plot each pie chart
-    plotPieChart(plotOps, otherKeys, ax, 'Type of Operations')
-    plotPieChart(plotCounts, [], ax2, 'Number of Operations')
+    plotPieChart(plotOps, otherKeys, ax, 'Type of Operations (Frequency)')
+    plotPieChart(plotOpsProp, otherKeysProp, ax2, 'Type of Operations (Proportion)')
+    #plotPieChart(plotCounts, [], ax3, 'Number of Operations')
     
 def saveFigure(databank):
     '''
@@ -332,7 +371,6 @@ def saveFigure(databank):
     '''
     #Unpack databank
     
-    searchKeywords = databank['searchKeywords']
     loadPath = databank['loadPath']
     loadName = databank['loadName']
 
@@ -352,16 +390,24 @@ def savePriors(databank):
     loadPath = databank['loadPath']
     loadName = databank['loadName']
     reportOps = databank['reportOps'] 
+    reportOpsProp = databank['reportOpsProp']
     reportCounts = databank['plotCounts']
     
     #Sort the frequency tables
     sortedReportOps = {key: value for key, value in sorted(reportOps.items(), key=lambda item: item[1], reverse=True)}
+    sortedReportOpsProp = {key: value for key, value in sorted(reportOpsProp.items(), key=lambda item: item[1], reverse=True)}
 
-    #Save operation data into a priors file
+    #Save operation data into a priors file (frequency)
     with open('./Data/'+loadPath+'priorOperations_'+loadName,'w', encoding="utf-8") as f:
         f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
         for key in sortedReportOps.keys():
             f.write(key + ',' + str(sortedReportOps[key]) +'\n')
+            
+    #Save operation data into a priors file (proportion)
+    with open('./Data/'+loadPath+'priorOperationsProp_'+loadName,'w', encoding="utf-8") as f:
+        f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
+        for key in sortedReportOpsProp.keys():
+            f.write(key + ',' + str(sortedReportOpsProp[key]) +'\n')
             
     #Save operation count data into a priors file
     with open('./Data/'+loadPath+'priorCounts_'+loadName,'w', encoding="utf-8") as f:

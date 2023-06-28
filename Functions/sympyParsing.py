@@ -18,8 +18,10 @@ Note: There exists a requirements.txt file
 ###############################################################################
 #0. Import Modules & Determine Keywords
 ###############################################################################
-
+#pip install antlr4-python3-runtime==4.10 #For parse_latex
 from sympy.parsing.latex import parse_latex
+#pip install antlr4-python3-runtime==4.7.2 #for latex2sympy
+#from latex2sympy2 import latex2sympy
 import sympy as sp
 import re
 import os
@@ -36,14 +38,14 @@ if __name__ == '__main__':
         #If debug exists
         if debug:
             debug = debug[0] #Pull it from the list
-            sys.argv.remove('Debug') #Remove it from the argument list
+            sys.argv.remove('Debug') #Remove
             
         #Check for all 
         searchKeywords = sys.argv[1:]
     else:
         debug = False
-        searchKeywords = ["Super:Materials_science"]
-        #searchKeywords = ['Super:Cognitive_science']
+        #searchKeywords = ["Super:Materials_science"]
+        searchKeywords = ['Super:Cognitive_psychology']
 
         
     #Split super categories from normal categories
@@ -632,6 +634,7 @@ def parseEquations(databank, debug = True, manualDebug = False):
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
+                tempEq = sp.simplify(tempEq)
                 
                 eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
                 eqOperations = str(sp.count_ops(tempEq,visual=True)).split('+') #Extract all nodes of the Sympy tree from the equation
