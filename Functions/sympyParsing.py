@@ -269,7 +269,7 @@ def processEquation(databank, manual_debug = False):
     ##################################
 
     WikiRelationals = ['<', '\\\nless', '\\\leq', '\\\leqslant', '\\\nleq', '\\\nleqslant', '>', '\\\ngtr', '\\\geq', '\\\geqslant', '\\\ngeq', '\\\ngeqslant', '\\\nleq','\\\nleqslant','\\\nleqq','\\\lneq','\\\lneqq', '\\\lvertneqq', '\\\notin','\\\ngtr','\\\ngeq','\\\ngeqslant','\\\ngeqq','\\\gneq','\\\gneqq','\\\gvertneqq'] #From https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
-    customRelationals = ['\\\heq', '\\\he', '$>', '>=', '$<', '<=']
+    customRelationals = ['\\\heq', '\\\he', '$>', '>=', '$<', '<=', ';']
     splitRelationals = WikiRelationals + customRelationals
     #Split equation dependent on break
     if len(re.split('|'.join(splitRelationals),currentLine))> 1:
@@ -341,27 +341,27 @@ def formatEquation(databank, manualDebug = False):
             currentLine = 'x'
 
         #Change special symbols to x symbol
-        wikiSpecials = ['\hbar','\eth','\imath','\jmath','\ell','\beth','\aleph', '\gimel']
+        wikiSpecials = ['\\hbar','\\eth','\\imath','\\jmath','\\ell','\\beth','\\aleph', '\\gimel']
         currentLine = [currentLine := currentLine.replace(excludedSpecial,'x') for excludedSpecial in wikiSpecials][-1]
         
         #Replace other brackets with brackets
-        leftBracket = ['\\langle', '\\lceil','\\ulcorner','\\lfloor','\\llcorner', '( \,', '\{', '[ \,']
-        rightBracket = ['\\rangle', '\\rceil','\\urcorner', '\\rfloor','\\lrcorner',') \,', '\}','] \,']
-        currentLine = [currentLine := currentLine.replace(lB,'x') for lB in leftBracket][-1]
-        currentLine = [currentLine := currentLine.replace(rB,'x') for rB in rightBracket][-1]
+        leftBracket = ['\\langle', '\\lceil','\\ulcorner','\\lfloor','\\llcorner', '( \\,', '\\{', '[ \\,']
+        rightBracket = ['\\rangle', '\\rceil','\\urcorner', '\\rfloor','\\lrcorner',') \\,', '\\}','] \\,']
+        currentLine = [currentLine := currentLine.replace(lB,'(') for lB in leftBracket][-1]
+        currentLine = [currentLine := currentLine.replace(rB,')') for rB in rightBracket][-1]
         
         #Change 'set' notations to a single variable x
         wikiSets = ['\\N','\\Z','\\Q','\\mathbb{A}','\\R','\\C','\\mathbb{H}','\\mathbb{O}','\\mathbb{S}']
         currentLine = [currentLine := currentLine.replace(excludedSet,'') for excludedSet in wikiSets][-1]
         
         #Removes specific notations that Sympy cannot comprehend 
-        wikiExcludedNotations = ['\\ast', '\\star','\\dagger','\\ddagger', '\Re','\Im','\wp']
-        customNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\mathit','\textbf','\textit','\texttt','\ltextsf','\textrm','\\underline','\\overline','\\bar','\hat','\tilde','^{*}','\\overrightarrow','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+        wikiExcludedNotations = ['\\ast', '\\star','\\dagger','\\ddagger', '\\Re','\\Im','\\wp']
+        customNotations = ['\\|','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','\\aligned','\\ddot','\\dot','\mathnormal', '\\mathbf', '\\mathsf', '\\mathtt','\\mathfrak','\\mathcal','\\mathbb','\\mathscr','\\mathit','\\textbf','\\textit','\\texttt','\\ltextsf','\\textrm','\\underline','\\overline','\\bar','\\hat','\\tilde','^{*}','\\overrightarrow','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
         excludedNotations = wikiExcludedNotations + customNotations
         currentLine = [currentLine := currentLine.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
 
         #Split equations and retain only one part
-        WikiSeparators = {'\cong': 0,'\ncong': 0,  '\\equiv': 0, '\\approx': 0, '\\doteq': -1, '\\simeq': -1, '\sim': -1, '\\propto': 0, '\\neq': 0, '\\parallel': 0, '\\asymp': 0, '\\perp': 0, '\\nparallel': 0}#From https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
+        WikiSeparators = {'\\cong': 0,'\\ncong': 0,  '\\equiv': 0, '\\approx': 0, '\\doteq': -1, '\\simeq': -1, '\\sim': -1, '\\propto': 0, '\\neq': 0, '\\parallel': 0, '\\asymp': 0, '\\perp': 0, '\\nparallel': 0}#From https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
         customSeparators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1,'\seq': -1}
         separators = WikiSeparators
         separators.update(customSeparators)
