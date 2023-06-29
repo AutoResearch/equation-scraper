@@ -31,9 +31,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
     else:
-        #searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
-        searchKeywords = ["Super:Materials_science", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages"]
-        
+        searchKeywords = ['Super:Cognitive_psychology']
+        #searchKeywords = ["Super:Materials_science", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages"]
+        #Super:Materials_science Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science"&"pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science"&"pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages
+
     #Setup databank variable
     databank = {'searchKeywords': searchKeywords}
         

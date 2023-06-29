@@ -111,7 +111,7 @@ def loadScrapedData(databank):
     return databank
 
 #Cycles through all lines of the data to deal with them accordingly
-def cycleEquations(databank, debug = False):
+def cycleEquations(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -140,12 +140,12 @@ def cycleEquations(databank, debug = False):
             databank['currentLink'] = currentLine
             
         #Process Equation
-        databank = processEquation(databank, debug)
+        databank = processEquation(databank)
     
     return databank
 
 #The main function that organizes the current equation and it's metadata then feeds these to the processing functions
-def processEquation(databank, debug = False, manual_debug = False):
+def processEquation(databank, manual_debug = False):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -201,10 +201,6 @@ def processEquation(databank, debug = False, manual_debug = False):
     if subText:
         for sub in subText:
             currentLine = currentLine.replace(sub,'p(x)')
-            
-    #Replace angle brackets with brackets
-    currentLine = currentLine.replace('\\langle','(')
-    currentLine = currentLine.replace('\\rangle',')')
 
     #Remove the redundant left and right notations
     currentLine = currentLine.replace('\\left','')
@@ -271,9 +267,14 @@ def processEquation(databank, debug = False, manual_debug = False):
     ##################################
     ## Equation Splitting           ##
     ##################################
-    
+
+    WikiRelationals = ['<', '\\\nless', '\\\leq', '\\\leqslant', '\\\nleq', '\\\nleqslant', '>', '\\\ngtr', '\\\geq', '\\\geqslant', '\\\ngeq', '\\\ngeqslant', '\\\nleq','\\\nleqslant','\\\nleqq','\\\lneq','\\\lneqq', '\\\lvertneqq', '\\\notin','\\\ngtr','\\\ngeq','\\\ngeqslant','\\\ngeqq','\\\gneq','\\\gneqq','\\\gvertneqq'] #From https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
+    customRelationals = ['\\\heq', '\\\he', '$>', '>=', '$<', '<=']
+    splitRelationals = WikiRelationals + customRelationals
     #Split equation dependent on break
-    if ('\\\\' in currentLine):
+    if len(re.split('|'.join(splitRelationals),currentLine))> 1:
+        currentLine = re.split('|'.join(splitRelationals),currentLine)
+    elif ('\\\\' in currentLine):
         currentLine = currentLine.split('\\\\') #The equations are split if multiple exist
     #elif (',\\' in currentLine):
     #    currentLine = currentLine.split(',\\') #The equations are split if multiple exist
@@ -299,20 +300,20 @@ def processEquation(databank, debug = False, manual_debug = False):
             databank['subEquation'] = subEquation
             if subEquation: #Ensure the sub-equation exists 
                 if manual_debug:
-                    databank = formatEquation(databank, debug, True) #Calls the format equation function 
+                    databank = formatEquation(databank, True) #Calls the format equation function 
                 else:
-                    databank = formatEquation(databank, debug) #Calls the format equation function 
+                    databank = formatEquation(databank) #Calls the format equation function 
                 databank = appendVariables(databank) #Calls the append variables function
     else:
         if manual_debug:
-            databank = formatEquation(databank, debug, True) #Calls the format equation function
+            databank = formatEquation(databank, True) #Calls the format equation function
         else:
-            databank = formatEquation(databank, debug) #Calls the format equation function 
+            databank = formatEquation(databank) #Calls the format equation function 
         databank = appendVariables(databank) #Calls the append variables function
         
     return databank
 
-def formatEquation(databank, debug = False, manualDebug = False):
+def formatEquation(databank, manualDebug = False):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -332,12 +333,42 @@ def formatEquation(databank, debug = False, manualDebug = False):
     if (currentLine[0] != '#') & (currentLine != '\n') & ('{\\begin{cases}' not in currentLine) & ('\\end{cases}' not in currentLine): #The last notation here specifies and if else conditional, and we ignore it as they are generally not equations (but always?)
             
         #TODO: This separator function only keeps one distinct part of the equations, but what about equations where multiple of these exist (e.g., x = f/g = 101). But also, maybe that's alright or else it would bias stronger for these equations as they are interpreted multiple times
-        #Split equations to remove the left hand side
-        separators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1, '\leq': 0, '\heq': 0, '\he': 0, '&>': 0, '>': 0, '>=': -1, '\geq': -1, '\\neq': -1, '\seq': -1, '<=': -1, '<': -1, '\cong': 0, '\\equiv': 0, '\\approx': 0}
-        #if ('\\equiv' not in currentLine) | ('\\approx' not in currentLine): #TODO: I now use equiv and approx in separators above, but does this cause issues?
-        currentEquation = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1]
+        
+        #Skip equations that are declarations by changing them to x
+        wikiExclusions = ['\\neg', '\\prec', '\\nprec', '\\preceq', '\\npreceq', '\\ll', '\\lll', '\\subset', '\\subseteq', '\\sqsubset', '\\sqsubseteq', '\\succ', '\\nsucc', '\\succeq', '\\nsucceq', '\\gg', '\\ggg', '\\supset', '\\supseteq', '\\nsupseteq', '\\sqsubset', '\\sqsupseteq', '\\vdash', '\\smile', '\\models','\\bowtie','\\dashv', '\\frown', '\\nsim', '\\lnsim','\\lnapprox','\\nprec','\\npreceq','\\precneqq','\\precnsim','\\precnapprox','\\nsim','\\nshortmid','\\nmid','\\nvdash','\\nVdash','\\ntriangleleft','\\ntrianglelefteq','\\nsubseteq','\\nsubseteqq','\\subsetneq','\\varsubsetneq','\\subsetneqq','\\varsubsetneqq', '\\gnsim','\\gnapprox','\\nsucc','\\nsucceq','\\succneqq','\\succnsim','\\succnapprox','\\ncong','\\nshortparallel','\\nparallel','\\not\\perp','\\nvDash','\\nVDash','\\ntriangleright','\\ntrianglerighteq','\\nsupseteq','\\nsupseteqq','\\supsetneq','\\varsupsetneq','\\supsetneqq','\\varsupsetneqq', '\\O', '\\emptyset','\\varnothing', '\\cap','\\cup','\\uplus','\\sqcap', '\\sqcup','\\vee','\\wedge','\\oplus','\\ominus','\\otimes','\\oslash','\\odot','\\circ','\\setminus','\\amalg', '\\in', '\\notin', '\\ni','\\exists','\\exists!','\\nexists','\\forall','\\lor','\\land','\\Longrightarrow','\\implies','\\Rightarrow','\\Longleftarrow','\\Leftarrow','\\iff','\\Leftrightarrow','\\top','\\bot','\\angle','\\measuredangle','\\square', '\\rightarrow','\\to','\\mapsto','\\leftarrow','\\gets','\\longmapsto','longrightarrow','longleftarrow', '\\uparrow','\\downarrow','\\updownarrow','\\Uparrow','\\Downarrow','\\Updownarrow', '\\nabla','\\Box','\\infty'] #From https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
+        skipEq = [True for wikiExclusion in wikiExclusions if wikiExclusion in currentLine]
+        if len(skipEq) > 0:
+            currentLine = 'x'
+
+        #Change special symbols to x symbol
+        wikiSpecials = ['\hbar','\eth','\imath','\jmath','\ell','\beth','\aleph', '\gimel']
+        currentLine = [currentLine := currentLine.replace(excludedSpecial,'x') for excludedSpecial in wikiSpecials][-1]
+        
+        #Replace other brackets with brackets
+        leftBracket = ['\\langle', '\\lceil','\\ulcorner','\\lfloor','\\llcorner', '( \,', '\{', '[ \,']
+        rightBracket = ['\\rangle', '\\rceil','\\urcorner', '\\rfloor','\\lrcorner',') \,', '\}','] \,']
+        currentLine = [currentLine := currentLine.replace(lB,'x') for lB in leftBracket][-1]
+        currentLine = [currentLine := currentLine.replace(rB,'x') for rB in rightBracket][-1]
+        
+        #Change 'set' notations to a single variable x
+        wikiSets = ['\\N','\\Z','\\Q','\\mathbb{A}','\\R','\\C','\\mathbb{H}','\\mathbb{O}','\\mathbb{S}']
+        currentLine = [currentLine := currentLine.replace(excludedSet,'') for excludedSet in wikiSets][-1]
+        
+        #Removes specific notations that Sympy cannot comprehend 
+        wikiExcludedNotations = ['\\ast', '\\star','\\dagger','\\ddagger', '\Re','\Im','\wp']
+        customNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\mathit','\textbf','\textit','\texttt','\ltextsf','\textrm','\\underline','\\overline','\\bar','\hat','\tilde','^{*}','\\overrightarrow','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
+        excludedNotations = wikiExcludedNotations + customNotations
+        currentLine = [currentLine := currentLine.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
+
+        #Split equations and retain only one part
+        WikiSeparators = {'\cong': 0,'\ncong': 0,  '\\equiv': 0, '\\approx': 0, '\\doteq': -1, '\\simeq': -1, '\sim': -1, '\\propto': 0, '\\neq': 0, '\\parallel': 0, '\\asymp': 0, '\\perp': 0, '\\nparallel': 0}#From https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
+        customSeparators = {'&=&': -1,'&=': -1,',&': 0, ':=': -1, '=:': -1,'\seq': -1}
+        separators = WikiSeparators
+        separators.update(customSeparators)
+        currentLine = [currentLine := currentLine.split(separator)[separators[separator]] if separator in currentLine else currentLine for separator in separators.keys()][-1]
             
         #The equal symbol alone often results in a numeric number (e.g., f(x) = g*f+g = 0). If this is the case, take what's before the equals, otherwise take what's after
+        currentEquation = currentLine
         if '=' in currentEquation:
             if currentEquation.split('=')[-1].isnumeric(): #If the last part of the equation is just a solution (i.e., number)
                 if len(currentEquation.split('=')) > 2: #If is more than one equals sign
@@ -347,22 +378,22 @@ def formatEquation(databank, debug = False, manualDebug = False):
             else: #If the last equation is not numeric
                 currentEquation = currentEquation.split('=')[-1] #Use the end
         
-        #Removes specific notations that Sympy cannot comprehend 
-            #With comma exclusion
-        #excludedNotations = ['\|',';','\\,',',','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\bar','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
-            #Without comma exclusion:
-        excludedNotations = ['\|',';','\\,','.','\'','%','~',' ','\\,','\\bigl(}','{\\bigr)','\\!','!','\\boldsymbol','\\cdots','aligned','\\ddot','\\dot','\Rightarrow','\\min','min','\\mid','\mathnormal', '\mathbf', '\mathsf', '\mathtt','\mathfrak','\mathcal','\mathbb','\mathscr','\mathit','\textbf','\textit','\texttt','\ltextsf','\textrm','\\underline','\\overline','\\bar','\hat','\tilde','^{*}','\n'] #TODO: Are removing the cdots/ddots a problem mathematically?           
-        currentEquation = [currentEquation := currentEquation.replace(excludedNotation,'') for excludedNotation in excludedNotations][-1]
-        
         ###################################
         ## Additional Special Exclusions ##
         ###################################
+        
+        #Change +/-
+        currentEquation = currentEquation.replace('\\pm', '+x-')
+        currentEquation = currentEquation.replace('\\mp', '+x-')
         
         #Change cdot to multiplication
         currentEquation = currentEquation.replace('\\cdot','*')
     
         #Change times to multiplication
         currentEquation = currentEquation.replace('\\times','*')
+        
+        #Change div to division
+        currentEquation = currentEquation.replace('\\div','/')
         
         #Change four slashes
         currentEquation = currentEquation.replace('\\\\','\\') #In some cases, these do not indicate multiple equations (as above), but an artificial combination of two sets of slashes (perhaps due to the splitting of equations)
@@ -531,9 +562,12 @@ def formatEquation(databank, debug = False, manualDebug = False):
         equationWords=re.findall(regex,currentEquation)
 
         #Pull out only words 4+ characters and change notation
-        excludedWords = ['frac','sigma','Sigma','delta','Delta','theta','Theta','beta','Beta','lambda','Lambda','epsilon','Epsilon','sqrt','Sqrt','times','Times','ReLU','log','Sum','Phi','phi','alpha','tau','mu','gamma','pi','Rho','rho','Eta','eta','zeta','Omega']
+        wikiExcludedWords = ['Alpha','Beta','Gamma','Delta','Epsilon','Varepsilon','Zeta','Eta','Theta','Vartheta','Iota','Kappa','Varkappa','Lambda','Mu','Nu','Xi','Omicron','Pi','Varpi','Rho','Varrho','Sigma','Varsigma','Tau','Upsilon','Phi','Varphi','Chi','Psi','Omega','Digamma'] #Taken from https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
+        customExcludedWords = ['Frac','Sqrt','Times','ReLU','Log','Sum'] #Custom inserts
+        excludedWords = wikiExcludedWords+customExcludedWords
+        
         for equationWord in equationWords:
-            exclude = [False if excludedWord not in equationWord else True for excludedWord in excludedWords]
+            exclude = [False if excludedWord.lower() not in equationWord.lower() else True for excludedWord in excludedWords]
             if (len(equationWord.replace('_',''))> 1) & (True not in exclude) & (equationWord.replace('_','').isnumeric()==False):
                 removedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/wordsRemoved_'+loadName
                 with open(removedFilename, 'a', encoding="utf-8") as f:
@@ -589,7 +623,7 @@ def appendVariables(databank):
     
     return databank
 
-def parseEquations(databank, debug = True, manualDebug = False):
+def parseEquations(databank, debug = False, manualDebug = False):
     
     parsedEquations = []
     skippedEquations = []
@@ -634,7 +668,7 @@ def parseEquations(databank, debug = True, manualDebug = False):
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
-                tempEq = sp.simplify(tempEq)
+                #tempEq = sp.simplify(tempEq)
                 
                 eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
                 eqOperations = str(sp.count_ops(tempEq,visual=True)).split('+') #Extract all nodes of the Sympy tree from the equation
@@ -730,11 +764,10 @@ def parseEquations(databank, debug = True, manualDebug = False):
         except: #If the translation from latex to Sympy of the parsing fails
             skippedEquations.append(['UNPARSED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
             unparsedEq += 1 #Increase counter 
-            print('FAILURE - Likely not convertible from latex to sympy') #Error warning
-            if not debug: #This allows the code to proceed with unparsed equations if the value is 0 or greater. E.g., skip > 0 means that one unparsed equation will be let through (mostly for debugging purposes)
-                print(scrapedWikiEquations[x]) #Print the scraped equation that failed
-                print(eq) #Print the equation that failed
+            if not debug: #This allows the code to proceed with unparsed equations 
+                pass
             else:
+                print('FAILURE - Likely not convertible from latex to sympy') #Error warning
                 print(scrapedWikiEquations[x]) #Print the scraped equation that failed
                 print(eq) #Print the equation that failed
                 break
@@ -753,7 +786,7 @@ def parseEquations(databank, debug = True, manualDebug = False):
     
     return databank
 
-def saveFiles(databank, debug = False):
+def saveFiles(databank):
     
     #Unpack databank
     loadPath = databank['loadPath']
@@ -766,19 +799,18 @@ def saveFiles(databank, debug = False):
         for parsedItem in parsedEquations:
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
         
-    #Debug mode prints a new file with a different layout    
-    if debug==True:        
-        parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/debug_parsed_'+loadName
-        with open(parsedFilename, 'w', encoding="utf-8") as f:       
-            for parsedItem in parsedEquations:
-                f.write('\n')
-                f.write('************\n')
-                f.write(parsedItem[4]+'~'+str(parsedItem[5])+'\n')
-                f.write(parsedItem[2]+'~'+str(parsedItem[3])+'\n')
-                f.write(parsedItem[0]+'~'+str(parsedItem[1])+'\n')
-                f.write(parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'\n')
-                f.write(str(parsedItem[8])+'~'+str(parsedItem[9])+'\n')
-                f.write('************\n')            
+    #Debug mode prints a new file with a different layout         
+    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/debug_parsed_'+loadName
+    with open(parsedFilename, 'w', encoding="utf-8") as f:       
+        for parsedItem in parsedEquations:
+            f.write('\n')
+            f.write('************\n')
+            f.write(parsedItem[4]+'~'+str(parsedItem[5])+'\n')
+            f.write(parsedItem[2]+'~'+str(parsedItem[3])+'\n')
+            f.write(parsedItem[0]+'~'+str(parsedItem[1])+'\n')
+            f.write(parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'\n')
+            f.write(str(parsedItem[8])+'~'+str(parsedItem[9])+'\n')
+            f.write('************\n')            
 
     #Save file of skipped equations, if any
     skippedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'debug/skipped_'+loadName
@@ -801,7 +833,7 @@ if __name__ == '__main__':
     #3. Re-Format Latex Equations to Comply with Sympy Translation
     ###############################################################################
 
-    databank = cycleEquations(databank, debug)
+    databank = cycleEquations(databank)
 
     ###############################################################################
     #4. Parse Equations
@@ -813,4 +845,4 @@ if __name__ == '__main__':
     #5. Save Files
     ###############################################################################
 
-    saveFiles(databank, debug) 
+    saveFiles(databank) 
