@@ -45,7 +45,7 @@ if __name__ == '__main__':
     else:
         debug = False
         #searchKeywords = ["Super:Materials_science"]
-        searchKeywords = ['Super:Cognitive_psychology']
+        searchKeywords = ['Super:Physics']
 
         
     #Split super categories from normal categories
@@ -158,7 +158,7 @@ def processEquation(databank, manual_debug = False):
         
     if 'arrow' in currentLine:
         print(currentLine)
-        gold=1
+        hold=1
     
     ##################################
     ## Preliminary equation cleanup ##
@@ -633,6 +633,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
     skippedEquations = []
     sympyEquations = []
     latexEquations = []
+    allConditionals = {}
     parsedEq = 0
     skippedEq = 0
     unparsedEq = 0
@@ -662,6 +663,38 @@ def parseEquations(databank, debug = False, manualDebug = False):
             powerWalk(arg, powerLabels)
         return powerLabels
     
+    def conditionalWalk(tempEq, conditionals = {}):
+        parentOperation = str(tempEq.func).split('.')[-1].split("'")[0]     
+            
+        if ('sympy' in str(tempEq.func)) & ('symbol' not in str(tempEq.func)) & ('numbers' not in str(tempEq.func)):
+            for child in tempEq.args:
+                if ('sympy' in str(child.func)) & ('symbol' not in str(child.func)) & ('numbers' not in str(child.func)):
+                    childOperation = str(child.func).split('.')[-1].split("'")[0]   
+                    if parentOperation+'_'+childOperation in conditionals.keys():
+                        conditionals[parentOperation+'_'+childOperation] += 1
+                    else:
+                        conditionals[parentOperation+'_'+childOperation] = 1
+                
+        for arg in tempEq.args:
+            conditionals = conditionalWalk(arg, conditionals)
+        
+        return conditionals
+    
+    def printWalk(tempEq):
+        parentOperation = str(tempEq.func).split('.')[-1].split("'")[0]     
+        
+        print(f'PARENT: {parentOperation} [{tempEq}]')
+
+            
+        if ('.core' in str(tempEq.func)) & ('symbol' not in str(tempEq.func)) & ('numbers' not in str(tempEq.func)):
+            for child in tempEq.args:
+                if ('.core' in str(child.func)) & ('symbol' not in str(child.func)) & ('numbers' not in str(child.func)):
+                    print(f'CHILD: {child.func} [{child}]')
+                    childOperation = str(child.func).split('.')[-1].split("'")[0]   
+                
+        for arg in tempEq.args:
+            printWalk(arg)
+    
     #Cycle through each formatted equation
     for x, eq in enumerate(scrapedEquations):
         #Progress bar
@@ -674,7 +707,15 @@ def parseEquations(databank, debug = False, manualDebug = False):
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
-                #tempEq = sp.simplify(tempEq)
+                equationConditionals = conditionalWalk(tempEq)
+                
+                #Combine conditionals after each equation
+                if equationConditionals:
+                    for key in equationConditionals.keys():
+                        if key in allConditionals.keys():
+                            allConditionals[key] += equationConditionals[key]
+                        else:
+                            allConditionals[key] = equationConditionals[key]
                 
                 eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
                 eqOperations = str(sp.count_ops(tempEq,visual=True)).split('+') #Extract all nodes of the Sympy tree from the equation
@@ -759,7 +800,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 #Record operations into variable to be saved
                 if (eqOperations != ['0']) & (len(operations)!=0) &(len(eqSymbols)!=0):
                     latexEquations.append(eq)
-                    sympyEquations.append(sp.simplify(tempEq))
+                    sympyEquations.append(tempEq)
                     parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', dict(operations), 'LINK:', scrapedLinks[x], 'WIKIEQUATION:',scrapedWikiEquations[x]])
                     parsedEq += 1 
                 else:
@@ -793,6 +834,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
     databank['sympyEquations'] = sympyEquations
     databank['skippedEquations'] = skippedEquations
     databank['latexEquations'] = latexEquations
+    databank['allConditionals'] = allConditionals
     
     return databank
 
@@ -805,6 +847,7 @@ def saveFiles(databank):
     sympyEquations = databank['sympyEquations']
     skippedEquations = databank['skippedEquations']
     latexEquations = databank['latexEquations']
+    allConditionals = databank['allConditionals']
     
     parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'parsed_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:
@@ -820,6 +863,11 @@ def saveFiles(databank):
     with open(parsedFilename, 'w', encoding="utf-8") as f:
         for parsedItem in sympyEquations:
             f.write(str(parsedItem) +'\n')
+            
+    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'conditionals_'+loadName
+    with open(parsedFilename, 'w', encoding="utf-8") as f:
+        for key in allConditionals.keys():
+            f.write(key+':'+ str(allConditionals[key]) + '\n')
          
     #Debug mode prints a new file with a different layout         
     parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/debug_parsed_'+loadName
