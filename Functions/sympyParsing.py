@@ -155,6 +155,10 @@ def processEquation(databank, manual_debug = False):
     
     if manual_debug:
         hold = 1
+        
+    if 'arrow' in currentLine:
+        print(currentLine)
+        gold=1
     
     ##################################
     ## Preliminary equation cleanup ##
@@ -326,14 +330,14 @@ def formatEquation(databank, manualDebug = False):
     else:
         currentLine = databank['currentLine'] #If not a list, use the normal variable
         
+    if 'arrow' in currentLine:
+        hold=1
     #TODO: The following if for debugging, remove if it's still here (also remove the function parameter)
     if manualDebug:
         hold = True
     
     if (currentLine[0] != '#') & (currentLine != '\n') & ('{\\begin{cases}' not in currentLine) & ('\\end{cases}' not in currentLine): #The last notation here specifies and if else conditional, and we ignore it as they are generally not equations (but always?)
             
-        #TODO: This separator function only keeps one distinct part of the equations, but what about equations where multiple of these exist (e.g., x = f/g = 101). But also, maybe that's alright or else it would bias stronger for these equations as they are interpreted multiple times
-        
         #Skip equations that are declarations by changing them to x
         wikiExclusions = ['\\neg', '\\prec', '\\nprec', '\\preceq', '\\npreceq', '\\ll', '\\lll', '\\subset', '\\subseteq', '\\sqsubset', '\\sqsubseteq', '\\succ', '\\nsucc', '\\succeq', '\\nsucceq', '\\gg', '\\ggg', '\\supset', '\\supseteq', '\\nsupseteq', '\\sqsubset', '\\sqsupseteq', '\\vdash', '\\smile', '\\models','\\bowtie','\\dashv', '\\frown', '\\nsim', '\\lnsim','\\lnapprox','\\nprec','\\npreceq','\\precneqq','\\precnsim','\\precnapprox','\\nsim','\\nshortmid','\\nmid','\\nvdash','\\nVdash','\\ntriangleleft','\\ntrianglelefteq','\\nsubseteq','\\nsubseteqq','\\subsetneq','\\varsubsetneq','\\subsetneqq','\\varsubsetneqq', '\\gnsim','\\gnapprox','\\nsucc','\\nsucceq','\\succneqq','\\succnsim','\\succnapprox','\\ncong','\\nshortparallel','\\nparallel','\\not\\perp','\\nvDash','\\nVDash','\\ntriangleright','\\ntrianglerighteq','\\nsupseteq','\\nsupseteqq','\\supsetneq','\\varsupsetneq','\\supsetneqq','\\varsupsetneqq', '\\O', '\\emptyset','\\varnothing', '\\cap','\\cup','\\uplus','\\sqcap', '\\sqcup','\\vee','\\wedge','\\oplus','\\ominus','\\otimes','\\oslash','\\odot','\\circ','\\setminus','\\amalg', '\\in', '\\notin', '\\ni','\\exists','\\exists!','\\nexists','\\forall','\\lor','\\land','\\Longrightarrow','\\implies','\\Rightarrow','\\Longleftarrow','\\Leftarrow','\\iff','\\Leftrightarrow','\\top','\\bot','\\angle','\\measuredangle','\\square', '\\rightarrow','\\to','\\mapsto','\\leftarrow','\\gets','\\longmapsto','longrightarrow','longleftarrow', '\\uparrow','\\downarrow','\\updownarrow','\\Uparrow','\\Downarrow','\\Updownarrow', '\\nabla','\\Box','\\infty'] #From https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
         skipEq = [True for wikiExclusion in wikiExclusions if wikiExclusion in currentLine]
@@ -627,6 +631,8 @@ def parseEquations(databank, debug = False, manualDebug = False):
     
     parsedEquations = []
     skippedEquations = []
+    sympyEquations = []
+    latexEquations = []
     parsedEq = 0
     skippedEq = 0
     unparsedEq = 0
@@ -752,6 +758,8 @@ def parseEquations(databank, debug = False, manualDebug = False):
                     
                 #Record operations into variable to be saved
                 if (eqOperations != ['0']) & (len(operations)!=0) &(len(eqSymbols)!=0):
+                    latexEquations.append(eq)
+                    sympyEquations.append(sp.simplify(tempEq))
                     parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', dict(operations), 'LINK:', scrapedLinks[x], 'WIKIEQUATION:',scrapedWikiEquations[x]])
                     parsedEq += 1 
                 else:
@@ -782,7 +790,9 @@ def parseEquations(databank, debug = False, manualDebug = False):
                     
     #Pack databank
     databank['parsedEquations'] = parsedEquations
+    databank['sympyEquations'] = sympyEquations
     databank['skippedEquations'] = skippedEquations
+    databank['latexEquations'] = latexEquations
     
     return databank
 
@@ -792,13 +802,25 @@ def saveFiles(databank):
     loadPath = databank['loadPath']
     loadName = databank['loadName']
     parsedEquations = databank['parsedEquations']
+    sympyEquations = databank['sympyEquations']
     skippedEquations = databank['skippedEquations']
+    latexEquations = databank['latexEquations']
     
     parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'parsed_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:
         for parsedItem in parsedEquations:
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
-        
+       
+    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'latex_'+loadName
+    with open(parsedFilename, 'w', encoding="utf-8") as f:
+        for parsedItem in latexEquations:
+            f.write(str(parsedItem)+'\n')
+            
+    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'sympy_'+loadName
+    with open(parsedFilename, 'w', encoding="utf-8") as f:
+        for parsedItem in sympyEquations:
+            f.write(str(parsedItem) +'\n')
+         
     #Debug mode prints a new file with a different layout         
     parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/debug_parsed_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:       
