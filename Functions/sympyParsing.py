@@ -26,7 +26,9 @@ import sympy as sp
 import re
 import os
 import string
-import sys    
+import sys   
+
+from equation_tree.tree import EquationTree
 
 #Determine categories to search
 if __name__ == '__main__':
@@ -707,32 +709,57 @@ def parseEquations(databank, debug = False, manualDebug = False):
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
-                equationConditionals = conditionalWalk(tempEq)
                 
-                #Combine conditionals after each equation
-                if equationConditionals:
-                    for key in equationConditionals.keys():
-                        if key in allConditionals.keys():
-                            allConditionals[key] += equationConditionals[key]
-                        else:
-                            allConditionals[key] = equationConditionals[key]
+                #Convert symbols to variables and constants
+                symbols = list(tempEq.free_symbols)
+                symbols = [str(symbol) for symbol in symbols]   
+                symbols.sort(key=len, reverse=True)
                 
-                eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
-                eqOperations = str(sp.count_ops(tempEq,visual=True)).split('+') #Extract all nodes of the Sympy tree from the equation
-
-                #Cycle through each node
-                operations = []
-                opTypes = []
-                for eqOp in eqOperations:
-                    if '*' in eqOp: #Determines if an operation occurs more than one time
-                        operations.append([eqOp.split('*')[1].strip(),int(eqOp.split('*')[0].strip())])
-                        opTypes.append(eqOp.split('*')[1].strip())
-                    else: #When an operation only occurs once
-                        operations.append([eqOp.strip(), 1])
-                        opTypes.append(eqOp.strip())
-                        
+                #Reformat variables and constants to carry same notation
+                listConstants = ['Alpha','Beta','Gamma','Delta','Epsilon','Varepsilon','Zeta','Eta','Theta','Vartheta','Iota','Kappa','Varkappa','Lambda','Mu','Nu','Xi','Omicron','Pi','Varpi','Rho','Varrho','Sigma','Varsigma','Tau','Upsilon','Phi','Varphi','Chi','Psi','Omega','Digamma']
+                listConstants.extend([constant.lower() for constant in listConstants])
+                for si, symbol in enumerate(symbols):
+                    if any([constant in symbol for constant in listConstants]):
+                        tempEq = tempEq.subs(symbol, sp.Symbol('C̈_'+str(si))) #Constants
+                    else:
+                        tempEq = tempEq.subs(symbol, sp.Symbol('Ṽ_'+str(si))) #Variables  
+                
+                #Define tree rules                
+                is_operator = lambda x: x in ['+', '*', '**','-','/','^']
+                is_function = lambda x: x in ['sin', 'sqrt', 'sum']
+                is_variable = lambda x: 'Ṽ_' in x
+                is_constant = lambda x: 'C̈_' in x  
+                              
+                #Create tree
+                equationTree = EquationTree.from_sympy(
+                    tempEq,
+                    operator_test=is_operator,
+                    variable_test=is_variable,
+                    constant_test=is_constant,
+                    function_test=is_function
+                )
+                
+                eqSymbols = equationTree.variables #Extract all symbols from the equation
+                eqOperations = equationTree.info['operators'] #Extract all nodes of the Sympy tree from the equation
+                operations = [[key, eqOperations[key]] for key in eqOperations.keys()]
+                
+                #Extract conditional operators
+                conditionalOperations = []
+                for parent in equationTree.info['operator_conditionals'].keys():
+                    for child in equationTree.info['operator_conditionals'][parent]['operators'].keys():
+                        conditionalOperations.append([parent+'_'+child, equationTree.info['operator_conditionals'][parent]['operators'][child]])
+                    for child in equationTree.info['operator_conditionals'][parent]['functions'].keys():
+                        conditionalOperations.append([parent+'_'+child, equationTree.info['operator_conditionals'][parent]['functions'][child]])   
+                
+                for parent in equationTree.info['function_conditionals'].keys():
+                    for child in equationTree.info['function_conditionals'][parent]['operators'].keys():
+                        conditionalOperations.append([parent+'_'+child, equationTree.info['function_conditionals'][parent]['operators'][child]])
+                    for child in equationTree.info['function_conditionals'][parent]['functions'].keys():
+                        conditionalOperations.append([parent+'_'+child, equationTree.info['function_conditionals'][parent]['functions'][child]])   
+                                
                 #Adjust Operations (Sympy sometimes represents operations with extra steps - e.g., square root = power and division, because x^(1/2))
                 
+                '''
                 #Square Root adjustment (TODO: could combine this with the next process)
                 if ('POW' in opTypes) & ('sqrt' in eq): #Square root is represented as both power and division
                     operations[opTypes.index('DIV')][1] = int(operations[opTypes.index('DIV')][1])-eq.count('sqrt') #Remove the division count by number of square roots
@@ -796,7 +823,8 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 for funcIdx in funcIndexes[::-1]:
                     del operations[funcIdx]
                     del opTypes[funcIdx]
-                    
+                '''
+                
                 #Record operations into variable to be saved
                 if (eqOperations != ['0']) & (len(operations)!=0) &(len(eqSymbols)!=0):
                     latexEquations.append(eq)
