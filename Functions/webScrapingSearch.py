@@ -23,6 +23,9 @@ from bs4 import BeautifulSoup, SoupStrainer
 from pip._vendor import requests
 import time
 import os
+import shutil
+import string
+import numpy as np
 
 #Determine categories to search
 if __name__ == '__main__':
@@ -30,8 +33,11 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
     else:
-        searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
-        
+        searchKeywords = ['All_Wikipedia']
+        #searchKeywords = ['Super:Cognitive_psychology']
+        #searchKeywords = ["Super:Materials_science", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages"]
+        #Super:Materials_science Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science"&"pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science"&"pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages
+
     #Setup databank variable
     databank = {'searchKeywords': searchKeywords}
         
@@ -77,39 +83,57 @@ def defineCategory(databank):
     #Setup variables
     normalKeywords = []
     superKeywords = []
+    directKeywords = []
+    allKeywords = []
     
     #Split super categories from normal categories
     for keyIndex, searchKeyword in enumerate(searchKeywords):
-        if 'Super:' in searchKeyword:
+        if 'All_Wikipedia' == searchKeyword:
+            allKeywords.append(searchKeyword)
+            
+            #If searching all wikipedia, any additional keywords will be ignored, so remove them and break loop
+            normalKeywords = []
+            superKeywords = []
+            directKeywords = []
+            break
+        elif 'Super:' in searchKeyword:
             superKeywords.append(searchKeyword.replace('Super:',''))
+        elif 'Direct:' in searchKeyword:
+            directKeywords.append(searchKeyword.replace('Direct:',''))
         else:
             normalKeywords.append(searchKeyword)
         
         if len(searchKeyword.split('_')) > 1: #If the keyword has two words and thus is split by an underscore
             searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
-        
     
-    #Create filename to save to
+    #Remove directs
+    if allKeywords:
+        searchKeywords = ['Wikipedia']
+    else:
+        searchKeywords = [searchKeyword for searchKeyword in searchKeywords if 'Direct' not in searchKeyword]
+    
+    #Create filename to save to, including the creation of folders to store it in
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
+    savePath = saveKeywords.replace('Super:','SUPER') +'/'
+    if os.path.exists('./Data/'+savePath):
+        shutil.rmtree('./Data/'+savePath) #Remove old scraping
+    os.makedirs('./Data/'+savePath)
+    os.makedirs('./Data/'+savePath+'debug/')
     saveName = 'equations_' + saveKeywords + '.txt' #Create file name
 
     #Save search parameters to file
-    with open(os.path.dirname(__file__) + '/../Data/'+saveName, 'w') as f: #Open file to be saved to
+    with open(os.path.dirname(__file__) + '/../Data/'+savePath+saveName, 'w', encoding="utf-8") as f: #Open file to be saved to
         _ = f.write('#CATEGORIES: ' + str(searchKeywords) + '\n') #Save title to file
         _ = f.write('#--------------------#\n\n') #Add separator to file
 
     #Pack databank
+    databank['savePath'] = savePath
     databank['saveName'] = saveName
-    if normalKeywords:
-        databank['normalKeywords'] = normalKeywords
-    else:
-        databank['normalKeywords'] = []    
     
-    if superKeywords:
-        databank['superKeywords'] = superKeywords
-    else:
-        databank['superKeywords'] = []
-        
+    databank['allKeywords'] = allKeywords
+    databank['normalKeywords'] = normalKeywords 
+    databank['superKeywords'] = superKeywords
+    databank['directKeywords'] = directKeywords
     databank['searchKeywords'] = searchKeywords
     
     return databank
@@ -120,8 +144,10 @@ def scrapeLinks(databank):
     
     '''        
     #Unpack databank
+    allKeywords = databank['allKeywords']
     normalKeywords = databank['normalKeywords']
     superKeywords = databank['superKeywords']
+    directKeywords = databank['directKeywords']
     
     #Define internal functions
     def searchLinks(URL):
@@ -163,6 +189,39 @@ def scrapeLinks(databank):
                 currentLinks.append(subCategory.get('href')) #Extract links from list
                 
         return currentLinks
+    
+    def searchAllWiki():
+        '''
+        [INSERT FUNCTION DESCRIPTION]
+        
+        '''
+        baseURL = 'https://en.wikipedia.org/w/index.php?title=Special:Categories&offset='
+        numView = '&limit=5000'
+        
+        allCategories = []
+        currentLinks = []
+        
+        #Iterate and track all category links and their respective next pages
+        startTime = time.time()
+        for wikiIndex in list(string.digits)+list(string.ascii_uppercase):
+            x = 0
+            URL = baseURL+wikiIndex+numView
+            allCategories.append(URL)
+            while True:
+                print(f"Wiki Index: {wikiIndex}, Current Page: {x}, Current Time: {str(np.round((time.time()-startTime)/60))}")
+                x+=1
+                webText = requests.get(URL).text #Download URL content
+                soup = BeautifulSoup(webText, 'html.parser') #Create soup object
+                nextPageText = soup.find("a",{"class":"mw-nextlink"}) #Isolate the sub-category section  
+                if nextPageText:
+                    URL = 'https://en.wikipedia.org'+nextPageText.get('href')
+                    allCategories.append(URL)
+                else:
+                    break
+                
+        endTime = time.time()-startTime
+        
+        return currentLinks
 
     #Removes any duplicate or unwanted links
     def removeLinks(databank):
@@ -186,16 +245,25 @@ def scrapeLinks(databank):
         return databank
     
     #Create empty list to be populated
+    allLinks = []
     superLinks = []
+    directLinks = []
+    normalLinks = []
     links = []
 
-    #Iterate through (Super and Normal) keywords, grabbing links from each page
+    #Iterate through (Super, Direct, and Normal) keywords, grabbing links from each page
+    if allKeywords:
+        allLinks([searchAllWiki()])
     superLinks.extend([searchSuperLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in superKeywords])
-    links.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in normalKeywords]) 
+    directLinks.extend([searchSuperLinks(str(keyword)) for keyword in directKeywords])
+    normalLinks.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in normalKeywords]) 
      
     #Combine the two outputs
+    links.append(allLinks)
     links.extend(superLinks)
-    
+    links.extend(directLinks)
+    links.extend(normalLinks)
+
     #Concatenate the lists from each keyword
     expandedLinks = [item for sublist in links for item in sublist] 
     databank['expandedLinks'] = expandedLinks
@@ -205,15 +273,16 @@ def scrapeLinks(databank):
     
     return databank
 
-def extractLinks(database):
+def extractLinks(databank):
     
     '''
     [INSERT FUNCTION DESCRIPTION]
         
     '''
     #Unpack databank
-    links = database['links']
-    saveName = database['saveName']
+    links = databank['links']
+    savePath = databank['savePath']
+    saveName = databank['saveName']
 
     #Setup variables
     numberEquations = 0 #Initiate equation count
@@ -246,7 +315,7 @@ def extractLinks(database):
 
             #Save equations to a file
             if equations: #If equations exist on this page
-                with open(os.path.dirname(__file__) + '/../Data/'+saveName, 'a') as f: #Open file to be saved to
+                with open(os.path.dirname(__file__) + '/../Data/'+savePath+saveName, 'a', encoding="utf-8") as f: #Open file to be saved to
                     titleSoup = BeautifulSoup(linkText, 'html.parser', parse_only = SoupStrainer('h1')) #Extract title of page
                     root = titleSoup.find('h1').text #Convert title to be saved
                     _ = f.write('#ROOT: ' + root + '\n') #Save title to file
