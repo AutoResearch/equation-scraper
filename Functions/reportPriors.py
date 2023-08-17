@@ -28,7 +28,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
     else:
-        searchKeywords = ['Super:Cognitive_psychology']
+        searchKeywords = ['Super:Physics']
         
     #Split super categories from normal categories
     for keyIndex, searchKeyword in enumerate(searchKeywords):
@@ -69,7 +69,7 @@ def loadParsedData(databank):
     
     return databank
 
-def extractOperations(databank):
+def extractIndependentOperations(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -85,27 +85,16 @@ def extractOperations(databank):
         
         parsedOps = parsedEq.split('~')[1][1:-1].replace('\'','').split(',') #Deliminate the file using a tilda deliminator
         
-        #Partial derivatives are represented as division, so adjust this accordingly 
-        #TODO: Add this to the parsing script
-        if ('partial' in parsedEq.split('~')[3]) & ('DIV' in str(parsedOps)): #Determines whether a partial derivative exists
-            for i, pO in enumerate(parsedOps): #Cycles the parsed operator
-                if 'DIV' in pO: #Determine if a division exists
-                    parsedOps[i] = 'DIV: '+str(int(pO.split(':')[1])-int(parsedEq.split('~')[3].count('partial')/2)) #Subtract the derivative from the division operator
-                    parsedOps.append('DERIVATIVE: ' + str(int(parsedEq.split('~')[3].count('partial')/2))) #Add derivative as a derivative operator
-                    break
-        
         #Cycle through operators 
-        total_ops = np.sum([int(parsedOp.split(':')[1]) for parsedOp in parsedOps if 'FUNC' not in parsedOp.split(':')[0]])
         for parsedOp in parsedOps:
             #if ('FUNC' not in parsedOp.split(':')[0]) & ('NEG' not in parsedOp.split(':')[0]): #TODO: I think we keep NEG as it is a special case (could be transformed to MULT maybe?)
-            if ('FUNC' not in parsedOp.split(':')[0]): #Skip function operators #TODO: SHOULD WE KEEP THESE?
-                try:
-                    if parsedOp.split(':')[0].replace(' ','') in allOps.keys(): #If the operator already exists in the tracking variable, increment accordingly
-                        allOps[parsedOp.split(':')[0].replace(' ','')] += int((parsedOp.split(':')[1]).replace(' ','')) #Increment by corresponding frequency
-                    else: #If operator does not exist in tracking variable, add it
-                        allOps[parsedOp.split(':')[0].replace(' ','')] = int((parsedOp.split(':')[1]).replace(' ','')) #Add operator with corresponding frequency
-                except:
-                    pass #TODO: ADD DEBUG IN CASE CODE REACHES HERE
+            try:
+                if parsedOp.split(':')[0].replace(' ','') in allOps.keys(): #If the operator already exists in the tracking variable, increment accordingly
+                    allOps[parsedOp.split(':')[0].replace(' ','')] += int((parsedOp.split(':')[1]).replace(' ','')) #Increment by corresponding frequency
+                else: #If operator does not exist in tracking variable, add it
+                    allOps[parsedOp.split(':')[0].replace(' ','')] = int((parsedOp.split(':')[1]).replace(' ','')) #Add operator with corresponding frequency
+            except:
+                pass #TODO: ADD DEBUG IN CASE CODE REACHES HERE
 
         #Determine number of operations per equation
         opCount = 0
@@ -117,6 +106,43 @@ def extractOperations(databank):
     databank['allOps'] = allOps
     databank['opCounts'] = opCounts
     
+    return databank
+
+
+def extractConditionalOperations(databank):
+    '''
+    [INSERT FUNCTION DESCRIPTION]
+    
+    '''
+    #Unpack databank
+    parsedEqs = databank['parsedEqs']
+    
+    #Setup Variables
+    allOps = {}
+    #Cycle through each line to extract operation information
+    for parsedEq in parsedEqs:
+        
+        parsedOps = parsedEq.split('~')[3][1:-1].replace('\'','').split(',') #Deliminate the file using a tilda deliminator
+        
+        #Cycle through operators 
+        for parsedOp in parsedOps:
+            #if ('FUNC' not in parsedOp.split(':')[0]) & ('NEG' not in parsedOp.split(':')[0]): #TODO: I think we keep NEG as it is a special case (could be transformed to MULT maybe?)
+            try:
+                if parsedOp.split(':')[0].replace(' ','') in allOps.keys(): #If the operator already exists in the tracking variable, increment accordingly
+                    allOps[parsedOp.split(':')[0].replace(' ','')] += int((parsedOp.split(':')[1]).replace(' ','')) #Increment by corresponding frequency
+                else: #If operator does not exist in tracking variable, add it
+                    allOps[parsedOp.split(':')[0].replace(' ','')] = int((parsedOp.split(':')[1]).replace(' ','')) #Add operator with corresponding frequency
+            except:
+                pass #TODO: ADD DEBUG IN CASE CODE REACHES HERE
+
+    #Pack databank
+    databank['allConOps'] = allOps
+    
+    return databank
+
+def extractOperations(databank):
+    databank = extractIndependentOperations(databank)
+    databank = extractConditionalOperations(databank)
     return databank
 
 #Function to rename corresponding operators from Sympy terminology to English
@@ -217,7 +243,17 @@ def reformatOperations(databank):
     
     #Unpack databank
     allOps = databank['allOps']
+    tempallConOps = databank['allConOps']
+    allConOps = {}
     opCounts = databank['opCounts']
+    
+    #Remove custom functions
+    if 'customfunc' in allOps:
+        del allOps['customfunc']
+    
+    for key in tempallConOps.keys():
+        if 'customfunc' not in key:
+            allConOps[key.replace('⸞',':::')] = tempallConOps[key]
     
     #Determine frequency table of number of operators
     opCounter = collections.Counter(opCounts)
@@ -236,35 +272,50 @@ def reformatOperations(databank):
     ## Format the types of operations data ##
     #########################################
 
-    reportOps = {} #Create operator variable
-    plotOps = {} #Create operator variable
-    plotOps['Other'] = 0 #Begin other category as absent
-    otherKeys = {} #Tracks other category keys
-    
     #### Operations with frequency counts first
     #First, force any operators that are too infrequent into the 'other category'
-    for key in allOps.keys():
-        reportOps[key] = allOps[key] #Add other category with corresponding frequency
-        if allOps[key] < round(np.sum(list(allOps.values()))*.03): #Here, determine if the frequency is too low (current = 3% or lower frequencies are forced to other category)
-            plotOps['Other'] += allOps[key] #Increment other category if exists with corresponding frequency
-            otherKeys[key] = 1 #Tracks other keys for debugging purposes
-        else:
-            plotOps[key] = allOps[key] #Add other category with corresponding frequency
-            
-    #Remove other category if none were determined
-    if plotOps['Other'] == 0:
-        del plotOps['Other']
+    def extractOps(allOps, otherCutoff = 0.03):
+        reportOps = {} #Create operator variable
+        plotOps = {} #Create operator variable
+        plotOps['Other'] = 0 #Begin other category as absent
+        otherKeys = {} #Tracks other category keys
+        
+        for key in allOps.keys():
+            reportOps[key] = allOps[key] #Add other category with corresponding frequency
+            if allOps[key] < round(np.sum(list(allOps.values()))*otherCutoff): #Here, determine if the frequency is too low (current = 3% or lower frequencies are forced to other category)
+                plotOps['Other'] += allOps[key] #Increment other category if exists with corresponding frequency
+                otherKeys[key] = 1 #Tracks other keys for debugging purposes
+            else:
+                plotOps[key] = allOps[key] #Add other category with corresponding frequency
+                
+        #Remove other category if none were determined
+        if plotOps['Other'] == 0:
+            del plotOps['Other']
+        
+        return otherKeys, plotOps, reportOps
+    
+    otherKeys, plotOps, reportOps = extractOps(allOps)
+    otherConKeys, plotConOps, reportConOps = extractOps(allConOps, .01)
         
     #Rename labels
     otherKeys = renameOperations(otherKeys)
     plotOps = renameOperations(plotOps)
     reportOps = renameOperations(reportOps)
+    
+    otherConKeys = renameOperations(otherConKeys)
+    plotConOps = renameOperations(plotConOps)
+    reportConOps = renameOperations(reportConOps)
 
     #Pack databank
+    databank['plotCounts'] = plotCounts
+
     databank['plotOps'] = plotOps
     databank['reportOps'] = reportOps
-    databank['plotCounts'] = plotCounts
     databank['otherKeys'] = otherKeys
+    
+    databank['plotConOps'] = plotConOps
+    databank['reportConOps'] = reportConOps
+    databank['otherConKeys'] = otherConKeys
     
     return databank
 
@@ -274,13 +325,19 @@ def createFigure(databank):
     
     '''
     #Unpack databank
-    plotOps = databank['plotOps']
+    
     plotCounts = databank['plotCounts']
+
+    plotOps = databank['plotOps']
     otherKeys = databank['otherKeys']
+    
+    plotConOps = databank['plotConOps']
+    otherConKeys = databank['otherConKeys']
+    
     searchKeywords = databank['searchKeywords']
 
     #Setup figure
-    fig, (ax,ax2) = plt.subplots(1,2,figsize=(14, 8), subplot_kw=dict(aspect="equal")) #Plot formatting
+    fig, (ax,ax2,ax3) = plt.subplots(1,3,figsize=(21, 8), subplot_kw=dict(aspect="equal")) #Plot formatting
     fig.subplots_adjust(wspace=.75)
     
     #Capitalize any super categories
@@ -325,8 +382,9 @@ def createFigure(databank):
                 ax.annotate(list(plotData.keys())[i], xy=(x, y), xytext=(1.35*np.sign(x), 1.4*y), fontsize=8, horizontalalignment=horizontalalignment, **kw) #Add label to pie chart
 
     #Plot each pie chart
-    plotPieChart(plotOps, otherKeys, ax, 'Type of Operations (Frequency)')
-    plotPieChart(plotCounts, [], ax2, 'Number of Operations')
+    plotPieChart(plotOps, otherKeys, ax, 'Type of Operations')
+    plotPieChart(plotConOps, otherConKeys, ax2, 'Type of Conditional Operations')
+    plotPieChart(plotCounts, [], ax3, 'Number of Operations')
     
 def saveFigure(databank):
     '''
@@ -355,15 +413,22 @@ def savePriors(databank):
     loadName = databank['loadName']
     reportOps = databank['reportOps'] 
     reportCounts = databank['plotCounts']
-    
+    reportConOps = databank['reportConOps'] 
+
     #Sort the frequency tables
     sortedReportOps = {key: value for key, value in sorted(reportOps.items(), key=lambda item: item[1], reverse=True)}
+    sortedReportConOps = {key: value for key, value in sorted(reportConOps.items(), key=lambda item: item[1], reverse=True)}
 
-    #Save operation data into a priors file (frequency)
+    #Save operation data into a priors file
     with open('./Data/'+loadPath+'priorOperations_'+loadName,'w', encoding="utf-8") as f:
         f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
         for key in sortedReportOps.keys():
             f.write(key + ',' + str(sortedReportOps[key]) +'\n')
+            
+    with open('./Data/'+loadPath+'priorConditionalOperations_'+loadName,'w', encoding="utf-8") as f:
+        f.write('CATEGORY'+','+'~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_')+'\n')
+        for key in sortedReportConOps.keys():
+            f.write(key.split(':::')[0]+ ','+ key.split(':::')[1] + ',' + str(sortedReportConOps[key]) +'\n')
             
     #Save operation count data into a priors file
     with open('./Data/'+loadPath+'priorCounts_'+loadName,'w', encoding="utf-8") as f:

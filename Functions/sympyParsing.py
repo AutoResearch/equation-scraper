@@ -824,11 +824,11 @@ def saveFiles(databank):
     skippedEquations = databank['skippedEquations']
     latexEquations = databank['latexEquations']
     allConditionals = databank['allConditionals']
-    
+
     parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'parsed_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:
         for parsedItem in parsedEquations:
-            f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
+            f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[6]+'~'+str(parsedItem[7])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[8]+'~'+str(parsedItem[9][7:-1])+'~'+str(parsedItem[10])+'~'+str(parsedItem[11]))
        
     parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'latex_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:
@@ -852,10 +852,11 @@ def saveFiles(databank):
             f.write('\n')
             f.write('************\n')
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'\n')
+            f.write(parsedItem[6]+'~'+str(parsedItem[7])+'\n')
             f.write(parsedItem[2]+'~'+str(parsedItem[3])+'\n')
             f.write(parsedItem[0]+'~'+str(parsedItem[1])+'\n')
-            f.write(parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'\n')
-            f.write(str(parsedItem[8])+'~'+str(parsedItem[9])+'\n')
+            f.write(parsedItem[8]+'~'+str(parsedItem[9][7:-1])+'\n')
+            f.write(str(parsedItem[10])+'~'+str(parsedItem[11])+'\n')
             f.write('************\n')            
 
     #Save file of skipped equations, if any
