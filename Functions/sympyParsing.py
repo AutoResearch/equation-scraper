@@ -157,10 +157,6 @@ def processEquation(databank, manual_debug = False):
     
     if manual_debug:
         hold = 1
-        
-    if 'arrow' in currentLine:
-        print(currentLine)
-        hold=1
     
     ##################################
     ## Preliminary equation cleanup ##
@@ -726,37 +722,61 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 
                 #Define tree rules                
                 is_operator = lambda x: x in ['+', '*', '**','-','/','^']
-                is_function = lambda x: x in ['sin', 'sqrt', 'sum']
+                is_function = lambda x: x in ['sin', 'cos', 'tan', 'asin', 'acos', 'sqrt', 'sum', 'abs', 'exp']
                 is_variable = lambda x: 'Ṽ_' in x
                 is_constant = lambda x: 'C̈_' in x  
                               
                 #Create tree
-                equationTree = EquationTree.from_sympy(
-                    tempEq,
-                    operator_test=is_operator,
-                    variable_test=is_variable,
-                    constant_test=is_constant,
-                    function_test=is_function
-                )
-                
+                try: #This is JUST FOR DEBUGGING
+                    equationTree = EquationTree.from_sympy(
+                        tempEq,
+                        operator_test=is_operator,
+                        variable_test=is_variable,
+                        constant_test=is_constant,
+                        function_test=is_function
+                    )
+                except:
+                    print(tempEq)
+                    print(sp.count_ops(tempEq,visual=True))
+                    print(operations)
+                    print(conditionalOperations)
+                    print('') 
+
                 eqSymbols = equationTree.variables #Extract all symbols from the equation
-                eqOperations = equationTree.info['operators'] #Extract all nodes of the Sympy tree from the equation
+                eqOperations = equationTree.info['operators'] | equationTree.info['functions'] #Extract all nodes of the Sympy tree from the equation
                 operations = [[key, eqOperations[key]] for key in eqOperations.keys()]
                 
                 #Extract conditional operators
-                conditionalOperations = []
+                conditionalOperations = {}
                 for parent in equationTree.info['operator_conditionals'].keys():
                     for child in equationTree.info['operator_conditionals'][parent]['operators'].keys():
-                        conditionalOperations.append([parent+'_'+child, equationTree.info['operator_conditionals'][parent]['operators'][child]])
+                        if parent+'~'+child not in conditionalOperations.keys():
+                            conditionalOperations[parent+'~'+child] = equationTree.info['operator_conditionals'][parent]['operators'][child]
+                        else:
+                            conditionalOperations[parent+'~'+child] += equationTree.info['operator_conditionals'][parent]['operators'][child]
+                    
                     for child in equationTree.info['operator_conditionals'][parent]['functions'].keys():
-                        conditionalOperations.append([parent+'_'+child, equationTree.info['operator_conditionals'][parent]['functions'][child]])   
-                
+                        if parent+'~'+child not in conditionalOperations.keys():
+                            conditionalOperations[parent+'~'+child] = equationTree.info['operator_conditionals'][parent]['functions'][child]
+                        else:
+                            conditionalOperations[parent+'~'+child] += equationTree.info['operator_conditionals'][parent]['functions'][child]
+
                 for parent in equationTree.info['function_conditionals'].keys():
                     for child in equationTree.info['function_conditionals'][parent]['operators'].keys():
-                        conditionalOperations.append([parent+'_'+child, equationTree.info['function_conditionals'][parent]['operators'][child]])
+                        conditionalOperations.append([parent+'~'+child, equationTree.info['function_conditionals'][parent]['operators'][child]])
+                        if parent+'~'+child not in conditionalOperations.keys():
+                            conditionalOperations[parent+'~'+child] = equationTree.info['function_conditionals'][parent]['operators'][child]
+                        else:
+                            conditionalOperations[parent+'~'+child] += equationTree.info['function_conditionals'][parent]['operators'][child]
+
                     for child in equationTree.info['function_conditionals'][parent]['functions'].keys():
-                        conditionalOperations.append([parent+'_'+child, equationTree.info['function_conditionals'][parent]['functions'][child]])   
-                                
+                        if parent+'~'+child not in conditionalOperations.keys():
+                            conditionalOperations[parent+'~'+child] = equationTree.info['function_conditionals'][parent]['functions'][child]
+                        else:
+                            conditionalOperations[parent+'~'+child] += equationTree.info['function_conditionals'][parent]['functions'][child]                
+                
+                conditionalOperations = [key.split('~')+[conditionalOperations[key]] for key in conditionalOperations.keys()]
+                        
                 #Adjust Operations (Sympy sometimes represents operations with extra steps - e.g., square root = power and division, because x^(1/2))
                 
                 '''
