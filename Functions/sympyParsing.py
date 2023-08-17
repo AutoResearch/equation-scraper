@@ -704,6 +704,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
+                #eq = 'S_{x}+\\Sum(x){\\tfrac{1}{2}}a_{x}^{2}{\\frac{m}{2}}({\\frac{(n\\pi)^{2}}{t_{x}-t_{x}}}-\\omega^{2}(t_{x}-t_{x}))'
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
                 
                 #Convert symbols to variables and constants
@@ -711,7 +712,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 symbols = [str(symbol) for symbol in symbols]   
                 symbols.sort(key=len, reverse=True)
                 
-                #Reformat variables and constants to carry same notation
+                #Reformat variables and constants to carry standardized notation
                 listConstants = ['Alpha','Beta','Gamma','Delta','Epsilon','Varepsilon','Zeta','Eta','Theta','Vartheta','Iota','Kappa','Varkappa','Lambda','Mu','Nu','Xi','Omicron','Pi','Varpi','Rho','Varrho','Sigma','Varsigma','Tau','Upsilon','Phi','Varphi','Chi','Psi','Omega','Digamma']
                 listConstants.extend([constant.lower() for constant in listConstants])
                 for si, symbol in enumerate(symbols):
@@ -719,10 +720,20 @@ def parseEquations(databank, debug = False, manualDebug = False):
                         tempEq = tempEq.subs(symbol, sp.Symbol('C̈_'+str(si))) #Constants
                     else:
                         tempEq = tempEq.subs(symbol, sp.Symbol('Ṽ_'+str(si))) #Variables  
+                 
+                #Reformat all custom functions into the same category        
+                listFunctions = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sqrt', 'sum', 'abs', 'exp']
+                for op in str(sp.count_ops(tempEq, visual=True)).split('+'):
+                    funcName = op.split('FUNC_')[-1].replace(' ','')
+                    if ('FUNC_' in op) & (funcName.lower() not in listFunctions):
+                        tempEq = tempEq.replace(sp.Function(funcName.lower()),sp.Function('customfunc'))
+                        tempEq = tempEq.replace(sp.Function(funcName.upper()),sp.Function('customfunc'))
+                        tempEq = tempEq.replace(sp.Function(funcName.capitalize()),sp.Function('customfunc'))
+                #[op not in for function in customFunctions]
                 
                 #Define tree rules                
                 is_operator = lambda x: x in ['+', '*', '**','-','/','^']
-                is_function = lambda x: x in ['sin', 'cos', 'tan', 'asin', 'acos', 'sqrt', 'sum', 'abs', 'exp']
+                is_function = lambda x: x in ['customfunc'] + listFunctions
                 is_variable = lambda x: 'Ṽ_' in x
                 is_constant = lambda x: 'C̈_' in x  
                               
