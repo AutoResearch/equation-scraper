@@ -704,7 +704,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
-                eq = 'e^{-i\\varepsilonV(x)}e^{i{\\frac{{{x}}^{2}}{2}}\\varepsilon}'
+                #eq = '\\Sum(x)\\x(N(\\mu-\\varepsilon)/k_{x}T)'
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
                 
                 #Convert symbols to variables and constants
@@ -723,7 +723,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
                  
                 #Reformat all custom functions into the same category     
                 def funcWalk(expr, targetFunction):
-                    if targetFunction.upper() in expr.func.__name__.upper():
+                    if targetFunction.upper() == expr.func.__name__.upper():
                         return expr.func.__name__
                     for arg in expr.args:
                         formattedFuncName = funcWalk(arg, targetFunction)   
