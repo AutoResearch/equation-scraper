@@ -704,7 +704,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
-                #eq = '\\Sum(x)\\x(N(\\mu-\\varepsilon)/k_{x}T)'
+                #eq = 'S_{x}+\\Sum(x){\\tfrac{1}{2}}a_{x}^{2}{\\frac{m}{2}}({\\frac{(n\\pi)^{2}}{t_{x}-t_{x}}}-\\omega^{2}(t_{x}-t_{x}))'
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
                 
                 #Convert symbols to variables and constants
@@ -746,33 +746,25 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 is_constant = lambda x: 'C̈_' in x  
                               
                 #Create tree
-                try: #This is JUST FOR DEBUGGING
-                    equationTree = EquationTree.from_sympy(
-                        tempEq,
-                        operator_test=is_operator,
-                        variable_test=is_variable,
-                        constant_test=is_constant,
-                        function_test=is_function
-                    )
-                except:
-                    print(tempEq)
-                    print(sp.count_ops(tempEq,visual=True))
-                    print(operations)
-                    print(conditionalOperations)
-                    print('') 
+                equationTree = EquationTree.from_sympy(
+                    tempEq,
+                    operator_test=is_operator,
+                    variable_test=is_variable,
+                    constant_test=is_constant,
+                    function_test=is_function)
 
+                #Extract variables and operations
                 eqSymbols = equationTree.variables #Extract all symbols from the equation
                 eqOperations = equationTree.info['operators'] | equationTree.info['functions'] #Extract all nodes of the Sympy tree from the equation
-                operations = [[key, eqOperations[key]] for key in eqOperations.keys()]
                 
                 #Extract conditional operators
                 def conditionalExtraction(equationTree, conditionalOperations, parentTarget='operator_conditionals', childTarget = 'operators'):
                     for parent in equationTree.info[parentTarget].keys():
                         for child in equationTree.info[parentTarget][parent][childTarget].keys():
-                            if parent+'~'+child not in conditionalOperations.keys():
-                                conditionalOperations[parent+'~'+child] = equationTree.info[parentTarget][parent][childTarget][child]
+                            if parent+'⸞'+child not in conditionalOperations.keys():
+                                conditionalOperations[parent+'⸞'+child] = equationTree.info[parentTarget][parent][childTarget][child]
                             else:
-                                conditionalOperations[parent+'~'+child] += equationTree.info[parentTarget][parent][childTarget][child]
+                                conditionalOperations[parent+'⸞'+child] += equationTree.info[parentTarget][parent][childTarget][child]
                     return conditionalOperations
                     
                 conditionalOperations = {}
@@ -780,13 +772,12 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='operator_conditionals', childTarget = 'functions')
                 conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='function_conditionals', childTarget = 'operators')
                 conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='function_conditionals', childTarget = 'functions')
-                conditionalOperations = [key.split('~')+[conditionalOperations[key]] for key in conditionalOperations.keys()]
                 
                 #Record operations into variable to be saved
-                if (eqOperations != ['0']) & (len(operations)!=0) &(len(eqSymbols)!=0):
+                if (eqOperations != ['0']) & (len(eqOperations.keys())!=0) &(len(eqSymbols)!=0):
                     latexEquations.append(eq)
                     sympyEquations.append(tempEq)
-                    parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', dict(operations), 'LINK:', scrapedLinks[x], 'WIKIEQUATION:',scrapedWikiEquations[x]])
+                    parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', eqOperations, 'CONDITIONAL_OPERATIONS:', conditionalOperations,'LINK:', scrapedLinks[x], 'WIKIEQUATION:',scrapedWikiEquations[x]])
                     parsedEq += 1 
                 else:
                     skippedEquations.append(['SKIPPED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
