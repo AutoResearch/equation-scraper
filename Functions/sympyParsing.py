@@ -704,7 +704,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
-                #eq = 'S_{x}+\\Sum(x){\\tfrac{1}{2}}a_{x}^{2}{\\frac{m}{2}}({\\frac{(n\\pi)^{2}}{t_{x}-t_{x}}}-\\omega^{2}(t_{x}-t_{x}))'
+                eq = 'S_{x}+\\Sum(x){\\tfrac{1}{2}}a_{x}^{2}{\\frac{m}{2}}({\\frac{(n\\pi)^{2}}{t_{x}-t_{x}}}-\\omega^{2}(t_{x}-t_{x}))'
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
                 
                 #Convert symbols to variables and constants
@@ -722,7 +722,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
                         tempEq = tempEq.subs(symbol, sp.Symbol('Ṽ_'+str(si))) #Variables  
                  
                 #Reformat all custom functions into the same category        
-                listFunctions = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sqrt', 'sum', 'abs', 'exp']
+                listFunctions = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sqrt', 'sum', 'abs', 'exp', 'max', 'min', 'log', 'exp', 'relu']
                 for op in str(sp.count_ops(tempEq, visual=True)).split('+'):
                     funcName = op.split('FUNC_')[-1].replace(' ','')
                     if ('FUNC_' in op) & (funcName.lower() not in listFunctions):
@@ -732,7 +732,7 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 #[op not in for function in customFunctions]
                 
                 #Define tree rules                
-                is_operator = lambda x: x in ['+', '*', '**','-','/','^']
+                is_operator = lambda x: x in ['+', '*','-','/','^','**']
                 is_function = lambda x: x in ['customfunc'] + listFunctions
                 is_variable = lambda x: 'Ṽ_' in x
                 is_constant = lambda x: 'C̈_' in x  
@@ -758,103 +758,21 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 operations = [[key, eqOperations[key]] for key in eqOperations.keys()]
                 
                 #Extract conditional operators
+                def conditionalExtraction(equationTree, conditionalOperations, parentTarget='operator_conditionals', childTarget = 'operators'):
+                    for parent in equationTree.info[parentTarget].keys():
+                        for child in equationTree.info[parentTarget][parent][childTarget].keys():
+                            if parent+'~'+child not in conditionalOperations.keys():
+                                conditionalOperations[parent+'~'+child] = equationTree.info[parentTarget][parent][childTarget][child]
+                            else:
+                                conditionalOperations[parent+'~'+child] += equationTree.info[parentTarget][parent][childTarget][child]
+                    return conditionalOperations
+                    
                 conditionalOperations = {}
-                for parent in equationTree.info['operator_conditionals'].keys():
-                    for child in equationTree.info['operator_conditionals'][parent]['operators'].keys():
-                        if parent+'~'+child not in conditionalOperations.keys():
-                            conditionalOperations[parent+'~'+child] = equationTree.info['operator_conditionals'][parent]['operators'][child]
-                        else:
-                            conditionalOperations[parent+'~'+child] += equationTree.info['operator_conditionals'][parent]['operators'][child]
-                    
-                    for child in equationTree.info['operator_conditionals'][parent]['functions'].keys():
-                        if parent+'~'+child not in conditionalOperations.keys():
-                            conditionalOperations[parent+'~'+child] = equationTree.info['operator_conditionals'][parent]['functions'][child]
-                        else:
-                            conditionalOperations[parent+'~'+child] += equationTree.info['operator_conditionals'][parent]['functions'][child]
-
-                for parent in equationTree.info['function_conditionals'].keys():
-                    for child in equationTree.info['function_conditionals'][parent]['operators'].keys():
-                        conditionalOperations.append([parent+'~'+child, equationTree.info['function_conditionals'][parent]['operators'][child]])
-                        if parent+'~'+child not in conditionalOperations.keys():
-                            conditionalOperations[parent+'~'+child] = equationTree.info['function_conditionals'][parent]['operators'][child]
-                        else:
-                            conditionalOperations[parent+'~'+child] += equationTree.info['function_conditionals'][parent]['operators'][child]
-
-                    for child in equationTree.info['function_conditionals'][parent]['functions'].keys():
-                        if parent+'~'+child not in conditionalOperations.keys():
-                            conditionalOperations[parent+'~'+child] = equationTree.info['function_conditionals'][parent]['functions'][child]
-                        else:
-                            conditionalOperations[parent+'~'+child] += equationTree.info['function_conditionals'][parent]['functions'][child]                
-                
+                conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='operator_conditionals', childTarget = 'operators')
+                conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='operator_conditionals', childTarget = 'functions')
+                conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='function_conditionals', childTarget = 'operators')
+                conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='function_conditionals', childTarget = 'functions')
                 conditionalOperations = [key.split('~')+[conditionalOperations[key]] for key in conditionalOperations.keys()]
-                        
-                #Adjust Operations (Sympy sometimes represents operations with extra steps - e.g., square root = power and division, because x^(1/2))
-                
-                '''
-                #Square Root adjustment (TODO: could combine this with the next process)
-                if ('POW' in opTypes) & ('sqrt' in eq): #Square root is represented as both power and division
-                    operations[opTypes.index('DIV')][1] = int(operations[opTypes.index('DIV')][1])-eq.count('sqrt') #Remove the division count by number of square roots
-                    if operations[opTypes.index('DIV')][1] == 0: #Remove division if it has decreased count to zero
-                        del operations[opTypes.index('DIV')]
-                        del opTypes[opTypes.index('DIV')]
-                        
-                #Adjust power operations to be more specific (e.g., power of 2, square root)
-                if ('POW' in opTypes):
-                    powerLabels = powerWalk(tempEq, [])
-                    
-                    #Iterate through the labels and add them to the operation
-                    for powerLabel in powerLabels:
-                        operations[opTypes.index('POW')][1] -= 1
-                        if powerLabel not in opTypes: #If the label does not exist, add it
-                            opTypes.append(powerLabel)
-                            operations.append([powerLabel, 1])
-                        else: #If the label exists, add one to it's count
-                            operations[opTypes.index(powerLabel)][1] += 1
-                            
-                    #Remove power if it has decreased count to zero
-                    if operations[opTypes.index('POW')][1] == 0:
-                        del operations[opTypes.index('POW')]
-                        del opTypes[opTypes.index('POW')]   
-                                   
-                #Natural Logarithm
-                if ('LOG' in opTypes) & ('EXP' in opTypes): #Natural logarithm is represented as Log and Exp
-                    numberNL = eq.count('\ln') #Determine number of NLs
-                    operations[opTypes.index('EXP')][1] -= numberNL #Remove from log
-                    operations[opTypes.index('LOG')][1] -= numberNL #Remove from exp
-                    operations.append(['NL',numberNL]) #Add as NL
-                    if operations[opTypes.index('EXP')][1] == 0: #Remove exp if it has decreased count to zero
-                        del operations[opTypes.index('EXP')]
-                        del opTypes[opTypes.index('EXP')]
-                    if operations[opTypes.index('LOG')][1] == 0: #Remove log if it has decreased count to zero
-                        del operations[opTypes.index('LOG')]
-                        del opTypes[opTypes.index('LOG')]
-                        
-                #Sum
-                if ('FUNC_SUM' in opTypes):
-                    operations[opTypes.index('FUNC_SUM')][0] = 'SUM'
-                    opTypes[opTypes.index('FUNC_SUM')] = 'SUM'
-                    
-                #ReLU
-                if ('FUNC_RELU' in opTypes):
-                    operations[opTypes.index('FUNC_RELU')][0] = 'RELU'
-                    opTypes[opTypes.index('FUNC_RELU')] = 'RELU'
-                    
-                #Max
-                if ('FUNC_MAX' in opTypes):
-                    operations[opTypes.index('FUNC_MAX')][0] = 'MAX'
-                    opTypes[opTypes.index('FUNC_MAX')] = 'MAX'                    
-                
-                #Min
-                if ('FUNC_MIN' in opTypes):
-                    operations[opTypes.index('FUNC_MIN')][0] = 'MIN'
-                    opTypes[opTypes.index('FUNC_MIN')] = 'MIN'        
-                                    
-                #Functions
-                funcIndexes = [idx for idx, opType in enumerate(opTypes) if 'FUNC' in opType]
-                for funcIdx in funcIndexes[::-1]:
-                    del operations[funcIdx]
-                    del opTypes[funcIdx]
-                '''
                 
                 #Record operations into variable to be saved
                 if (eqOperations != ['0']) & (len(operations)!=0) &(len(eqSymbols)!=0):
