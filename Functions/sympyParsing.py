@@ -27,8 +27,10 @@ import re
 import os
 import string
 import sys   
+import pickle
 
 from equation_tree.tree import EquationTree
+from equation_tree.analysis import get_counts
 
 #Determine categories to search
 if __name__ == '__main__':
@@ -694,6 +696,19 @@ def parseEquations(databank, debug = False, manualDebug = False):
             printWalk(arg)
     
     #Cycle through each formatted equation
+    priorsDict = {
+        'metadata':
+            {'number_of_equations': 0,
+             'list_of_operators': ['+','*','-','/','^','**'],
+             'list_of_functions': ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh', 'sqrt', 'sum', 'abs', 'exp', 'max', 'min', 'log', 'relu'],
+             'list_of_constants': ['Alpha','Beta','Gamma','Delta','Epsilon','Varepsilon','Zeta','Eta','Theta','Vartheta','Iota','Kappa','Varkappa','Lambda','Mu','Nu','Xi','Omicron','Pi','Varpi','Rho','Varrho','Sigma','Varsigma','Tau','Upsilon','Phi','Varphi','Chi','Psi','Omega','Digamma'],
+             'list_of_equations': []
+             }
+        }
+    
+    priorsDict['metadata']['list_of_constants'].extend([constant.lower() for constant in priorsDict['metadata']['list_of_constants']])
+
+    equationTrees = []
     for x, eq in enumerate(scrapedEquations):
         #Progress bar
         databank['parsedEq'] = parsedEq
@@ -713,10 +728,8 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 symbols.sort(key=len, reverse=True)
                 
                 #Reformat variables and constants to carry standardized notation
-                listConstants = ['Alpha','Beta','Gamma','Delta','Epsilon','Varepsilon','Zeta','Eta','Theta','Vartheta','Iota','Kappa','Varkappa','Lambda','Mu','Nu','Xi','Omicron','Pi','Varpi','Rho','Varrho','Sigma','Varsigma','Tau','Upsilon','Phi','Varphi','Chi','Psi','Omega','Digamma']
-                listConstants.extend([constant.lower() for constant in listConstants])
                 for si, symbol in enumerate(symbols):
-                    if any([constant in symbol for constant in listConstants]):
+                    if any([constant in symbol for constant in priorsDict['metadata']['list_of_constants']]):
                         tempEq = tempEq.subs(symbol, sp.Symbol('C̈_'+str(si))) #Constants
                     else:
                         tempEq = tempEq.subs(symbol, sp.Symbol('Ṽ_'+str(si))) #Variables  
@@ -730,18 +743,16 @@ def parseEquations(databank, debug = False, manualDebug = False):
                         if formattedFuncName:
                             return formattedFuncName
 
-                listFunctions = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sqrt', 'sum', 'abs', 'exp', 'max', 'min', 'log', 'exp', 'relu']
                 for op in str(sp.count_ops(tempEq, visual=True)).split('+'):
                     funcName = op.split('FUNC_')[-1].replace(' ','')
-                    if ('FUNC_' in op) & (funcName.lower() not in listFunctions):
+                    if ('FUNC_' in op) & (funcName.lower() not in priorsDict['metadata']['list_of_functions']):
                         formattedFuncName = funcWalk(tempEq, funcName)
                         tempEq = tempEq.replace(sp.Function(formattedFuncName),sp.Function('customfunc'))
-
-                #[op not in for function in customFunctions]
                 
-                #Define tree rules                
-                is_operator = lambda x: x in ['+', '*','-','/','^','**']
-                is_function = lambda x: x in ['customfunc'] + listFunctions
+                #Define tree rules  
+                #is_operator = lambda x: x in ['+','*','-','/','^','**','max','min']   
+                is_operator = lambda x: x in priorsDict['metadata']['list_of_operators']
+                is_function = lambda x: x in ['customfunc'] + priorsDict['metadata']['list_of_functions']
                 is_variable = lambda x: 'Ṽ_' in x
                 is_constant = lambda x: 'C̈_' in x  
                               
@@ -752,32 +763,17 @@ def parseEquations(databank, debug = False, manualDebug = False):
                     variable_test=is_variable,
                     constant_test=is_constant,
                     function_test=is_function)
-
-                #Extract variables and operations
-                eqSymbols = equationTree.variables #Extract all symbols from the equation
-                eqOperations = equationTree.info['operators'] | equationTree.info['functions'] #Extract all nodes of the Sympy tree from the equation
-                
-                #Extract conditional operators
-                def conditionalExtraction(equationTree, conditionalOperations, parentTarget='operator_conditionals', childTarget = 'operators'):
-                    for parent in equationTree.info[parentTarget].keys():
-                        for child in equationTree.info[parentTarget][parent][childTarget].keys():
-                            if parent+'⸞'+child not in conditionalOperations.keys():
-                                conditionalOperations[parent+'⸞'+child] = equationTree.info[parentTarget][parent][childTarget][child]
-                            else:
-                                conditionalOperations[parent+'⸞'+child] += equationTree.info[parentTarget][parent][childTarget][child]
-                    return conditionalOperations
-                    
-                conditionalOperations = {}
-                conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='operator_conditionals', childTarget = 'operators')
-                conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='operator_conditionals', childTarget = 'functions')
-                conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='function_conditionals', childTarget = 'operators')
-                conditionalOperations = conditionalExtraction(equationTree, conditionalOperations, parentTarget='function_conditionals', childTarget = 'functions')
-                
+                                                
                 #Record operations into variable to be saved
-                if (eqOperations != ['0']) & (len(eqOperations.keys())!=0) &(len(eqSymbols)!=0):
+                eqPriors = get_counts([equationTree])
+                if any(depth > 1 for depth in eqPriors['max_depth'].keys()):
+                    equationTrees.append(equationTree)
+                    priorsDict['metadata']['list_of_equations'].append(str(tempEq))
+                    priorsDict['metadata']['number_of_equations'] += 1
+                    
                     latexEquations.append(eq)
                     sympyEquations.append(tempEq)
-                    parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', eqOperations, 'CONDITIONAL_OPERATIONS:', conditionalOperations,'LINK:', scrapedLinks[x], 'WIKIEQUATION:',scrapedWikiEquations[x]])
+                    parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqPriors['features'], 'OPERATIONS:', eqPriors['operators'], 'CONDITIONAL_OPERATIONS:', eqPriors['operator_conditionals'] | eqPriors['function_conditionals'],'LINK:', scrapedLinks[x], 'WIKIEQUATION:',scrapedWikiEquations[x]])
                     parsedEq += 1 
                 else:
                     skippedEquations.append(['SKIPPED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
@@ -796,21 +792,18 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 print(scrapedWikiEquations[x]) #Print the scraped equation that failed
                 print(eq) #Print the equation that failed
                 break
-            '''
-            failedEq=scrapedWikiEquations[x]
-            databank['currentLine'] = failedEq
-            #processEquation(databank, True, True)
-            #formatEquation(databank, True, True)
-            #parse_latex(databank['manualEquation'])
-            '''
 
-                    
+    priorsDict['priors'] = get_counts(equationTrees)
+    del priorsDict['priors']['functions']['customfunc']    
+    priorsDict['priors']['operators_and_functions'] = priorsDict['priors']['operators'] | priorsDict['priors']['functions']
+    
     #Pack databank
     databank['parsedEquations'] = parsedEquations
     databank['sympyEquations'] = sympyEquations
     databank['skippedEquations'] = skippedEquations
     databank['latexEquations'] = latexEquations
     databank['allConditionals'] = allConditionals
+    databank['priorsDict'] = priorsDict
     
     return databank
 
@@ -820,31 +813,19 @@ def saveFiles(databank):
     loadPath = databank['loadPath']
     loadName = databank['loadName']
     parsedEquations = databank['parsedEquations']
-    sympyEquations = databank['sympyEquations']
     skippedEquations = databank['skippedEquations']
-    latexEquations = databank['latexEquations']
-    allConditionals = databank['allConditionals']
+    priorsDict = databank['priorsDict']
 
+    #Save equation-specific priors
     parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'parsed_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:
         for parsedItem in parsedEquations:
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[6]+'~'+str(parsedItem[7])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[8]+'~'+str(parsedItem[9][7:-1])+'~'+str(parsedItem[10])+'~'+str(parsedItem[11]))
        
-    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'latex_'+loadName
-    with open(parsedFilename, 'w', encoding="utf-8") as f:
-        for parsedItem in latexEquations:
-            f.write(str(parsedItem)+'\n')
-            
-    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'sympy_'+loadName
-    with open(parsedFilename, 'w', encoding="utf-8") as f:
-        for parsedItem in sympyEquations:
-            f.write(str(parsedItem) +'\n')
-            
-    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'conditionals_'+loadName
-    with open(parsedFilename, 'w', encoding="utf-8") as f:
-        for key in allConditionals.keys():
-            f.write(key+':'+ str(allConditionals[key]) + '\n')
-         
+    #Save prior dictionary
+    priorFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'priors_'+loadName.replace('equations_','').replace('.txt','.pkl')
+    pickle.dump(priorsDict, open(priorFilename,"wb"))
+
     #Debug mode prints a new file with a different layout         
     parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/debug_parsed_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:       
