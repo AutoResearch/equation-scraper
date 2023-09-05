@@ -47,18 +47,3 @@ databank = parseEquations(databank)
 saveFiles(databank) 
 
 print("Parsing Complete...")
-
-###############################################################################
-#3. reportPriors.py
-###############################################################################
-
-print("\nPlotting Results...")
-
-databank = loadParsedData(databank)
-databank = extractOperations(databank)
-databank = reformatOperations(databank)
-createFigure(databank)
-savePriors(databank)
-saveFigure(databank)
-
-print("Results Printed and Plotted.")
