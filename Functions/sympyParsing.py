@@ -49,7 +49,7 @@ if __name__ == '__main__':
     else:
         debug = False
         #searchKeywords = ["Super:Materials_science"]
-        searchKeywords = ['Super:Physics']
+        searchKeywords = ['Super:MaterialsScience']
 
         
     #Split super categories from normal categories
@@ -567,7 +567,9 @@ def formatEquation(databank, manualDebug = False):
 
         #Pull out only words 4+ characters and change notation
         wikiExcludedWords = ['Alpha','Beta','Gamma','Delta','Epsilon','Varepsilon','Zeta','Eta','Theta','Vartheta','Iota','Kappa','Varkappa','Lambda','Mu','Nu','Xi','Omicron','Pi','Varpi','Rho','Varrho','Sigma','Varsigma','Tau','Upsilon','Phi','Varphi','Chi','Psi','Omega','Digamma'] #Taken from https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
-        customExcludedWords = ['Frac','Sqrt','Times','ReLU','Log','Sum'] #Custom inserts
+        customExcludedWords = ['sum', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh', 'sqrt', 'sum', 'abs', 'exp', 'max', 'min', 'log', 'relu'] #Custom inserts
+        customExcludedWords.extend([function.capitalize() for function in customExcludedWords])
+
         excludedWords = wikiExcludedWords+customExcludedWords
         
         for equationWord in equationWords:
@@ -643,70 +645,22 @@ def parseEquations(databank, debug = False, manualDebug = False):
     scrapedLinks = databank['scrapedLinks']
     scrapedEquations = databank['scrapedEquations']
     databank['parsedEquations'] = parsedEquations
-    
-    #TODO: Remove the manual debug stuff
-    if manualDebug:
-        hold = 1
-    
-    #Define a walking function
-    def powerWalk(eq, powerLabels):
-        if ('Pow' in str(eq.func)) & (str(eq) != '1/2'):
-            exponents = [arg for arg in eq.args if 'numbers' in str(arg.func)]
-            for exponent in exponents:
-                if str(exponent) == '1/2':
-                    powerLabels.append('SQRT')
-                elif (exponent <= 3) & (exponent > 0):
-                    powerLabels.append('POW'+str(exponent))
-                else: #If it's a power of 4 or higher, we will keep it as a general label of 'power'
-                    pass
-        for arg in eq.args:
-            powerWalk(arg, powerLabels)
-        return powerLabels
-    
-    def conditionalWalk(tempEq, conditionals = {}):
-        parentOperation = str(tempEq.func).split('.')[-1].split("'")[0]     
-            
-        if ('sympy' in str(tempEq.func)) & ('symbol' not in str(tempEq.func)) & ('numbers' not in str(tempEq.func)):
-            for child in tempEq.args:
-                if ('sympy' in str(child.func)) & ('symbol' not in str(child.func)) & ('numbers' not in str(child.func)):
-                    childOperation = str(child.func).split('.')[-1].split("'")[0]   
-                    if parentOperation+'_'+childOperation in conditionals.keys():
-                        conditionals[parentOperation+'_'+childOperation] += 1
-                    else:
-                        conditionals[parentOperation+'_'+childOperation] = 1
-                
-        for arg in tempEq.args:
-            conditionals = conditionalWalk(arg, conditionals)
-        
-        return conditionals
-    
-    def printWalk(tempEq):
-        parentOperation = str(tempEq.func).split('.')[-1].split("'")[0]     
-        
-        print(f'PARENT: {parentOperation} [{tempEq}]')
 
-            
-        if ('.core' in str(tempEq.func)) & ('symbol' not in str(tempEq.func)) & ('numbers' not in str(tempEq.func)):
-            for child in tempEq.args:
-                if ('.core' in str(child.func)) & ('symbol' not in str(child.func)) & ('numbers' not in str(child.func)):
-                    print(f'CHILD: {child.func} [{child}]')
-                    childOperation = str(child.func).split('.')[-1].split("'")[0]   
-                
-        for arg in tempEq.args:
-            printWalk(arg)
-    
     #Cycle through each formatted equation
     priorsDict = {
         'metadata':
             {'number_of_equations': 0,
-             'list_of_operators': ['+','*','-','/','^','**'],
-             'list_of_functions': ['sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh', 'sqrt', 'sum', 'abs', 'exp', 'max', 'min', 'log', 'relu'],
+             'list_of_operators': ['+','*','-','/','^2','^3','^','**'],
+             'list_of_functions': ['**2','**3','sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh', 'sqrt', 'sum', 'abs', 'exp', 'max', 'min', 'log', 'relu'],
              'list_of_constants': ['Alpha','Beta','Gamma','Delta','Epsilon','Varepsilon','Zeta','Eta','Theta','Vartheta','Iota','Kappa','Varkappa','Lambda','Mu','Nu','Xi','Omicron','Pi','Varpi','Rho','Varrho','Sigma','Varsigma','Tau','Upsilon','Phi','Varphi','Chi','Psi','Omega','Digamma'],
              'list_of_equations': []
              }
         }
     
     priorsDict['metadata']['list_of_constants'].extend([constant.lower() for constant in priorsDict['metadata']['list_of_constants']])
+    function_list = priorsDict['metadata']['list_of_functions']
+    priorsDict['metadata']['list_of_functions'].extend([function.capitalize() for function in function_list])
+    priorsDict['metadata']['list_of_functions'].extend([function.upper() for function in function_list])
 
     equationTrees = []
     for x, eq in enumerate(scrapedEquations):
@@ -794,7 +748,8 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 break
 
     priorsDict['priors'] = get_counts(equationTrees)
-    del priorsDict['priors']['functions']['customfunc']    
+    if 'customfunc' in priorsDict['priors']['functions'].keys():
+        del priorsDict['priors']['functions']['customfunc']    
     priorsDict['priors']['operators_and_functions'] = priorsDict['priors']['operators'] | priorsDict['priors']['functions']
     
     #Pack databank
