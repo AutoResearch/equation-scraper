@@ -1,21 +1,4 @@
 ###############################################################################
-## Written by Chad C. Williams, 2023                                         ##
-## www.chadcwilliams.com                                                     ##
-###############################################################################
-
-'''
-Environment info
-
-pip install sympy
-pip install antlr4-python3-runtime==4.10
-
-Note: There exists a requirements.txt file
-'''
-
-#TODO: It might be skipping anything that ends with \,dy
-#TODO: IF manual_debug is still in the code, delete all references and uses for it
-
-###############################################################################
 #0. Import Modules & Determine Keywords
 ###############################################################################
 #pip install antlr4-python3-runtime==4.10 #For parse_latex
@@ -31,37 +14,6 @@ import pickle
 
 from equation_tree.tree import EquationTree
 from equation_tree.analysis import get_counts
-
-#Determine categories to search
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        #Check for the debug argument
-        debug = False
-        debug = [True for arg in sys.argv[1:] if arg=='Debug']
-        
-        #If debug exists
-        if debug:
-            debug = debug[0] #Pull it from the list
-            sys.argv.remove('Debug') #Remove
-            
-        #Check for all 
-        searchKeywords = sys.argv[1:]
-    else:
-        debug = False
-        #searchKeywords = ["Super:Materials_science"]
-        searchKeywords = ['Super:MaterialsScience']
-
-        
-    #Split super categories from normal categories
-    for keyIndex, searchKeyword in enumerate(searchKeywords):
-        if len(searchKeyword.split('_')) > 1: #If the keyword has two words and thus is split by an underscore
-            searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
-    
-    #Setup databank variable
-    databank = {'searchKeywords': searchKeywords}
-    
-    print('Web Scraping for Priors')
-    print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
     
 ###############################################################################
 #1. Determine Functions
@@ -89,6 +41,37 @@ def printProgressBar (databank, iteration, total, prefix = '', suffix = '', deci
     if iteration == total: 
         print()
 
+#Define
+def parse_equations():
+    databank = defineParse()
+    if databank['searchKeywords']:
+        databank = loadScrapedData(databank)
+        databank = cycleEquations(databank)
+        databank = parseEquations(databank)
+        saveFiles(databank) 
+    else:
+        print('No search keywords were provided.\n')
+
+#Define 
+def defineParse():
+    if len(sys.argv) > 1:
+        searchKeywords = sys.argv[1:]
+    else:
+        searchKeywords = []
+
+    #Split super categories from normal categories
+    for keyIndex, searchKeyword in enumerate(searchKeywords):
+        if len(searchKeyword.split('_')) > 1: #If the keyword has two words and thus is split by an underscore
+            searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
+    
+    #Setup databank variable
+    databank = {'searchKeywords': searchKeywords}
+    
+    print('Parsing equations...')
+    print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
+
+    return databank
+
 #Searches for all links on given URL
 def loadScrapedData(databank):
     '''
@@ -104,7 +87,7 @@ def loadScrapedData(databank):
     loadName = 'equations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
-    with open(os.path.dirname(__file__) + '/../Data/'+loadPath+loadName,'r', encoding="utf-8") as f:
+    with open('data/'+loadPath+loadName,'r', encoding="utf-8") as f:
         scrapedWiki = f.readlines()
 
     #Pack databank
@@ -149,16 +132,13 @@ def cycleEquations(databank):
     return databank
 
 #The main function that organizes the current equation and it's metadata then feeds these to the processing functions
-def processEquation(databank, manual_debug = False):
+def processEquation(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
     #Unpack databank
     currentLine = databank['currentLine']
-    
-    if manual_debug:
-        hold = 1
     
     ##################################
     ## Preliminary equation cleanup ##
@@ -303,21 +283,15 @@ def processEquation(databank, manual_debug = False):
         for subEquation in currentLine: #Cycle through each equation
             databank['subEquation'] = subEquation
             if subEquation: #Ensure the sub-equation exists 
-                if manual_debug:
-                    databank = formatEquation(databank, True) #Calls the format equation function 
-                else:
-                    databank = formatEquation(databank) #Calls the format equation function 
+                databank = formatEquation(databank) #Calls the format equation function 
                 databank = appendVariables(databank) #Calls the append variables function
     else:
-        if manual_debug:
-            databank = formatEquation(databank, True) #Calls the format equation function
-        else:
-            databank = formatEquation(databank) #Calls the format equation function 
+        databank = formatEquation(databank) #Calls the format equation function 
         databank = appendVariables(databank) #Calls the append variables function
         
     return databank
 
-def formatEquation(databank, manualDebug = False):
+def formatEquation(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -330,12 +304,6 @@ def formatEquation(databank, manualDebug = False):
     else:
         currentLine = databank['currentLine'] #If not a list, use the normal variable
         
-    if 'arrow' in currentLine:
-        hold=1
-    #TODO: The following if for debugging, remove if it's still here (also remove the function parameter)
-    if manualDebug:
-        hold = True
-    
     if (currentLine[0] != '#') & (currentLine != '\n') & ('{\\begin{cases}' not in currentLine) & ('\\end{cases}' not in currentLine): #The last notation here specifies and if else conditional, and we ignore it as they are generally not equations (but always?)
             
         #Skip equations that are declarations by changing them to x
@@ -575,7 +543,7 @@ def formatEquation(databank, manualDebug = False):
         for equationWord in equationWords:
             exclude = [False if excludedWord.lower() not in equationWord.lower() else True for excludedWord in excludedWords]
             if (len(equationWord.replace('_',''))> 1) & (True not in exclude) & (equationWord.replace('_','').isnumeric()==False):
-                removedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/wordsRemoved_'+loadName
+                removedFilename = 'data/'+loadPath+'/debug/wordsRemoved_'+loadName
                 with open(removedFilename, 'a', encoding="utf-8") as f:
                     f.write(equationWord.replace('_',''))
                     f.write('\n')
@@ -589,10 +557,6 @@ def formatEquation(databank, manualDebug = False):
             databank['currentEquation'] = []
     else:
         databank['currentEquation'] = []
-        
-    #TODO: Remove this
-    if manualDebug:
-        databank['manualEquation'] = currentEquation
     
     return databank
     
@@ -629,7 +593,7 @@ def appendVariables(databank):
     
     return databank
 
-def parseEquations(databank, debug = False, manualDebug = False):
+def parseEquations(databank):
     
     parsedEquations = []
     skippedEquations = []
@@ -650,7 +614,8 @@ def parseEquations(databank, debug = False, manualDebug = False):
     priorsDict = {
         'metadata':
             {'number_of_equations': 0,
-             'list_of_operators': ['+','*','-','/','^2','^3','^','**'],
+             'unparsed_equations': 0,
+             'list_of_operators': ['+','*','-','/','^','**'],
              'list_of_functions': ['**2','**3','sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh', 'sqrt', 'sum', 'abs', 'exp', 'max', 'min', 'log', 'relu'],
              'list_of_constants': ['Alpha','Beta','Gamma','Delta','Epsilon','Varepsilon','Zeta','Eta','Theta','Vartheta','Iota','Kappa','Varkappa','Lambda','Mu','Nu','Xi','Omicron','Pi','Varpi','Rho','Varrho','Sigma','Varsigma','Tau','Upsilon','Phi','Varphi','Chi','Psi','Omega','Digamma'],
              'list_of_equations': []
@@ -738,14 +703,9 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 
         except: #If the translation from latex to Sympy of the parsing fails
             skippedEquations.append(['UNPARSED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
+            priorsDict['metadata']['unparsed_equations'] += 1
             unparsedEq += 1 #Increase counter 
-            if not debug: #This allows the code to proceed with unparsed equations 
-                pass
-            else:
-                print('FAILURE - Likely not convertible from latex to sympy') #Error warning
-                print(scrapedWikiEquations[x]) #Print the scraped equation that failed
-                print(eq) #Print the equation that failed
-                break
+            pass
 
     priorsDict['priors'] = get_counts(equationTrees)
     if 'customfunc' in priorsDict['priors']['functions'].keys():
@@ -772,17 +732,17 @@ def saveFiles(databank):
     priorsDict = databank['priorsDict']
 
     #Save equation-specific priors
-    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'parsed_'+loadName
+    parsedFilename = 'data/'+loadPath+'parsed_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:
         for parsedItem in parsedEquations:
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[6]+'~'+str(parsedItem[7])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[8]+'~'+str(parsedItem[9][7:-1])+'~'+str(parsedItem[10])+'~'+str(parsedItem[11]))
        
     #Save prior dictionary
-    priorFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'priors_'+loadName.replace('equations_','').replace('.txt','.pkl')
+    priorFilename = 'data/'+loadPath+'priors_'+loadName.replace('equations_','').replace('.txt','.pkl')
     pickle.dump(priorsDict, open(priorFilename,"wb"))
 
     #Debug mode prints a new file with a different layout         
-    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/debug_parsed_'+loadName
+    parsedFilename = 'data/'+loadPath+'/debug/debug_parsed_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:       
         for parsedItem in parsedEquations:
             f.write('\n')
@@ -796,7 +756,7 @@ def saveFiles(databank):
             f.write('************\n')            
 
     #Save file of skipped equations, if any
-    skippedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'debug/skipped_'+loadName
+    skippedFilename = 'data/'+loadPath+'debug/skipped_'+loadName
     with open(skippedFilename, 'w', encoding="utf-8") as f:
         for skippedItem in skippedEquations:
             if '#' not in skippedItem:
@@ -807,25 +767,4 @@ def saveFiles(databank):
 ###############################################################################
 
 if __name__ == '__main__':
-    ###############################################################################
-    #2. Load Data and Setup Variables
-    ###############################################################################
-    databank = loadScrapedData(databank)
-
-    ###############################################################################
-    #3. Re-Format Latex Equations to Comply with Sympy Translation
-    ###############################################################################
-
-    databank = cycleEquations(databank)
-
-    ###############################################################################
-    #4. Parse Equations
-    ###############################################################################
-
-    databank = parseEquations(databank, debug)
-
-    ###############################################################################
-    #5. Save Files
-    ###############################################################################
-
-    saveFiles(databank) 
+    parse_equations()

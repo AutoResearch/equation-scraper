@@ -1,0 +1,49 @@
+[project]
+name = "equation-scraper"
+version = "0.0.1"
+authors = [
+  { name="Chad Williams", email="chad_williams@brown.edu" },
+]
+description = "This package scrapes Wikipedia for equations, parses the equations, and builds priors of operations and functions."
+readme = "README.md"
+requires-python = ">=3.7"
+
+dependencies = [
+  "antlr4-python3-runtime~=4.10",
+  "beautifulsoup4~=4.11.2",
+  
+  "bs4~=0.0.1",
+  "certifi~=2022.12.7",
+  "charset-normalizer~=3.0.1",
+  "contourpy~=1.0.7",
+  "cycler~=0.11.0",
+  "fonttools~=4.38.0",
+  "idna~=3.4",
+  "inflect~=6.0.2",
+  "kiwisolver~=1.4.4",
+  "matplotlib~=3.6.3",
+  "mpmath~=1.2.1",
+  "numpy~=1.24.2",
+  "packaging~=23.0",
+  "pandas~=1.5.3",
+  "Pillow~=9.4.0",
+  "pydantic~=1.10.5",
+  "pyparsing~=3.0.9",
+  "python-dateutil~=2.8.2",
+  "pytz~=2022.7.1",
+  "requests~=2.28.2",
+  "six~=1.16.0",
+  "soupsieve~=2.3.2.post1",
+  "sympy~=1.11.1",
+  "typing_extensions~=4.5.0",
+  "urllib3~=1.26.14",
+]
+
+[project.urls]
+"Homepage" = "https://musslick.github.io/AER_website/Research.html"
+"Repository" = "https://github.com/AutoResearch/equation-scraper"
+"Documentation" = "https://autoresearch.github.io/equation-scraper/"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

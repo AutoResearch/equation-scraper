@@ -1,0 +1,41 @@
+site_name: EEG-GAN
+
+theme:
+  name: material
+  features: 
+    - navigation.path
+    - navigation.indexes 
+    - tab: true
+  palette:
+    - scheme: default
+      toggle: 
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+      primary: indigo
+      accent: dark purple
+
+    - scheme: slate
+      toggle: 
+        icon: material/toggle-switch
+        name: Switch to light mode
+      primary: indigo
+      accent: dark purple
+
+markdown_extensions:
+  - attr_list
+
+plugins:
+  - mkdocs-jupyter:
+
+nav: 
+  - Introduction: 'index.md'
+  - How To Use: 
+    - Install: 'howtouse/install.md'
+    - Functions: 'howtouse/functions.md'
+    - Examples: 'howtouse/examples.md'
+  - Tutorials:
+    - Notebook: 'tutorials/equation_scraper_tutorial.ipynb'
+  #- Research:
+  #  - Hewson et al., 2023: 'Research/hewsonetal2023.md'
+  #  - Strittmatter et al.. 2023: 'Research/strittmatteretal2023.md'
+  - Repository: https://github.com/AutoResearch/equation_scraper" target="_blank
