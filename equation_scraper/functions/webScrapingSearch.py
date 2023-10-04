@@ -1,21 +1,4 @@
 ###############################################################################
-## Written by Chad C. Williams, 2023                                         ##
-## www.chadcwilliams.com                                                     ##
-###############################################################################
-
-'''
-Environment Info
-
-py -m venv webScrapingEnv
-.\webScrapingEnv\Scripts\activate
-
-pip install beautifulsoup4
-pip install requests
-
-Note: There exists a requirements.txt file
-'''
-
-###############################################################################
 #0. Import Modules & Determine Keywords
 ###############################################################################
 
@@ -24,25 +7,7 @@ from pip._vendor import requests
 import time
 import os
 import shutil
-import string
-import numpy as np
-
-#Determine categories to search
-if __name__ == '__main__':
-    import sys
-    if len(sys.argv) > 1:
-        searchKeywords = sys.argv[1:]
-    else:
-        searchKeywords = ['All_Wikipedia']
-        #searchKeywords = ['Super:Cognitive_psychology']
-        #searchKeywords = ["Super:Materials_science", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages"]
-        #Super:Materials_science Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science"&"pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science"&"pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages
-
-    #Setup databank variable
-    databank = {'searchKeywords': searchKeywords}
-        
-    print('Web Scraping for Priors')
-    print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
+import sys
 
 ###############################################################################
 #1. Determine Functions
@@ -71,6 +36,36 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     if iteration == total: 
         print()
 
+def scrape_equations():
+    databank = defineSearch()
+    if databank['searchKeywords']:
+        databank = defineCategory(databank)
+        databank = scrapeLinks(databank)
+        extractLinks(databank)
+    else:
+        print('No search keywords were provided.\n')
+    
+def defineSearch():
+    if len(sys.argv) > 1:
+        searchKeywords = sys.argv[1:]
+    else:
+        searchKeywords = []
+        #searchKeywords = ['Super:Cognitive_psychology']
+        #searchKeywords = ["Super:Materials_science", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages"]
+        #Super:Materials_science Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science"&"pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science"&"pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages
+
+    #Setup databank variable
+    databank = {'searchKeywords': searchKeywords}
+
+    if databank['searchKeywords'] and not os.path.isdir('data'):
+            os.mkdir('data')
+            print(f"Creating a 'data' directory in your current directory: {os. getcwd()}")
+        
+    print('Scraping equations...')
+    print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
+
+    return databank
+
 #Searches for all links on given URL
 def defineCategory(databank):
     '''
@@ -84,19 +79,10 @@ def defineCategory(databank):
     normalKeywords = []
     superKeywords = []
     directKeywords = []
-    allKeywords = []
     
     #Split super categories from normal categories
     for keyIndex, searchKeyword in enumerate(searchKeywords):
-        if 'All_Wikipedia' == searchKeyword:
-            allKeywords.append(searchKeyword)
-            
-            #If searching all wikipedia, any additional keywords will be ignored, so remove them and break loop
-            normalKeywords = []
-            superKeywords = []
-            directKeywords = []
-            break
-        elif 'Super:' in searchKeyword:
+        if 'Super:' in searchKeyword:
             superKeywords.append(searchKeyword.replace('Super:',''))
         elif 'Direct:' in searchKeyword:
             directKeywords.append(searchKeyword.replace('Direct:',''))
@@ -107,30 +93,29 @@ def defineCategory(databank):
             searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
     
     #Remove directs
-    if allKeywords:
-        searchKeywords = ['Wikipedia']
-    else:
-        searchKeywords = [searchKeyword for searchKeyword in searchKeywords if 'Direct' not in searchKeyword]
+    searchKeywords = [searchKeyword for searchKeyword in searchKeywords if 'Direct' not in searchKeyword]
     
     #Create filename to save to, including the creation of folders to store it in
     saveKeywords = '~'.join(searchKeywords).replace('Super:','SUPER').replace('_','').replace('~','_') #Create string of keywords for file name
     savePath = saveKeywords.replace('Super:','SUPER') +'/'
-    if os.path.exists('./Data/'+savePath):
-        shutil.rmtree('./Data/'+savePath) #Remove old scraping
-    os.makedirs('./Data/'+savePath)
-    os.makedirs('./Data/'+savePath+'debug/')
+    if searchKeywords:
+        if os.path.exists('./data/'+savePath):
+            shutil.rmtree('./data/'+savePath) #Remove old scraping
+
+        os.makedirs('./data/'+savePath)
+        os.makedirs('./data/'+savePath+'debug/')
     saveName = 'equations_' + saveKeywords + '.txt' #Create file name
 
-    #Save search parameters to file
-    with open(os.path.dirname(__file__) + '/../Data/'+savePath+saveName, 'w', encoding="utf-8") as f: #Open file to be saved to
-        _ = f.write('#CATEGORIES: ' + str(searchKeywords) + '\n') #Save title to file
-        _ = f.write('#--------------------#\n\n') #Add separator to file
+    if searchKeywords:
+        #Save search parameters to file
+        with open('data/'+savePath+saveName, 'w', encoding="utf-8") as f: #Open file to be saved to
+            _ = f.write('#CATEGORIES: ' + str(searchKeywords) + '\n') #Save title to file
+            _ = f.write('#--------------------#\n\n') #Add separator to file
 
     #Pack databank
     databank['savePath'] = savePath
     databank['saveName'] = saveName
     
-    databank['allKeywords'] = allKeywords
     databank['normalKeywords'] = normalKeywords 
     databank['superKeywords'] = superKeywords
     databank['directKeywords'] = directKeywords
@@ -144,7 +129,6 @@ def scrapeLinks(databank):
     
     '''        
     #Unpack databank
-    allKeywords = databank['allKeywords']
     normalKeywords = databank['normalKeywords']
     superKeywords = databank['superKeywords']
     directKeywords = databank['directKeywords']
@@ -190,39 +174,6 @@ def scrapeLinks(databank):
                 
         return currentLinks
     
-    def searchAllWiki():
-        '''
-        [INSERT FUNCTION DESCRIPTION]
-        
-        '''
-        baseURL = 'https://en.wikipedia.org/w/index.php?title=Special:Categories&offset='
-        numView = '&limit=5000'
-        
-        allCategories = []
-        currentLinks = []
-        
-        #Iterate and track all category links and their respective next pages
-        startTime = time.time()
-        for wikiIndex in list(string.digits)+list(string.ascii_uppercase):
-            x = 0
-            URL = baseURL+wikiIndex+numView
-            allCategories.append(URL)
-            while True:
-                print(f"Wiki Index: {wikiIndex}, Current Page: {x}, Current Time: {str(np.round((time.time()-startTime)/60))}")
-                x+=1
-                webText = requests.get(URL).text #Download URL content
-                soup = BeautifulSoup(webText, 'html.parser') #Create soup object
-                nextPageText = soup.find("a",{"class":"mw-nextlink"}) #Isolate the sub-category section  
-                if nextPageText:
-                    URL = 'https://en.wikipedia.org'+nextPageText.get('href')
-                    allCategories.append(URL)
-                else:
-                    break
-                
-        endTime = time.time()-startTime
-        
-        return currentLinks
-
     #Removes any duplicate or unwanted links
     def removeLinks(databank):
         '''
@@ -252,8 +203,6 @@ def scrapeLinks(databank):
     links = []
 
     #Iterate through (Super, Direct, and Normal) keywords, grabbing links from each page
-    if allKeywords:
-        allLinks([searchAllWiki()])
     superLinks.extend([searchSuperLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in superKeywords])
     directLinks.extend([searchSuperLinks(str(keyword)) for keyword in directKeywords])
     normalLinks.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in normalKeywords]) 
@@ -315,7 +264,7 @@ def extractLinks(databank):
 
             #Save equations to a file
             if equations: #If equations exist on this page
-                with open(os.path.dirname(__file__) + '/../Data/'+savePath+saveName, 'a', encoding="utf-8") as f: #Open file to be saved to
+                with open('data/'+savePath+saveName, 'a', encoding="utf-8") as f: #Open file to be saved to
                     titleSoup = BeautifulSoup(linkText, 'html.parser', parse_only = SoupStrainer('h1')) #Extract title of page
                     root = titleSoup.find('h1').text #Convert title to be saved
                     _ = f.write('#ROOT: ' + root + '\n') #Save title to file
@@ -341,20 +290,4 @@ def extractLinks(databank):
 ###############################################################################
 
 if __name__ == '__main__':
-    ###############################################################################
-    #2. User Inputs - Determine Which Category Pages to Scrape
-    ###############################################################################
-
-    databank = defineCategory(databank)
-
-    ###############################################################################
-    #3. Determine all links to be scraped
-    ###############################################################################
-
-    databank = scrapeLinks(databank)
-
-    ###############################################################################
-    #4. Extract and Save Equations from Each Link
-    ###############################################################################
-
-    extractLinks(databank)
+    scrape_equations()

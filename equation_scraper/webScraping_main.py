@@ -8,57 +8,34 @@
 ###############################################################################
 
 #Import modules
-import sys
-from Functions.webScrapingSearch import *
-from Functions.sympyParsing import *
-from Functions.reportPriors import *
-
-#Determine categories to search
-if len(sys.argv) > 1:
-    searchKeywords = sys.argv[1:]
-else:
-    searchKeywords = ['Super:Cognitive_psychology', 'Super:Cognitive_neuroscience']
-    
-#Setup databank variable
-databank = {'searchKeywords': searchKeywords}
-    
-print('Web Scraping for Priors')
-print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
+from functions.webScrapingSearch import *
+from functions.sympyParsing import *
+from functions.plotPriors import *
 
 ###############################################################################
 #1. webScrapingSearch.py
 ###############################################################################
 
-print("Scraping Wikipedia...")
+print("**********************")
+scrape_equations()
+print("Scraping Complete...")
+print("**********************")
 
-databank = defineCategory(databank)
-databank = scrapeLinks(databank)
-extractLinks(databank)
 
 ###############################################################################
 #2. sympyParsing.py
 ###############################################################################
 
-print("\nParsing Equations...")
-
-databank = loadScrapedData(databank)
-databank = cycleEquations(databank)
-databank = parseEquations(databank)
-saveFiles(databank) 
-
+print("**********************")
+parse_equations()
 print("Parsing Complete...")
+print("**********************")
 
 ###############################################################################
-#3. reportPriors.py
+#2. plotPriors.py
 ###############################################################################
 
-print("\nPlotting Results...")
-
-databank = loadParsedData(databank)
-databank = extractOperations(databank)
-databank = reformatOperations(databank)
-createFigure(databank)
-savePriors(databank)
-saveFigure(databank)
-
-print("Results Printed and Plotted.")
+print("**********************")
+print("\nPlotting priors...")
+plot_priors()
+print("**********************")

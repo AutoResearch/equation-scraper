@@ -1,21 +1,4 @@
 ###############################################################################
-## Written by Chad C. Williams, 2023                                         ##
-## www.chadcwilliams.com                                                     ##
-###############################################################################
-
-'''
-Environment info
-
-pip install sympy
-pip install antlr4-python3-runtime==4.10
-
-Note: There exists a requirements.txt file
-'''
-
-#TODO: It might be skipping anything that ends with \,dy
-#TODO: IF manual_debug is still in the code, delete all references and uses for it
-
-###############################################################################
 #0. Import Modules & Determine Keywords
 ###############################################################################
 #pip install antlr4-python3-runtime==4.10 #For parse_latex
@@ -26,38 +9,11 @@ import sympy as sp
 import re
 import os
 import string
-import sys    
+import sys   
+import pickle
 
-#Determine categories to search
-if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        #Check for the debug argument
-        debug = False
-        debug = [True for arg in sys.argv[1:] if arg=='Debug']
-        
-        #If debug exists
-        if debug:
-            debug = debug[0] #Pull it from the list
-            sys.argv.remove('Debug') #Remove
-            
-        #Check for all 
-        searchKeywords = sys.argv[1:]
-    else:
-        debug = False
-        #searchKeywords = ["Super:Materials_science"]
-        searchKeywords = ['Super:Physics']
-
-        
-    #Split super categories from normal categories
-    for keyIndex, searchKeyword in enumerate(searchKeywords):
-        if len(searchKeyword.split('_')) > 1: #If the keyword has two words and thus is split by an underscore
-            searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
-    
-    #Setup databank variable
-    databank = {'searchKeywords': searchKeywords}
-    
-    print('Web Scraping for Priors')
-    print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
+from equation_tree.tree import EquationTree
+from equation_tree.analysis import get_counts
     
 ###############################################################################
 #1. Determine Functions
@@ -85,6 +41,37 @@ def printProgressBar (databank, iteration, total, prefix = '', suffix = '', deci
     if iteration == total: 
         print()
 
+#Define
+def parse_equations():
+    databank = defineParse()
+    if databank['searchKeywords']:
+        databank = loadScrapedData(databank)
+        databank = cycleEquations(databank)
+        databank = parseEquations(databank)
+        saveFiles(databank) 
+    else:
+        print('No search keywords were provided.\n')
+
+#Define 
+def defineParse():
+    if len(sys.argv) > 1:
+        searchKeywords = sys.argv[1:]
+    else:
+        searchKeywords = []
+
+    #Split super categories from normal categories
+    for keyIndex, searchKeyword in enumerate(searchKeywords):
+        if len(searchKeyword.split('_')) > 1: #If the keyword has two words and thus is split by an underscore
+            searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
+    
+    #Setup databank variable
+    databank = {'searchKeywords': searchKeywords}
+    
+    print('Parsing equations...')
+    print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
+
+    return databank
+
 #Searches for all links on given URL
 def loadScrapedData(databank):
     '''
@@ -100,7 +87,7 @@ def loadScrapedData(databank):
     loadName = 'equations_' + saveKeywords + '.txt' #Create file name
     
     #Read scraped operations file
-    with open(os.path.dirname(__file__) + '/../Data/'+loadPath+loadName,'r', encoding="utf-8") as f:
+    with open('data/'+loadPath+loadName,'r', encoding="utf-8") as f:
         scrapedWiki = f.readlines()
 
     #Pack databank
@@ -145,20 +132,13 @@ def cycleEquations(databank):
     return databank
 
 #The main function that organizes the current equation and it's metadata then feeds these to the processing functions
-def processEquation(databank, manual_debug = False):
+def processEquation(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
     '''
     #Unpack databank
     currentLine = databank['currentLine']
-    
-    if manual_debug:
-        hold = 1
-        
-    if 'arrow' in currentLine:
-        print(currentLine)
-        hold=1
     
     ##################################
     ## Preliminary equation cleanup ##
@@ -303,21 +283,15 @@ def processEquation(databank, manual_debug = False):
         for subEquation in currentLine: #Cycle through each equation
             databank['subEquation'] = subEquation
             if subEquation: #Ensure the sub-equation exists 
-                if manual_debug:
-                    databank = formatEquation(databank, True) #Calls the format equation function 
-                else:
-                    databank = formatEquation(databank) #Calls the format equation function 
+                databank = formatEquation(databank) #Calls the format equation function 
                 databank = appendVariables(databank) #Calls the append variables function
     else:
-        if manual_debug:
-            databank = formatEquation(databank, True) #Calls the format equation function
-        else:
-            databank = formatEquation(databank) #Calls the format equation function 
+        databank = formatEquation(databank) #Calls the format equation function 
         databank = appendVariables(databank) #Calls the append variables function
         
     return databank
 
-def formatEquation(databank, manualDebug = False):
+def formatEquation(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -330,12 +304,6 @@ def formatEquation(databank, manualDebug = False):
     else:
         currentLine = databank['currentLine'] #If not a list, use the normal variable
         
-    if 'arrow' in currentLine:
-        hold=1
-    #TODO: The following if for debugging, remove if it's still here (also remove the function parameter)
-    if manualDebug:
-        hold = True
-    
     if (currentLine[0] != '#') & (currentLine != '\n') & ('{\\begin{cases}' not in currentLine) & ('\\end{cases}' not in currentLine): #The last notation here specifies and if else conditional, and we ignore it as they are generally not equations (but always?)
             
         #Skip equations that are declarations by changing them to x
@@ -567,13 +535,15 @@ def formatEquation(databank, manualDebug = False):
 
         #Pull out only words 4+ characters and change notation
         wikiExcludedWords = ['Alpha','Beta','Gamma','Delta','Epsilon','Varepsilon','Zeta','Eta','Theta','Vartheta','Iota','Kappa','Varkappa','Lambda','Mu','Nu','Xi','Omicron','Pi','Varpi','Rho','Varrho','Sigma','Varsigma','Tau','Upsilon','Phi','Varphi','Chi','Psi','Omega','Digamma'] #Taken from https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols
-        customExcludedWords = ['Frac','Sqrt','Times','ReLU','Log','Sum'] #Custom inserts
+        customExcludedWords = ['sum', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh', 'sqrt', 'sum', 'abs', 'exp', 'max', 'min', 'log', 'relu'] #Custom inserts
+        customExcludedWords.extend([function.capitalize() for function in customExcludedWords])
+
         excludedWords = wikiExcludedWords+customExcludedWords
         
         for equationWord in equationWords:
             exclude = [False if excludedWord.lower() not in equationWord.lower() else True for excludedWord in excludedWords]
             if (len(equationWord.replace('_',''))> 1) & (True not in exclude) & (equationWord.replace('_','').isnumeric()==False):
-                removedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/wordsRemoved_'+loadName
+                removedFilename = 'data/'+loadPath+'/debug/wordsRemoved_'+loadName
                 with open(removedFilename, 'a', encoding="utf-8") as f:
                     f.write(equationWord.replace('_',''))
                     f.write('\n')
@@ -587,10 +557,6 @@ def formatEquation(databank, manualDebug = False):
             databank['currentEquation'] = []
     else:
         databank['currentEquation'] = []
-        
-    #TODO: Remove this
-    if manualDebug:
-        databank['manualEquation'] = currentEquation
     
     return databank
     
@@ -627,7 +593,7 @@ def appendVariables(databank):
     
     return databank
 
-def parseEquations(databank, debug = False, manualDebug = False):
+def parseEquations(databank):
     
     parsedEquations = []
     skippedEquations = []
@@ -643,59 +609,25 @@ def parseEquations(databank, debug = False, manualDebug = False):
     scrapedLinks = databank['scrapedLinks']
     scrapedEquations = databank['scrapedEquations']
     databank['parsedEquations'] = parsedEquations
-    
-    #TODO: Remove the manual debug stuff
-    if manualDebug:
-        hold = 1
-    
-    #Define a walking function
-    def powerWalk(eq, powerLabels):
-        if ('Pow' in str(eq.func)) & (str(eq) != '1/2'):
-            exponents = [arg for arg in eq.args if 'numbers' in str(arg.func)]
-            for exponent in exponents:
-                if str(exponent) == '1/2':
-                    powerLabels.append('SQRT')
-                elif (exponent <= 3) & (exponent > 0):
-                    powerLabels.append('POW'+str(exponent))
-                else: #If it's a power of 4 or higher, we will keep it as a general label of 'power'
-                    pass
-        for arg in eq.args:
-            powerWalk(arg, powerLabels)
-        return powerLabels
-    
-    def conditionalWalk(tempEq, conditionals = {}):
-        parentOperation = str(tempEq.func).split('.')[-1].split("'")[0]     
-            
-        if ('sympy' in str(tempEq.func)) & ('symbol' not in str(tempEq.func)) & ('numbers' not in str(tempEq.func)):
-            for child in tempEq.args:
-                if ('sympy' in str(child.func)) & ('symbol' not in str(child.func)) & ('numbers' not in str(child.func)):
-                    childOperation = str(child.func).split('.')[-1].split("'")[0]   
-                    if parentOperation+'_'+childOperation in conditionals.keys():
-                        conditionals[parentOperation+'_'+childOperation] += 1
-                    else:
-                        conditionals[parentOperation+'_'+childOperation] = 1
-                
-        for arg in tempEq.args:
-            conditionals = conditionalWalk(arg, conditionals)
-        
-        return conditionals
-    
-    def printWalk(tempEq):
-        parentOperation = str(tempEq.func).split('.')[-1].split("'")[0]     
-        
-        print(f'PARENT: {parentOperation} [{tempEq}]')
 
-            
-        if ('.core' in str(tempEq.func)) & ('symbol' not in str(tempEq.func)) & ('numbers' not in str(tempEq.func)):
-            for child in tempEq.args:
-                if ('.core' in str(child.func)) & ('symbol' not in str(child.func)) & ('numbers' not in str(child.func)):
-                    print(f'CHILD: {child.func} [{child}]')
-                    childOperation = str(child.func).split('.')[-1].split("'")[0]   
-                
-        for arg in tempEq.args:
-            printWalk(arg)
-    
     #Cycle through each formatted equation
+    priorsDict = {
+        'metadata':
+            {'number_of_equations': 0,
+             'unparsed_equations': 0,
+             'list_of_operators': ['+','*','-','/','^','**'],
+             'list_of_functions': ['**2','**3','sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'sinh', 'cosh', 'tanh', 'sqrt', 'sum', 'abs', 'exp', 'max', 'min', 'log', 'relu'],
+             'list_of_constants': ['Alpha','Beta','Gamma','Delta','Epsilon','Varepsilon','Zeta','Eta','Theta','Vartheta','Iota','Kappa','Varkappa','Lambda','Mu','Nu','Xi','Omicron','Pi','Varpi','Rho','Varrho','Sigma','Varsigma','Tau','Upsilon','Phi','Varphi','Chi','Psi','Omega','Digamma'],
+             'list_of_equations': []
+             }
+        }
+    
+    priorsDict['metadata']['list_of_constants'].extend([constant.lower() for constant in priorsDict['metadata']['list_of_constants']])
+    function_list = priorsDict['metadata']['list_of_functions']
+    priorsDict['metadata']['list_of_functions'].extend([function.capitalize() for function in function_list])
+    priorsDict['metadata']['list_of_functions'].extend([function.upper() for function in function_list])
+
+    equationTrees = []
     for x, eq in enumerate(scrapedEquations):
         #Progress bar
         databank['parsedEq'] = parsedEq
@@ -706,102 +638,61 @@ def parseEquations(databank, debug = False, manualDebug = False):
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
+                #eq = 'S_{x}+\\Sum(x){\\tfrac{1}{2}}a_{x}^{2}{\\frac{m}{2}}({\\frac{(n\\pi)^{2}}{t_{x}-t_{x}}}-\\omega^{2}(t_{x}-t_{x}))'
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
-                equationConditionals = conditionalWalk(tempEq)
                 
-                #Combine conditionals after each equation
-                if equationConditionals:
-                    for key in equationConditionals.keys():
-                        if key in allConditionals.keys():
-                            allConditionals[key] += equationConditionals[key]
-                        else:
-                            allConditionals[key] = equationConditionals[key]
+                #Convert symbols to variables and constants
+                symbols = list(tempEq.free_symbols)
+                symbols = [str(symbol) for symbol in symbols]   
+                symbols.sort(key=len, reverse=True)
                 
-                eqSymbols = list(tempEq.free_symbols) #Extract all symbols from the equation
-                eqOperations = str(sp.count_ops(tempEq,visual=True)).split('+') #Extract all nodes of the Sympy tree from the equation
+                #Reformat variables and constants to carry standardized notation
+                for si, symbol in enumerate(symbols):
+                    if any([constant in symbol for constant in priorsDict['metadata']['list_of_constants']]):
+                        tempEq = tempEq.subs(symbol, sp.Symbol('C̈_'+str(si))) #Constants
+                    else:
+                        tempEq = tempEq.subs(symbol, sp.Symbol('Ṽ_'+str(si))) #Variables  
+                 
+                #Reformat all custom functions into the same category     
+                def funcWalk(expr, targetFunction):
+                    if targetFunction.upper() == expr.func.__name__.upper():
+                        return expr.func.__name__
+                    for arg in expr.args:
+                        formattedFuncName = funcWalk(arg, targetFunction)   
+                        if formattedFuncName:
+                            return formattedFuncName
 
-                #Cycle through each node
-                operations = []
-                opTypes = []
-                for eqOp in eqOperations:
-                    if '*' in eqOp: #Determines if an operation occurs more than one time
-                        operations.append([eqOp.split('*')[1].strip(),int(eqOp.split('*')[0].strip())])
-                        opTypes.append(eqOp.split('*')[1].strip())
-                    else: #When an operation only occurs once
-                        operations.append([eqOp.strip(), 1])
-                        opTypes.append(eqOp.strip())
-                        
-                #Adjust Operations (Sympy sometimes represents operations with extra steps - e.g., square root = power and division, because x^(1/2))
+                for op in str(sp.count_ops(tempEq, visual=True)).split('+'):
+                    funcName = op.split('FUNC_')[-1].replace(' ','')
+                    if ('FUNC_' in op) & (funcName.lower() not in priorsDict['metadata']['list_of_functions']):
+                        formattedFuncName = funcWalk(tempEq, funcName)
+                        tempEq = tempEq.replace(sp.Function(formattedFuncName),sp.Function('customfunc'))
                 
-                #Square Root adjustment (TODO: could combine this with the next process)
-                if ('POW' in opTypes) & ('sqrt' in eq): #Square root is represented as both power and division
-                    operations[opTypes.index('DIV')][1] = int(operations[opTypes.index('DIV')][1])-eq.count('sqrt') #Remove the division count by number of square roots
-                    if operations[opTypes.index('DIV')][1] == 0: #Remove division if it has decreased count to zero
-                        del operations[opTypes.index('DIV')]
-                        del opTypes[opTypes.index('DIV')]
-                        
-                #Adjust power operations to be more specific (e.g., power of 2, square root)
-                if ('POW' in opTypes):
-                    powerLabels = powerWalk(tempEq, [])
-                    
-                    #Iterate through the labels and add them to the operation
-                    for powerLabel in powerLabels:
-                        operations[opTypes.index('POW')][1] -= 1
-                        if powerLabel not in opTypes: #If the label does not exist, add it
-                            opTypes.append(powerLabel)
-                            operations.append([powerLabel, 1])
-                        else: #If the label exists, add one to it's count
-                            operations[opTypes.index(powerLabel)][1] += 1
-                            
-                    #Remove power if it has decreased count to zero
-                    if operations[opTypes.index('POW')][1] == 0:
-                        del operations[opTypes.index('POW')]
-                        del opTypes[opTypes.index('POW')]   
-                                   
-                #Natural Logarithm
-                if ('LOG' in opTypes) & ('EXP' in opTypes): #Natural logarithm is represented as Log and Exp
-                    numberNL = eq.count('\ln') #Determine number of NLs
-                    operations[opTypes.index('EXP')][1] -= numberNL #Remove from log
-                    operations[opTypes.index('LOG')][1] -= numberNL #Remove from exp
-                    operations.append(['NL',numberNL]) #Add as NL
-                    if operations[opTypes.index('EXP')][1] == 0: #Remove exp if it has decreased count to zero
-                        del operations[opTypes.index('EXP')]
-                        del opTypes[opTypes.index('EXP')]
-                    if operations[opTypes.index('LOG')][1] == 0: #Remove log if it has decreased count to zero
-                        del operations[opTypes.index('LOG')]
-                        del opTypes[opTypes.index('LOG')]
-                        
-                #Sum
-                if ('FUNC_SUM' in opTypes):
-                    operations[opTypes.index('FUNC_SUM')][0] = 'SUM'
-                    opTypes[opTypes.index('FUNC_SUM')] = 'SUM'
-                    
-                #ReLU
-                if ('FUNC_RELU' in opTypes):
-                    operations[opTypes.index('FUNC_RELU')][0] = 'RELU'
-                    opTypes[opTypes.index('FUNC_RELU')] = 'RELU'
-                    
-                #Max
-                if ('FUNC_MAX' in opTypes):
-                    operations[opTypes.index('FUNC_MAX')][0] = 'MAX'
-                    opTypes[opTypes.index('FUNC_MAX')] = 'MAX'                    
-                
-                #Min
-                if ('FUNC_MIN' in opTypes):
-                    operations[opTypes.index('FUNC_MIN')][0] = 'MIN'
-                    opTypes[opTypes.index('FUNC_MIN')] = 'MIN'        
-                                    
-                #Functions
-                funcIndexes = [idx for idx, opType in enumerate(opTypes) if 'FUNC' in opType]
-                for funcIdx in funcIndexes[::-1]:
-                    del operations[funcIdx]
-                    del opTypes[funcIdx]
-                    
+                #Define tree rules  
+                #is_operator = lambda x: x in ['+','*','-','/','^','**','max','min']   
+                is_operator = lambda x: x in priorsDict['metadata']['list_of_operators']
+                is_function = lambda x: x in ['customfunc'] + priorsDict['metadata']['list_of_functions']
+                is_variable = lambda x: 'Ṽ_' in x
+                is_constant = lambda x: 'C̈_' in x  
+                              
+                #Create tree
+                equationTree = EquationTree.from_sympy(
+                    tempEq,
+                    operator_test=is_operator,
+                    variable_test=is_variable,
+                    constant_test=is_constant,
+                    function_test=is_function)
+                                                
                 #Record operations into variable to be saved
-                if (eqOperations != ['0']) & (len(operations)!=0) &(len(eqSymbols)!=0):
+                eqPriors = get_counts([equationTree])
+                if any(depth > 1 for depth in eqPriors['max_depth'].keys()):
+                    equationTrees.append(equationTree)
+                    priorsDict['metadata']['list_of_equations'].append(str(tempEq))
+                    priorsDict['metadata']['number_of_equations'] += 1
+                    
                     latexEquations.append(eq)
                     sympyEquations.append(tempEq)
-                    parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqSymbols, 'OPERATIONS:', dict(operations), 'LINK:', scrapedLinks[x], 'WIKIEQUATION:',scrapedWikiEquations[x]])
+                    parsedEquations.append(['EQUATION:', tempEq, 'SYMBOLS:', eqPriors['features'], 'OPERATIONS:', eqPriors['operators'], 'CONDITIONAL_OPERATIONS:', eqPriors['operator_conditionals'] | eqPriors['function_conditionals'],'LINK:', scrapedLinks[x], 'WIKIEQUATION:',scrapedWikiEquations[x]])
                     parsedEq += 1 
                 else:
                     skippedEquations.append(['SKIPPED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
@@ -812,29 +703,22 @@ def parseEquations(databank, debug = False, manualDebug = False):
                 
         except: #If the translation from latex to Sympy of the parsing fails
             skippedEquations.append(['UNPARSED EQUATION: ' + eq + ' ~WIKIEQUATION: ' + scrapedWikiEquations[x]])
+            priorsDict['metadata']['unparsed_equations'] += 1
             unparsedEq += 1 #Increase counter 
-            if not debug: #This allows the code to proceed with unparsed equations 
-                pass
-            else:
-                print('FAILURE - Likely not convertible from latex to sympy') #Error warning
-                print(scrapedWikiEquations[x]) #Print the scraped equation that failed
-                print(eq) #Print the equation that failed
-                break
-            '''
-            failedEq=scrapedWikiEquations[x]
-            databank['currentLine'] = failedEq
-            #processEquation(databank, True, True)
-            #formatEquation(databank, True, True)
-            #parse_latex(databank['manualEquation'])
-            '''
+            pass
 
-                    
+    priorsDict['priors'] = get_counts(equationTrees)
+    if 'customfunc' in priorsDict['priors']['functions'].keys():
+        del priorsDict['priors']['functions']['customfunc']    
+    priorsDict['priors']['operators_and_functions'] = priorsDict['priors']['operators'] | priorsDict['priors']['functions']
+    
     #Pack databank
     databank['parsedEquations'] = parsedEquations
     databank['sympyEquations'] = sympyEquations
     databank['skippedEquations'] = skippedEquations
     databank['latexEquations'] = latexEquations
     databank['allConditionals'] = allConditionals
+    databank['priorsDict'] = priorsDict
     
     return databank
 
@@ -844,46 +728,35 @@ def saveFiles(databank):
     loadPath = databank['loadPath']
     loadName = databank['loadName']
     parsedEquations = databank['parsedEquations']
-    sympyEquations = databank['sympyEquations']
     skippedEquations = databank['skippedEquations']
-    latexEquations = databank['latexEquations']
-    allConditionals = databank['allConditionals']
-    
-    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'parsed_'+loadName
+    priorsDict = databank['priorsDict']
+
+    #Save equation-specific priors
+    parsedFilename = 'data/'+loadPath+'parsed_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:
         for parsedItem in parsedEquations:
-            f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'~'+str(parsedItem[8])+'~'+str(parsedItem[9]))
+            f.write(parsedItem[4]+'~'+str(parsedItem[5])+'~'+parsedItem[6]+'~'+str(parsedItem[7])+'~'+parsedItem[2]+'~'+str(parsedItem[3])+'~'+parsedItem[0]+'~'+str(parsedItem[1])+'~'+parsedItem[8]+'~'+str(parsedItem[9][7:-1])+'~'+str(parsedItem[10])+'~'+str(parsedItem[11]))
        
-    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'latex_'+loadName
-    with open(parsedFilename, 'w', encoding="utf-8") as f:
-        for parsedItem in latexEquations:
-            f.write(str(parsedItem)+'\n')
-            
-    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'sympy_'+loadName
-    with open(parsedFilename, 'w', encoding="utf-8") as f:
-        for parsedItem in sympyEquations:
-            f.write(str(parsedItem) +'\n')
-            
-    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'conditionals_'+loadName
-    with open(parsedFilename, 'w', encoding="utf-8") as f:
-        for key in allConditionals.keys():
-            f.write(key+':'+ str(allConditionals[key]) + '\n')
-         
+    #Save prior dictionary
+    priorFilename = 'data/'+loadPath+'priors_'+loadName.replace('equations_','').replace('.txt','.pkl')
+    pickle.dump(priorsDict, open(priorFilename,"wb"))
+
     #Debug mode prints a new file with a different layout         
-    parsedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'/debug/debug_parsed_'+loadName
+    parsedFilename = 'data/'+loadPath+'/debug/debug_parsed_'+loadName
     with open(parsedFilename, 'w', encoding="utf-8") as f:       
         for parsedItem in parsedEquations:
             f.write('\n')
             f.write('************\n')
             f.write(parsedItem[4]+'~'+str(parsedItem[5])+'\n')
+            f.write(parsedItem[6]+'~'+str(parsedItem[7])+'\n')
             f.write(parsedItem[2]+'~'+str(parsedItem[3])+'\n')
             f.write(parsedItem[0]+'~'+str(parsedItem[1])+'\n')
-            f.write(parsedItem[6]+'~'+str(parsedItem[7][7:-1])+'\n')
-            f.write(str(parsedItem[8])+'~'+str(parsedItem[9])+'\n')
+            f.write(parsedItem[8]+'~'+str(parsedItem[9][7:-1])+'\n')
+            f.write(str(parsedItem[10])+'~'+str(parsedItem[11])+'\n')
             f.write('************\n')            
 
     #Save file of skipped equations, if any
-    skippedFilename = os.path.dirname(__file__) + '/../Data/'+loadPath+'debug/skipped_'+loadName
+    skippedFilename = 'data/'+loadPath+'debug/skipped_'+loadName
     with open(skippedFilename, 'w', encoding="utf-8") as f:
         for skippedItem in skippedEquations:
             if '#' not in skippedItem:
@@ -894,25 +767,4 @@ def saveFiles(databank):
 ###############################################################################
 
 if __name__ == '__main__':
-    ###############################################################################
-    #2. Load Data and Setup Variables
-    ###############################################################################
-    databank = loadScrapedData(databank)
-
-    ###############################################################################
-    #3. Re-Format Latex Equations to Comply with Sympy Translation
-    ###############################################################################
-
-    databank = cycleEquations(databank)
-
-    ###############################################################################
-    #4. Parse Equations
-    ###############################################################################
-
-    databank = parseEquations(databank, debug)
-
-    ###############################################################################
-    #5. Save Files
-    ###############################################################################
-
-    saveFiles(databank) 
+    parse_equations()
