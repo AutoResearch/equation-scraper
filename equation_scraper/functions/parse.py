@@ -15,8 +15,8 @@ from equation_tree.analysis import get_counts
 #1. Determine Functions
 ###############################################################################
 #Define main function
-def parse_equations():
-    databank = _define_parse()
+def parse_equations(keywords: list = None):
+    databank = _define_parse(keywords)
     if databank['searchKeywords']:
         databank = _load_scraped_data(databank)
         databank = _cycle_equations(databank)
@@ -50,9 +50,11 @@ def _print_progress_bar (databank, iteration, total, prefix = '', suffix = '', d
         print()
 
 #Define keyword parsing
-def _define_parse():
+def _define_parse(keywords: list = None):
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
+    elif keywords is not None:
+        searchKeywords = keywords
     else:
         searchKeywords = []
 

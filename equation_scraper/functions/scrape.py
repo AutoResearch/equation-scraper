@@ -14,8 +14,8 @@ import sys
 ###############################################################################
 
 #Define main function
-def scrape_equations():
-    databank = _define_search()
+def scrape_equations(keywords: list = None):
+    databank = _define_search(keywords)
     if databank['searchKeywords']:
         databank = _define_category(databank)
         databank = _scrape_links(databank)
@@ -45,9 +45,12 @@ def _print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 
     if iteration == total: 
         print()
     
-def _define_search():
+#Define keywords
+def _define_search(keywords: list = None):
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
+    elif keywords is not None:
+        searchKeywords = keywords
     else:
         searchKeywords = []
 

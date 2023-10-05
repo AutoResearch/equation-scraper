@@ -12,14 +12,14 @@ from scrape import scrape_equations
 from parse import parse_equations
 from plot import plot_priors
 
-def scrape_and_parse_equations():
+def scrape_and_parse_equations(keywords: list = None):
     ###############################################################################
     #1. webScrapingSearch.py
     ###############################################################################
 
     print("**********************\n")
     print("Scraping equations...")
-    scrape_equations()
+    scrape_equations(keywords)
     print("Scraping complete...")
     print("\n**********************")
 
@@ -30,7 +30,7 @@ def scrape_and_parse_equations():
 
     print("**********************\n")
     print("Parsing equations...")
-    parse_equations()
+    parse_equations(keywords)
     print("Parsing complete...")
     print("\n**********************")
 
@@ -40,7 +40,7 @@ def scrape_and_parse_equations():
 
     print("**********************\n")
     print("\nPlotting priors...")
-    plot_priors()
+    plot_priors(keywords)
     print("Plotting complete...")
     print("\n**********************")
 

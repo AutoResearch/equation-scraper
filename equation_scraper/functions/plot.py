@@ -16,8 +16,8 @@ from parse import _define_parse
 ###############################################################################
 
 #Define main function
-def plot_priors():
-    databank = _define_parse()
+def plot_priors(keywords: list = None):
+    databank = _define_parse(keywords)
     if databank['searchKeywords']:
         databank = _load_parsed_data(databank)
         databank = _unpack_priors(databank)
