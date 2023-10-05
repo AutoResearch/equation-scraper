@@ -13,9 +13,18 @@ import sys
 #1. Determine Functions
 ###############################################################################
 
-#Create progress bar
+#Define main function
+def scrape_equations():
+    databank = _define_search()
+    if databank['searchKeywords']:
+        databank = _define_category(databank)
+        databank = _scrape_links(databank)
+        _extract_links(databank)
+    else:
+        print('No search keywords were provided.\n')
+
 # Print iterations progress
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
+def _print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
     @parameters:
@@ -35,39 +44,26 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     # Print New Line on Complete
     if iteration == total: 
         print()
-
-def scrape_equations():
-    databank = defineSearch()
-    if databank['searchKeywords']:
-        databank = defineCategory(databank)
-        databank = scrapeLinks(databank)
-        extractLinks(databank)
-    else:
-        print('No search keywords were provided.\n')
     
-def defineSearch():
+def _define_search():
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
     else:
         searchKeywords = []
-        #searchKeywords = ['Super:Cognitive_psychology']
-        #searchKeywords = ["Super:Materials_science", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages", "Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science&pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages"]
-        #Super:Materials_science Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science"&"pagefrom=Materials+analysis+methods%0AList+of+materials+analysis+methods#mw-pages Direct:https://en.wikipedia.org/w/index.php?title=Category:Materials_science"&"pagefrom=Universality-diversity+paradigm%0AUniversality%E2%80%93diversity+paradigm#mw-pages
 
     #Setup databank variable
     databank = {'searchKeywords': searchKeywords}
 
     if databank['searchKeywords'] and not os.path.isdir('data'):
             os.mkdir('data')
-            print(f"Creating a 'data' directory in your current directory: {os. getcwd()}")
+            print(f"Creating a 'data' directory to hold the results in your current directory: {os. getcwd()}")
         
-    print('Scraping equations...')
     print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
 
     return databank
 
 #Searches for all links on given URL
-def defineCategory(databank):
+def _define_category(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -123,7 +119,7 @@ def defineCategory(databank):
     
     return databank
 
-def scrapeLinks(databank):
+def _scrape_links(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -134,7 +130,7 @@ def scrapeLinks(databank):
     directKeywords = databank['directKeywords']
     
     #Define internal functions
-    def searchLinks(URL):
+    def _search_links(URL):
         '''
         [INSERT FUNCTION DESCRIPTION]
         
@@ -147,7 +143,7 @@ def scrapeLinks(databank):
         
         return currentLinks
     
-    def searchSuperLinks(URL):
+    def _search_super_links(URL):
         '''
         [INSERT FUNCTION DESCRIPTION]
         
@@ -175,7 +171,7 @@ def scrapeLinks(databank):
         return currentLinks
     
     #Removes any duplicate or unwanted links
-    def removeLinks(databank):
+    def _remove_links(databank):
         '''
         [INSERT FUNCTION DESCRIPTION]
         
@@ -203,9 +199,9 @@ def scrapeLinks(databank):
     links = []
 
     #Iterate through (Super, Direct, and Normal) keywords, grabbing links from each page
-    superLinks.extend([searchSuperLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in superKeywords])
-    directLinks.extend([searchSuperLinks(str(keyword)) for keyword in directKeywords])
-    normalLinks.extend([searchLinks('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in normalKeywords]) 
+    superLinks.extend([_search_super_links('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in superKeywords])
+    directLinks.extend([_search_super_links(str(keyword)) for keyword in directKeywords])
+    normalLinks.extend([_search_links('https://en.wikipedia.org/wiki/Category:' + str(keyword)) for keyword in normalKeywords]) 
      
     #Combine the two outputs
     links.append(allLinks)
@@ -218,11 +214,11 @@ def scrapeLinks(databank):
     databank['expandedLinks'] = expandedLinks
 
     #Remove any duplicates and unwated lists
-    databank = removeLinks(databank)
+    databank = _remove_links(databank)
     
     return databank
 
-def extractLinks(databank):
+def _extract_links(databank):
     
     '''
     [INSERT FUNCTION DESCRIPTION]
@@ -239,7 +235,7 @@ def extractLinks(databank):
     segmentInitial = time.time() #Initiate timing for each segment
     for linkIndex, link in enumerate(links):
         #Progress bar
-        printProgressBar(linkIndex, len(links)-1)
+        _print_progress_bar(linkIndex, len(links)-1)
         
         #First, add page links to link list
         if link: #Only run if link exists

@@ -1,13 +1,9 @@
 ###############################################################################
 #0. Import Modules & Determine Keywords
 ###############################################################################
-#pip install antlr4-python3-runtime==4.10 #For parse_latex
 from sympy.parsing.latex import parse_latex
-#pip install antlr4-python3-runtime==4.7.2 #for latex2sympy
-#from latex2sympy2 import latex2sympy
 import sympy as sp
 import re
-import os
 import string
 import sys   
 import pickle
@@ -18,7 +14,19 @@ from equation_tree.analysis import get_counts
 ###############################################################################
 #1. Determine Functions
 ###############################################################################
-def printProgressBar (databank, iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
+#Define main function
+def parse_equations():
+    databank = _define_parse()
+    if databank['searchKeywords']:
+        databank = _load_scraped_data(databank)
+        databank = _cycle_equations(databank)
+        databank = _parse_equations(databank)
+        _save_files(databank) 
+    else:
+        print('No search keywords were provided.\n')
+
+#Define progress bar
+def _print_progress_bar (databank, iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
     @parameters:
@@ -41,19 +49,8 @@ def printProgressBar (databank, iteration, total, prefix = '', suffix = '', deci
     if iteration == total: 
         print()
 
-#Define
-def parse_equations():
-    databank = defineParse()
-    if databank['searchKeywords']:
-        databank = loadScrapedData(databank)
-        databank = cycleEquations(databank)
-        databank = parseEquations(databank)
-        saveFiles(databank) 
-    else:
-        print('No search keywords were provided.\n')
-
-#Define 
-def defineParse():
+#Define keyword parsing
+def _define_parse():
     if len(sys.argv) > 1:
         searchKeywords = sys.argv[1:]
     else:
@@ -67,13 +64,12 @@ def defineParse():
     #Setup databank variable
     databank = {'searchKeywords': searchKeywords}
     
-    print('Parsing equations...')
     print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
 
     return databank
 
 #Searches for all links on given URL
-def loadScrapedData(databank):
+def _load_scraped_data(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -98,7 +94,7 @@ def loadScrapedData(databank):
     return databank
 
 #Cycles through all lines of the data to deal with them accordingly
-def cycleEquations(databank):
+def _cycle_equations(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -127,12 +123,12 @@ def cycleEquations(databank):
             databank['currentLink'] = currentLine
             
         #Process Equation
-        databank = processEquation(databank)
+        databank = _process_equation(databank)
     
     return databank
 
 #The main function that organizes the current equation and it's metadata then feeds these to the processing functions
-def processEquation(databank):
+def _process_equation(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -283,15 +279,15 @@ def processEquation(databank):
         for subEquation in currentLine: #Cycle through each equation
             databank['subEquation'] = subEquation
             if subEquation: #Ensure the sub-equation exists 
-                databank = formatEquation(databank) #Calls the format equation function 
-                databank = appendVariables(databank) #Calls the append variables function
+                databank = _format_equation(databank) #Calls the format equation function 
+                databank = _append_variables(databank) #Calls the append variables function
     else:
-        databank = formatEquation(databank) #Calls the format equation function 
-        databank = appendVariables(databank) #Calls the append variables function
+        databank = _format_equation(databank) #Calls the format equation function 
+        databank = _append_variables(databank) #Calls the append variables function
         
     return databank
 
-def formatEquation(databank):
+def _format_equation(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -560,7 +556,7 @@ def formatEquation(databank):
     
     return databank
     
-def appendVariables(databank):
+def _append_variables(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -593,7 +589,7 @@ def appendVariables(databank):
     
     return databank
 
-def parseEquations(databank):
+def _parse_equations(databank):
     
     parsedEquations = []
     skippedEquations = []
@@ -633,12 +629,11 @@ def parseEquations(databank):
         databank['parsedEq'] = parsedEq
         databank['skippedEq'] = skippedEq
         databank['unparsedEq'] = unparsedEq
-        printProgressBar(databank,x,len(scrapedEquations)-1)
+        _print_progress_bar(databank,x,len(scrapedEquations)-1)
 
         #Create tree of computation graph
         try:
             if not eq.isnumeric(): #Sympy crashes if latex is a numeric number without any operations, so we skip if this is the case (but we are also not interested in these cases)
-                #eq = 'S_{x}+\\Sum(x){\\tfrac{1}{2}}a_{x}^{2}{\\frac{m}{2}}({\\frac{(n\\pi)^{2}}{t_{x}-t_{x}}}-\\omega^{2}(t_{x}-t_{x}))'
                 tempEq = parse_latex(eq) #Translate equation from Latex to Sympy format
                 
                 #Convert symbols to variables and constants
@@ -654,18 +649,18 @@ def parseEquations(databank):
                         tempEq = tempEq.subs(symbol, sp.Symbol('Ṽ_'+str(si))) #Variables  
                  
                 #Reformat all custom functions into the same category     
-                def funcWalk(expr, targetFunction):
+                def _func_walk(expr, targetFunction):
                     if targetFunction.upper() == expr.func.__name__.upper():
                         return expr.func.__name__
                     for arg in expr.args:
-                        formattedFuncName = funcWalk(arg, targetFunction)   
+                        formattedFuncName = _func_walk(arg, targetFunction)   
                         if formattedFuncName:
                             return formattedFuncName
 
                 for op in str(sp.count_ops(tempEq, visual=True)).split('+'):
                     funcName = op.split('FUNC_')[-1].replace(' ','')
                     if ('FUNC_' in op) & (funcName.lower() not in priorsDict['metadata']['list_of_functions']):
-                        formattedFuncName = funcWalk(tempEq, funcName)
+                        formattedFuncName = _func_walk(tempEq, funcName)
                         tempEq = tempEq.replace(sp.Function(formattedFuncName),sp.Function('customfunc'))
                 
                 #Define tree rules  
@@ -722,7 +717,7 @@ def parseEquations(databank):
     
     return databank
 
-def saveFiles(databank):
+def _save_files(databank):
     
     #Unpack databank
     loadPath = databank['loadPath']

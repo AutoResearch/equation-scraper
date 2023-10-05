@@ -3,32 +3,30 @@
 ###############################################################################
 
 import matplotlib as mpl
-mpl.use('TkAgg') # 'QT5Agg' also fails, 'TkAgg' works.
+mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np 
-#import inflect
-#p = inflect.engine()
-import os
 import pickle
 import re
 
-from functions.sympyParsing import defineParse
+from parse import _define_parse
 
 ###############################################################################
 #1. Define Functions
 ###############################################################################
 
+#Define main function
 def plot_priors():
-    databank = defineParse()
+    databank = _define_parse()
     if databank['searchKeywords']:
-        databank = loadParsedData(databank)
-        databank = unpackPriors(databank)
-        plotPriors(databank)
+        databank = _load_parsed_data(databank)
+        databank = _unpack_priors(databank)
+        _plot_priors(databank)
     else:
         print('Equation Parser: No search keywords were provided')
 
 #Searches for all links on given URL
-def loadParsedData(databank):
+def _load_parsed_data(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -48,10 +46,10 @@ def loadParsedData(databank):
     databank['loadPath'] = loadPath
     databank['loadName'] = loadName
     databank['priors'] = priors
-    
+
     return databank
 
-def unpackPriors(databank):
+def _unpack_priors(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -61,7 +59,7 @@ def unpackPriors(databank):
     
     #Create function
     renamed_priors = {}
-    def renameKey(priors, renamed_priors, full_name: str):
+    def _rename_key(priors, renamed_priors, full_name: str):
         renamed_priors[full_name] = priors[key]
 
         return renamed_priors
@@ -70,57 +68,57 @@ def unpackPriors(databank):
         
         match key:
             case '+':
-                renamed_priors = renameKey(priors, renamed_priors, 'Addition')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Addition')
             case '-':
-                renamed_priors = renameKey(priors, renamed_priors, 'Subtraction')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Subtraction')
             case '*':
-                renamed_priors = renameKey(priors, renamed_priors, 'Multiplication')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Multiplication')
             case '/':
-                renamed_priors = renameKey(priors, renamed_priors, 'Division')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Division')
             case '**':
-                renamed_priors = renameKey(priors, renamed_priors, 'Power')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Power')
             case '**2':
-                renamed_priors = renameKey(priors, renamed_priors, 'Squared')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Squared')
             case '**3':
-                renamed_priors = renameKey(priors, renamed_priors, 'Cubed')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Cubed')
             case 'sqrt':
-                renamed_priors = renameKey(priors, renamed_priors, 'Square Root')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Square Root')
             case 'log':
-                renamed_priors = renameKey(priors, renamed_priors, 'Logarithm')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Logarithm')
             case 'sin':
-                renamed_priors = renameKey(priors, renamed_priors, 'Sine')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Sine')
             case 'cos':
-                renamed_priors = renameKey(priors, renamed_priors, 'Cosine')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Cosine')
             case 'tan':
-                renamed_priors = renameKey(priors, renamed_priors, 'Tangent')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Tangent')
             case 'asin':
-                renamed_priors = renameKey(priors, renamed_priors, 'Arc Sine')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Arc Sine')
             case 'acos':
-                renamed_priors = renameKey(priors, renamed_priors, 'Arc Cosine')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Arc Cosine')
             case 'atan':
-                renamed_priors = renameKey(priors, renamed_priors, 'Arc Tangent')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Arc Tangent')
             case 'sinh':
-                renamed_priors = renameKey(priors, renamed_priors, 'Hyperbolic Sine')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Hyperbolic Sine')
             case 'cosh':
-                renamed_priors = renameKey(priors, renamed_priors, 'Hyperbolic Cosine')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Hyperbolic Cosine')
             case 'tanh':
-                renamed_priors = renameKey(priors, renamed_priors, 'Hyperbolic Tangent')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Hyperbolic Tangent')
             case 'sum':
-                renamed_priors = renameKey(priors, renamed_priors, 'Summation')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Summation')
             case 'abs':
-                renamed_priors = renameKey(priors, renamed_priors, 'Absolute')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Absolute')
             case 'exp':
-                renamed_priors = renameKey(priors, renamed_priors, 'Exponential')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Exponential')
             case 'max':
-                renamed_priors = renameKey(priors, renamed_priors, 'Maximum')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Maximum')
             case 'min':
-                renamed_priors = renameKey(priors, renamed_priors, 'Minimum')
+                renamed_priors = _rename_key(priors, renamed_priors, 'Minimum')
             case 'relu':
-                renamed_priors = renameKey(priors, renamed_priors, 'ReLU')
+                renamed_priors = _rename_key(priors, renamed_priors, 'ReLU')
             case 'customfunc':
                 pass #We do not want to track these
             case _:
-                renamed_priors = renameKey(priors, renamed_priors, key)
+                renamed_priors = _rename_key(priors, renamed_priors, key)
     
     #Sort priors
     renamed_priors = {key: value for key, value in sorted(renamed_priors.items(), key=lambda item: item[1], reverse=True)}
@@ -130,7 +128,7 @@ def unpackPriors(databank):
     
     return databank
 
-def plotPriors(databank):
+def _plot_priors(databank):
     '''
     [INSERT FUNCTION DESCRIPTION]
     
@@ -140,9 +138,9 @@ def plotPriors(databank):
     priors = databank['priors_and_functions']
     searchKeywords = databank['searchKeywords']
     
-    def add_space(word):
+    def _add_space(word):
         return re.sub(r"(\w)([A-Z])", r"\1 \2", word)
-    title_list = [add_space(searchKeyword.replace('Super:','')) for searchKeyword in searchKeywords]
+    title_list = [_add_space(searchKeyword.replace('Super:','')) for searchKeyword in searchKeywords]
     title = ','.join(title_list)
     title = title.replace('_','')
     
@@ -168,9 +166,9 @@ def plotPriors(databank):
     ax.set_ylim(0, np.max(list(priors.values()))*1.1)
     ax.set_title(title, loc='left', color='grey')
 
-    saveFigure(databank)
+    _save_figure(databank)
     
-def saveFigure(databank):
+def _save_figure(databank):
     loadPath = databank['loadPath']
     loadName = databank['loadName']
     plt.savefig('data/'+loadPath+loadName.replace('priors_','figure_').replace('.pkl','.png'), dpi='figure') #Save figure
