@@ -3,13 +3,13 @@
 ###############################################################################
 
 import matplotlib as mpl
-mpl.use('TkAgg')
+#mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 import numpy as np 
 import pickle
 import re
 
-from parse import _define_parse
+from equation_scraper.functions.parse import _define_parse
 
 ###############################################################################
 #1. Define Functions

@@ -51,10 +51,10 @@ def _print_progress_bar (databank, iteration, total, prefix = '', suffix = '', d
 
 #Define keyword parsing
 def _define_parse(keywords: list = None):
-    if len(sys.argv) > 1:
-        searchKeywords = sys.argv[1:]
-    elif keywords is not None:
+    if keywords is not None:
         searchKeywords = keywords
+    elif len(sys.argv) > 1:
+        searchKeywords = sys.argv[1:]
     else:
         searchKeywords = []
 

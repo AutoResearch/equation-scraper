@@ -8,9 +8,9 @@
 ###############################################################################
 
 #Import modules
-from scrape import scrape_equations
-from parse import parse_equations
-from plot import plot_priors
+from equation_scraper.functions.scrape import scrape_equations
+from equation_scraper.functions.parse import parse_equations
+from equation_scraper.functions.plot import plot_priors
 
 def scrape_and_parse_equations(keywords: list = None):
     ###############################################################################

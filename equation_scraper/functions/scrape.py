@@ -47,10 +47,10 @@ def _print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 
     
 #Define keywords
 def _define_search(keywords: list = None):
-    if len(sys.argv) > 1:
-        searchKeywords = sys.argv[1:]
-    elif keywords is not None:
+    if keywords is not None:
         searchKeywords = keywords
+    elif len(sys.argv) > 1:
+        searchKeywords = sys.argv[1:]
     else:
         searchKeywords = []
 
