@@ -1,5 +1,6 @@
 from equation_scraper.functions.scrape import scrape_equations
 from equation_scraper.functions.parse import parse_equations
 from equation_scraper.functions.plot import plot_priors
+from equation_scraper.functions.load import load_prior
 from equation_scraper.functions.scrape_and_parse import scrape_and_parse_equations
 

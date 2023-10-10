@@ -7,6 +7,7 @@ import re
 import string
 import sys   
 import pickle
+from tqdm import tqdm
 
 from equation_tree.tree import EquationTree
 from equation_tree.analysis import get_counts
@@ -24,30 +25,6 @@ def parse_equations(keywords: list = None):
         _save_files(databank) 
     else:
         print('No search keywords were provided.\n')
-
-#Define progress bar
-def _print_progress_bar (databank, iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
-    """
-    Call in a loop to create terminal progress bar
-    @parameters:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    progressParsed = 'Parsed: ' + str(databank['parsedEq']) + ' ... Skipped: ' + str(databank['skippedEq']) + ' ... Unparsed: '+ str(databank['unparsedEq']) 
-
-    print(f'\r{prefix} |{bar}| {percent}% {suffix} {progressParsed}', end = printEnd)
-    # Print New Line on Complete
-    if iteration == total: 
-        print()
 
 #Define keyword parsing
 def _define_parse(keywords: list = None):
@@ -626,12 +603,11 @@ def _parse_equations(databank):
     priorsDict['metadata']['list_of_functions'].extend([function.upper() for function in function_list])
 
     equationTrees = []
-    for x, eq in enumerate(scrapedEquations):
+    for x, eq in enumerate(tqdm(scrapedEquations)):
         #Progress bar
         databank['parsedEq'] = parsedEq
         databank['skippedEq'] = skippedEq
         databank['unparsedEq'] = unparsedEq
-        _print_progress_bar(databank,x,len(scrapedEquations)-1)
 
         #Create tree of computation graph
         try:
@@ -703,6 +679,8 @@ def _parse_equations(databank):
             priorsDict['metadata']['unparsed_equations'] += 1
             unparsedEq += 1 #Increase counter 
             pass
+
+    print('Parsed: ' + str(databank['parsedEq']) + ' ... Skipped: ' + str(databank['skippedEq']) + ' ... Unparsed: '+ str(databank['unparsedEq'])) 
 
     priorsDict['priors'] = get_counts(equationTrees)
     if 'customfunc' in priorsDict['priors']['functions'].keys():

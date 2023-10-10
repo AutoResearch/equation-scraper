@@ -8,6 +8,7 @@ import time
 import os
 import shutil
 import sys
+from tqdm import tqdm
 
 ###############################################################################
 #1. Determine Functions
@@ -23,28 +24,6 @@ def scrape_equations(keywords: list = None):
     else:
         print('No search keywords were provided.\n')
 
-# Print iterations progress
-def _print_progress_bar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 30, fill = '█', printEnd = "\r"):
-    """
-    Call in a loop to create terminal progress bar
-    @parameters:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
-    # Print New Line on Complete
-    if iteration == total: 
-        print()
-    
 #Define keywords
 def _define_search(keywords: list = None):
     if keywords is not None:
@@ -235,20 +214,10 @@ def _extract_links(databank):
     #Setup variables
     numberEquations = 0 #Initiate equation count
     fullInitial = time.time() #Initiate timing for entire process
-    segmentInitial = time.time() #Initiate timing for each segment
-    for linkIndex, link in enumerate(links):
-        #Progress bar
-        _print_progress_bar(linkIndex, len(links)-1)
+    for link in tqdm(links):
         
         #First, add page links to link list
         if link: #Only run if link exists
-            
-            #Display metrics for every 10 links scraped
-            if ((linkIndex%10) == 0) & (__name__ == '__main__'):
-                print('Current Link: ' + 'https://en.wikipedia.org/' + link)
-                print('Current Link Index: ' + str(linkIndex))
-                print('Total Number of Links: ' + str(len(links)))
-                print('Current Percentage Complete: ' + str(round((linkIndex/len(links)*100),4)) + '%')
             
             #Download webpage
             linkText = requests.get('https://en.wikipedia.org/' + link).text
@@ -274,13 +243,6 @@ def _extract_links(databank):
                         _ = [f.write(currentEquation['alt'] + '\n') for currentEquation in equations] #Save all equations to file
                     _ = f.write('#--------------------#\n\n') #Add separator to file
                 numberEquations += len(equations) #Increase equation count for metric report
-                    
-            #Display metrics for every 10 links scraped 
-            if ((linkIndex%10) == 0) & (__name__ == '__main__'):
-                print('Total Equations Added: ' + str(numberEquations))
-                print('Time Since Last Report: ' + str(round(time.time()-segmentInitial,2)) + ' seconds')
-                print('----------------------------------------')
-                segmentInitial = time.time() #Reset timer
             
     print('Web Scraping Complete in ' +str(round(time.time()-fullInitial,2)) + ' seconds!')
 
