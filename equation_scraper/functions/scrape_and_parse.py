@@ -10,7 +10,7 @@
 #Import modules
 from equation_scraper.functions.scrape import scrape_equations
 from equation_scraper.functions.parse import parse_equations
-from equation_scraper.functions.plot import plot_priors
+from equation_scraper.functions.plot import plot_prior
 
 def scrape_and_parse_equations(keywords: list = None):
     ###############################################################################
@@ -40,7 +40,7 @@ def scrape_and_parse_equations(keywords: list = None):
 
     print("**********************\n")
     print("\nPlotting priors...")
-    plot_priors(keywords)
+    plot_prior(keywords)
     print("Plotting complete...")
     print("\n**********************")
 

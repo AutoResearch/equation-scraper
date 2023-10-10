@@ -8,15 +8,14 @@ import matplotlib.pyplot as plt
 import numpy as np 
 import pickle
 import re
-
-from equation_scraper.functions.parse import _define_parse
+import sys
 
 ###############################################################################
 #1. Define Functions
 ###############################################################################
 
 #Define main function
-def plot_priors(keywords: list = None):
+def plot_prior(keywords: list = None):
     databank = _define_parse(keywords)
     if databank['searchKeywords']:
         databank = _load_parsed_data(databank)
@@ -24,6 +23,27 @@ def plot_priors(keywords: list = None):
         _plot_priors(databank)
     else:
         print('Equation Parser: No search keywords were provided')
+
+#Define keyword parsing
+def _define_parse(keywords: list = None):
+    if keywords is not None:
+        searchKeywords = keywords
+    elif len(sys.argv) > 1:
+        searchKeywords = sys.argv[1:]
+    else:
+        searchKeywords = []
+
+    #Split super categories from normal categories
+    for keyIndex, searchKeyword in enumerate(searchKeywords):
+        if len(searchKeyword.split('_')) > 1: #If the keyword has two words and thus is split by an underscore
+            searchKeywords[keyIndex] = searchKeyword.split('_')[0] + '_' + searchKeyword.split('_')[1][0].capitalize() + searchKeyword.split('_')[1][1:] #Capitalize the second word
+    
+    #Setup databank variable
+    databank = {'searchKeywords': searchKeywords}
+    
+    print('Searching for keyword(s): ' + str(searchKeywords) + '\n')
+
+    return databank
 
 #Searches for all links on given URL
 def _load_parsed_data(databank):
@@ -178,5 +198,5 @@ def _save_figure(databank):
 ###############################################################################
 
 if __name__ == '__main__':
-    plot_priors()
+    plot_prior()
 
