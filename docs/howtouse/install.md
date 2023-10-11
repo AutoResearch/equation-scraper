@@ -46,7 +46,7 @@ To update your local package:
 ---
 
 ## <b>Dependencies</b>
-The following are the required dependencies for `equation-scraper`. If you install `equation-scraper` via pip, or installed `equation-scraper` from the source, these are automatically installed. If you have obtained the package from the source you can install these via the pyproject.toml file ```pip install *```
+The following are the required dependencies for `equation-scraper`. If you install `equation-scraper` via pip, or installed `equation-scraper` from the source, these are automatically installed. If you have obtained the package from the source you can install these via the pyproject.toml file ```pip install .```
 
 
 &emsp;&emsp;[Beautiful Soup 4](https://pypi.org/project/beautifulsoup4/){.new_tab}~=4.11.2<br>

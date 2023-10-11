@@ -11,9 +11,9 @@ from equation_scraper import scrape_and_parse_equations
 scrape_and_parse_equations(['Super:Cognitive_psychology'])
 ```
 
-All data produced will be stored in a `data` folder at your current working directory. If this folder does not exists, the package will create it for you. Each search is further organized by creating its own specific sub-folder named after your keywords, separated by underscores. For example `[Super:Cognitive_psychology, Neuroscience]` would create the folder `SUPERCognitivePsychology_Neuroscience` within the `data` folder. Note, keywords using the `Direct:` tag are not included in this filename nomenclature.
+All data produced will be stored in a `data` folder at your current working directory. If this folder does not exists, the package will create it for you. Each search is further organized by creating its own specific sub-folder named after your keywords, separated by underscores. For example `['Super:Cognitive_psychology', 'Neuroscience']` would create the folder `SUPERCognitivePsychology_Neuroscience` within the `data` folder. Note, keywords using the `Direct:` tag are not included in this filename nomenclature.
 
-If you repeat the exact same search, this folder is first deleted and then rebuilt with the new search. After running this function, you will notice a series of files, as well as a `debug` folder with more files, but we will explain what each file does in the next section of the tutorial when running each of the two sub-functions individually.
+If you repeat the exact same search, this folder is first deleted and then rebuilt with the new search. After running this function, you will notice a series of files, as well as a `debug` folder with more files, but we will explain what each file does in the next section when running each of the two sub-functions individually.
 
 An example structure when using the keywords `['Cognitive_psychology']` would be:
 ```
@@ -43,22 +43,23 @@ from equation_scraper import scrape_equations
 scrape_equations(['Super:Cognitive_psychology', 'Neuroscience'])
 ```
 
-This function produces a single file: `equations_*.txt` where `*` corresponds to the keywords you searched for (i.e., the name of the search's sub-folder), for example: `equations_SUPERCognitivePsychology_Neuroscience.txt` in the case of the example code above. The first line of this file lists meta-data of the keywords used for the search (e.g., `#CATEGORIES: ['Super:Cognitive_Psychology', 'Neuroscience]`). After this, you will see a pattern of each Wikipedia page scraped that looks like this:
+This function produces a single file: `equations_*.txt` where `*` corresponds to the keywords you searched for (i.e., the name of the search's sub-folder), for example: `equations_SUPERCognitivePsychology_Neuroscience.txt` in the case of the example code above. The first line of this file lists meta-data of the keywords used for the search (e.g., `#CATEGORIES: ['Super:Cognitive_Psychology', 'Neuroscience']`). After this, you will see a pattern of each Wikipedia page scraped that looks like this:
 <hr>
 
 
 `#ROOT: Biological Motion Perception` <br>
 `#LINK: /wiki/`<wbr>`Biological_motion_perception`<br>
 `{\displaystyle \nu _{\psi }(t)={\frac {R_{\psi }(t)-{\bar {R}}}{\bar {R}}}}`<br>
-`{\displaystyle o_{l}(x)={\sqrt {max(g_{p}(x_{i}))max(g_{r}(x_{j}))}}}`
+`{\displaystyle o_{l}(x)={\sqrt {max(g_{p}(x_{i}))max(g_{r}(x_{j}))}}}`<br>
+`...`
 <hr>
 
 - `#ROOT` is the title of the corresponding Wikipedia page
 - `#LINK` is the Wikipedia URL without the  `https://en.wikipedia.org` prefix
- - e.g., `/wiki/`<wbr>`Biological_motion_perception` can be used as `https://en.wikipedia.org/wiki/Biological_motion_perception`
+    - e.g., `/wiki/`<wbr>`Biological_motion_perception` can be used as `https://en.wikipedia.org/wiki/Biological_motion_perception`
 - Everything after this is a scraped equation. The format of these equations has not been modified in any way up to this point, so these are exactly as they were scraped from Wikipedia. For example, from the above example, the equations are:
- - `{\displaystyle \nu _{\psi }(t)={\frac {R_{\psi }(t)-{\bar {R}}}{\bar {R}}}}`
- - `{\displaystyle o_{l}(x)={\sqrt {max(g_{p}(x_{i}))max(g_{r}(x_{j}))}}}`
+    - `{\displaystyle \nu _{\psi }(t)={\frac {R_{\psi }(t)-{\bar {R}}}{\bar {R}}}}`
+    - `{\displaystyle o_{l}(x)={\sqrt {max(g_{p}(x_{i}))max(g_{r}(x_{j}))}}}`
 
 ## `parse_equations()`
 
@@ -101,7 +102,7 @@ The `load_prior()` function will allow you to load the pickle file containing th
 or with a point-and-click interface if no inputs are given to the function: <br>
 `es_priors = load_prior()`
 <br><br>
-This is the only function that returns a variable, and this variable will contain metadata and the priors. Again, see the Priors section of our documentation for an in depth look of this file.
+This is the only function that returns a variable, and this variable will contain metadata and the priors. Again, see the `Priors` section of our documentation for an in-depth look of this file.
 
 ```
 from equation_scraper import load_prior
@@ -116,4 +117,20 @@ for key in es_priors['metadata'].keys():
 print('\n***********PRIORS***********\n')
 for key in es_priors['priors'].keys():
     print(f"{key}: {es_priors['priors'][key]}")
+```
+
+# Command Line Interface
+
+The `equation-scraper` can also be run using a command line interface (CLI). To use the CLI, you must clone the repository (see `Install` instructions in our documentation). When using the CLI, you provide your keywords as arguments, separated by a space:
+
+```
+python scrape_and_parse_equations.py Super:Cognitive_psychology Neuroscience
+
+python scrape_equations.py Super:Cognitive_psychology Neuroscience
+
+python parse_equations.py Super:Cognitive_psychology Neuroscience
+
+python plot_prior.py Super:Cognitive_psychology Neuroscience
+
+python load_prior.py Super:Cognitive_psychology Neuroscience
 ```
