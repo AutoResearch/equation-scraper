@@ -1,55 +1,19 @@
-# webScrapingPriors
+# Overview
 
-The goal of this project is to determine a distribution of mathematical operation as priors to help computational models such as Bayesian Symbolic Regression (BSR), Bayesian Machine Scientist (BMS), and Differentiable Architecture Search (DARTS). These models link predictors to outcome via a mathematical equation.
+`equation_scraper` is a Python package that scrapes Wikipedia pages for mathematical equations and then parses the equations into its components to build prior distributions. Specifically, these priors include information such as the number of times an operator or function appears across all equations scraped. For example, the expression `m*x+b*sin(y)` would be parsed into the simple prior: `{*: 2, +: 1, sin: 1}`. The package includes much more information than this simple prior, for example conditional priors---a full breakdown of the included metrics is detailed on the `Priors` section of our documentation. The package was designed to provide equation discovery modelling techniques, such as Symbolic Regression and the Bayesian Machine Scientist, with informed priors; however, the application of this package can extend far beyond this.
 
-Specifically, the project scrapes wikipedia pages of a certain category to extract mathematical equations and then determines the distribution of operations contained within them. 
+# Documentation
 
----
+`equation_scraper` documentation can be found at https://autoresearch.github.io/equation-scraper/
 
-## The Main File:
-**webScraping_main.py**: Which runs the three function files consecutively using the same keywords. This will take you from scraping wikipedia to parsing the equations to plotting the distributions of equations all in one execution. 
+# Equation-Scraper in Research
 
-## The Function Files:
+There are no current publications using the `equation-scraper`; however, we have two manuscripts currently under review. They are in a double-blind review process, so we are at this point refraining from sharing preprints, but will do so as soon as we are able.
 
-**webScrapingSearch.py**: Extracts equations from Wikipedia,
+# About
 
-**sympyParsing.py**: Determines operation distributions from the extracted equations,
+This project is in active development by the [Autonomous Empirical Research Group](https://musslick.github.io/AER_website/Research.html), led by [Sebastian Musslick](https://smusslick.com). The package was built by [Chad Williams](http://www.chadcwilliams.com). Furthermore, the package depends on another package of ours, `equation-tree`, which was developped by Younes Strittmatter and Ioana Marinescu.
 
-**plotParsedEquations.py**: Plots the distribution of operations as a pie chart.
+This research program is supported by Schmidt Science Fellows, in partnership with the Rhodes Trust, as well as the Carney BRAINSTORM program at Brown University.
 
----
 
-## How to use this package:
-The package is executable through terminal where you run the file normally and any provided arguments (space separated) will be taken as the category keywords to search for. This can come in two forms: Normal Categories and Super Categories. 
-
-### Normal Category Keywords
-Normal categories will scrape the pages linked to that category page and go no further (i.e., it takes one step from the category) - to provide normal category arguments, simply write them in plainly:
-```
-python webScraping_main.py Psychophysics Economics
-```
-
-### Super Category Keywords
-Super categories will scrape the pages linked to that category page but also treat any subcategories on that page as normal category keywords (i.e., it takes two steps from the category) - to provide super category arguments, write them in with the 'Super:' preface:
-```
-python webScraping_main.py Super:Cognitive_psychology Super:Cognitive_neuroscience
-```
-
-### Hybrid Category Keywords
-It is also possible to include both normal and super category keywords:
-```
-python webScraping_main.py Super:Cognitive_psychology Economics
-```
-
-### Running Main Versus Function Scripts
-The main script will process your categories from scraping the web to plotting your distributions:
-```
-python webScraping_main.py Psychophysics Economics
-```
-
-However, it is also possible to run the function files directly:
-```
-python webScrapingSearch.py Psychophysics Economics
-python sympyParsing.py Psychophysics Economics
-python plotParsedEquations.py Psychophysics Economics
-```
-Note, however, that each consecutive function script relies on a text file created by the last. So, to run sympyParsing.py you must first have gotten a file created by webScrapingSearch.py and so forth. The intent of making these function scripts discrete and themselves executable is so that you can work on one stage of the project without having to wait for the other stages. For example, you can continuously run sympyParsing.py without having to re-scrape wikipedia with webScrapingSearch.py each time. I suppose this is more for development reasons (e.g., debugging or expanding the code). 
