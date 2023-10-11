@@ -1,0 +1,677 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../functions/">
+      
+      
+        <link rel="next" href="../priors/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.5">
+    
+    
+      
+        <title>Usage - equation-scraper</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6a10b989.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="dark-purple">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#the-main-function" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="equation-scraper" class="md-header__button md-logo" aria-label="equation-scraper" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            equation-scraper
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Usage
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="dark-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="dark-purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="equation-scraper" class="md-nav__button md-logo" aria-label="equation-scraper" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    equation-scraper
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    How To Use
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            How To Use
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Install
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Functions
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scrape_and_parse_equations" class="md-nav__link">
+    scrape_and_parse_equations()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../priors/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Priors
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/equation_scraper_tutorial/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Notebook
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/AutoResearch/equation_scraper" target="_blank" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repository
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scrape_and_parse_equations" class="md-nav__link">
+    scrape_and_parse_equations()
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="the-main-function">The Main Function</h1>
+<h2 id="scrape_and_parse_equations"><code>scrape_and_parse_equations()</code></h2>
+<p>Let's begin with the main function that scrapes Wikipedia, parses the equations, and derives priors all at once. We will use the <code>scrape_and_parse_equations()</code> function to scrape a category page using the <code>Super</code> tag.</p>
+<pre><code>from equation_scraper import scrape_and_parse_equations
+
+scrape_and_parse_equations(['Super:Cognitive_psychology'])
+</code></pre>
+<p>All data produced will be stored in a <code>data</code> folder at your current working directory. If this folder does not exists, the package will create it for you. Each search is further organized by creating its own specific sub-folder named after your keywords, separated by underscores. For example <code>['Super:Cognitive_psychology', 'Neuroscience']</code> would create the folder <code>SUPERCognitivePsychology_Neuroscience</code> within the <code>data</code> folder. Note, keywords using the <code>Direct:</code> tag are not included in this filename nomenclature.</p>
+<p>If you repeat the exact same search, this folder is first deleted and then rebuilt with the new search. After running this function, you will notice a series of files, as well as a <code>debug</code> folder with more files, but we will explain what each file does in the next section when running each of the two sub-functions individually.</p>
+<p>An example structure when using the keywords <code>['Cognitive_psychology']</code> would be:</p>
+<pre><code>data
+|
+└───CognitivePsychology
+    │   equations_CognitivePsychology.txt
+    │   priors_CognitivePsychology.pkl
+    |   parsed_equations_CognitivePsychology.txt
+    |   (optional) figure_CognitivePsychology.png
+    |
+    └───debug
+        │   debug_parsed_CognitivePsychology.txt
+        │   skipped_equations_CognitivePsychology.txt
+        │   wordsRemoved_equations_CognitivePsychology.txt
+</code></pre>
+<h1 id="the-sub-functions">The Sub-Functions</h1>
+<h2 id="scrape_equations"><code>scrape_equations()</code></h2>
+<p>The <code>scrape_equations()</code> function searches Wikipedia and derives a list of equations to be parsed.</p>
+<pre><code>from equation_scraper import scrape_equations
+
+scrape_equations(['Super:Cognitive_psychology', 'Neuroscience'])
+</code></pre>
+<p>This function produces a single file: <code>equations_*.txt</code> where <code>*</code> corresponds to the keywords you searched for (i.e., the name of the search's sub-folder), for example: <code>equations_SUPERCognitivePsychology_Neuroscience.txt</code> in the case of the example code above. The first line of this file lists meta-data of the keywords used for the search (e.g., <code>#CATEGORIES: ['Super:Cognitive_Psychology', 'Neuroscience']</code>). After this, you will see a pattern of each Wikipedia page scraped that looks like this:</p>
+<hr>
+
+<p><code>#ROOT: Biological Motion Perception</code> <br>
+<code>#LINK: /wiki/</code><wbr><code>Biological_motion_perception</code><br>
+<code>{\displaystyle \nu _{\psi }(t)={\frac {R_{\psi }(t)-{\bar {R}}}{\bar {R}}}}</code><br>
+<code>{\displaystyle o_{l}(x)={\sqrt {max(g_{p}(x_{i}))max(g_{r}(x_{j}))}}}</code><br>
+<code>...</code></p>
+<hr>
+
+<ul>
+<li><code>#ROOT</code> is the title of the corresponding Wikipedia page</li>
+<li><code>#LINK</code> is the Wikipedia URL without the  <code>https://en.wikipedia.org</code> prefix<ul>
+<li>e.g., <code>/wiki/</code><wbr><code>Biological_motion_perception</code> can be used as <code>https://en.wikipedia.org/wiki/Biological_motion_perception</code></li>
+</ul>
+</li>
+<li>Everything after this is a scraped equation. The format of these equations has not been modified in any way up to this point, so these are exactly as they were scraped from Wikipedia. For example, from the above example, the equations are:<ul>
+<li><code>{\displaystyle \nu _{\psi }(t)={\frac {R_{\psi }(t)-{\bar {R}}}{\bar {R}}}}</code></li>
+<li><code>{\displaystyle o_{l}(x)={\sqrt {max(g_{p}(x_{i}))max(g_{r}(x_{j}))}}}</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="parse_equations"><code>parse_equations()</code></h2>
+<p>The <code>parse_equations()</code> function then loads the <code>equations_*.txt</code> file written from the previous function and iterates through the equations where it parses their operators and functions and builds priors. Running this function still requires that you pass the same keywords as with the previous function because it uses these to determine which folder the data is saved into.</p>
+<pre><code>from equation_scraper import parse_equations
+
+parse_equations(['Super:Cognitive_psychology', 'Neuroscience'])
+</code></pre>
+<p>The main file produced by this function is the <code>priors_*.pkl</code> file where <code>*</code> corresponds to the keywords you searched for (i.e., the name of the search's sub-folder), for example: <code>priors_SUPERCognitivePsychology_Neuroscience.pkl</code>. We look into this file in detail in the <code>Priors</code> section of our documentation. The other file that this function produces is the <code>parsed_equations_*.txt</code> file, which includes the parsing results per equation.</p>
+<p>Additionally, there are three files within the debug folder: <code>debug_parsed_*.txt</code>, <code>skipped_equations_*.txt</code>, <code>wordsRemoved_equations_*.txt</code>.</p>
+<ul>
+<li>
+<p><code>debug_parsed_*.txt</code> presents the same information as <code>parsed_equations_*.txt</code> but with a different organization structure.</p>
+</li>
+<li>
+<p><code>skipped_equations_*.txt</code> presents all equations discarded and not used for priors (these are most often discarded because they are not actual expressions, such as with a variable decleration in text, e.g., "<code>v</code> <em>is our first indepenent variable</em>").</p>
+</li>
+<li>
+<p><code>wordsRemoved_equations_*.txt</code> is a list of words that were turned into variables---this occurs when equations contain words to represent a single variable, for example: <code>WEIGHT = HEIGHT * c</code> would be transformed to <code>y = x * c</code> and the words <code>WEIGHT</code> and <code>HEIGHT</code> would be added to this list.</p>
+</li>
+</ul>
+<h1 id="other-functions">Other Functions</h1>
+<h2 id="plot_prior"><code>plot_prior()</code></h2>
+<p>The <code>plot_prior()</code> function will produce a figure---<code>figure_*.png</code>--- that is a barplot of the frequencies of operators/functions. It uses the same keywords as the aforementioned functions. The <code>scrape_and_parse_equations()</code> function also automatically runs this function after it has scraped and parsed the equations from your keywords list.</p>
+<pre><code>from equation_scraper import plot_prior
+
+plot_prior(['Super:Cognitive_psychology', 'Neuroscience'])
+</code></pre>
+<h2 id="load_prior"><code>load_prior()</code></h2>
+<p>The <code>load_prior()</code> function will allow you to load the pickle file containing the prior information either using the same keywords as all aforementioned functions:<br>
+<code>es_priors = load_prior(['Super:Cognitive_psychology', 'Neuroscience'])</code>
+<br><br>
+or with a point-and-click interface if no inputs are given to the function: <br>
+<code>es_priors = load_prior()</code>
+<br><br>
+This is the only function that returns a variable, and this variable will contain metadata and the priors. Again, see the <code>Priors</code> section of our documentation for an in-depth look of this file.</p>
+<pre><code>from equation_scraper import load_prior
+
+es_priors = load_prior(['Super:Cognitive_psychology', 'Neuroscience'])
+
+#Print prior information
+print('**********METADATA**********\n')
+for key in es_priors['metadata'].keys():
+    print(f&quot;{key}: {es_priors['metadata'][key]}&quot;)
+
+print('\n***********PRIORS***********\n')
+for key in es_priors['priors'].keys():
+    print(f&quot;{key}: {es_priors['priors'][key]}&quot;)
+</code></pre>
+<h1 id="command-line-interface">Command Line Interface</h1>
+<p>The <code>equation-scraper</code> can also be run using a command line interface (CLI). To use the CLI, you must clone the repository (see <code>Install</code> instructions in our documentation). When using the CLI, you provide your keywords as arguments, separated by a space:</p>
+<pre><code>python scrape_and_parse_equations.py Super:Cognitive_psychology Neuroscience
+
+python scrape_equations.py Super:Cognitive_psychology Neuroscience
+
+python parse_equations.py Super:Cognitive_psychology Neuroscience
+
+python plot_prior.py Super:Cognitive_psychology Neuroscience
+
+python load_prior.py Super:Cognitive_psychology Neuroscience
+</code></pre>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.path", "navigation.indexes", {"tab": true}], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.aecac24b.min.js"></script>
+      
+    
+  </body>
+</html>
