@@ -1,4 +1,4 @@
-site_name: EEG-GAN
+site_name: equation-scraper
 
 theme:
   name: material
@@ -32,10 +32,11 @@ nav:
   - How To Use: 
     - Install: 'howtouse/install.md'
     - Functions: 'howtouse/functions.md'
-    - Examples: 'howtouse/examples.md'
+    - Usage: 'howtouse/usage.md'
+    - Priors: 'howtouse/priors.md'
   - Tutorials:
     - Notebook: 'tutorials/equation_scraper_tutorial.ipynb'
-  #- Research:
-  #  - Hewson et al., 2023: 'Research/hewsonetal2023.md'
-  #  - Strittmatter et al.. 2023: 'Research/strittmatteretal2023.md'
+#  - Research: research/research.md
+#    - Hewson et al., 2023: 'research/hewsonetal2023.md'
+#    - Strittmatter et al.. 2023: 'research/strittmatteretal2023.md'
   - Repository: https://github.com/AutoResearch/equation_scraper" target="_blank

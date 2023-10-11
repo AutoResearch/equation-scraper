@@ -1,6 +1,6 @@
 [project]
 name = "equation-scraper"
-version = "0.0.6"
+version = "0.0.11"
 authors = [
   { name="Chad Williams", email="chad_williams@brown.edu" },
 ]
@@ -16,6 +16,7 @@ dependencies = [
   "equation-tree~=0.0.25",
   "matplotlib~=3.6.3",
   "numpy~=1.24.2",
+  "tqdm~=4.65.0",
 ]
 
 [project.urls]
